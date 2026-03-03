@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import logo from "../../assets/images/logo/logo.png";
 import "./Login.css";
 import { useTranslation } from "react-i18next";
 import axiosClient from "../../services/axiosClient";
@@ -73,7 +72,7 @@ const Login = () => {
 
           <center>
             <img
-              src={logo}
+              src="/src/assets/images/logo/logo.png"
               alt="App Logo"
               width="150px"
               height="130px"

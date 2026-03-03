@@ -30,6 +30,9 @@ import Staff from "../views/setting/staff/Staff";
 import StaffCreate from "../views/setting/staff/StaffCreate";
 import StaffEdit from "../views/setting/staff/StaffEdit";
 import ViewStaff from "../views/setting/staff/ViewStaff";
+import Organization from "../views/organization/Organization";
+import PrintCard from "../views/organization/card/PrintCard";
+import PrintCardNew from "../views/organization/card/PrintCardNew";
 
 /* ---------- Lazy-loaded pages ---------- */
 const Dashboard = lazy(() => import("../views/dashboard/Dashboard"));
@@ -52,6 +55,8 @@ const NoPermission = lazy(() => import("../views/errors/NoPermission"));
 
 const Ticket = lazy(() => import("../views/tickets/Ticket"));
 const ViewTicket = lazy(() => import("../views/tickets/ViewTicket"));
+
+
 
 /* ---------- Global loading helper (NO permission logic here) ---------- */
 const GlobalLoaderFix = ({ children }) => {
@@ -304,6 +309,31 @@ const AppRoute = () => {
                     </RequirePermission>
                   }
                 />
+                <Route
+                  path="/organization"
+                  element={
+                    <RequirePermission perm="VIEW_ORGANIZATION">
+                      <Organization />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/organization/printcard"
+                  element={
+                    <RequirePermission perm="VIEW_ORGANIZATION">
+                      <PrintCard />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/organization/printcard/newcard"
+                  element={
+                    <RequirePermission perm="VIEW_ORGANIZATION">
+                      <PrintCardNew/>
+                    </RequirePermission>
+                  }
+                />
+
                 <Route path="*" element={<div>404 Not Found</div>} />
               </Route>
             </Routes>

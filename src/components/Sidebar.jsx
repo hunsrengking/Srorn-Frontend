@@ -8,12 +8,16 @@ import {
   faTicket,
   faCheckToSlot,
   faSliders,
-  faChevronDown,
+  faUserGraduate,
+  faPlus,
+  faMinus,
+  faBuilding,
 } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../utils/permission";
 
 const Sidebar = ({ sidebarOpen }) => {
   const [reportOpen, setReportOpen] = useState(false);
+  const [studentOpen, setStudentOpen] = useState(false);
   const location = useLocation();
 
   const isActive = (path) => location.pathname.startsWith(path);
@@ -55,6 +59,64 @@ const Sidebar = ({ sidebarOpen }) => {
             {sidebarOpen && <span className="ml-3">CheckerBox</span>}
           </Link>
         )}
+        {/* Student Dropdown */}
+        {hasPermission("VIEW_STUDENT") && (
+          <div>
+            <button
+              onClick={() => setStudentOpen(!studentOpen)}
+              className="w-full flex items-center justify-between p-2.5 rounded-xl 
+      text-blue-100 hover:bg-blue-700 hover:text-white transition-all duration-200"
+            >
+              <div className="flex items-center">
+                <FontAwesomeIcon icon={faUserGraduate} className="text-lg" />
+                {sidebarOpen && <span className="ml-3">Students</span>}
+              </div>
+
+              {sidebarOpen && (
+                <FontAwesomeIcon
+                  icon={studentOpen ? faMinus : faPlus}
+                  className="text-sm transition-all duration-200"
+                />
+              )}
+            </button>
+
+            <div
+              className={`overflow-hidden transition-all duration-300 ${
+                studentOpen && sidebarOpen ? "max-h-40 mt-2" : "max-h-0"
+              }`}
+            >
+              {/* Student List Permission */}
+              {hasPermission("VIEW_STUDENT") && (
+                <Link
+                  to="/students/list"
+                  className={`block ml-10 py-2 px-3 rounded-lg text-sm transition
+          ${
+            isActive("/students/list")
+              ? "bg-blue-600 text-white"
+              : "text-blue-200 hover:bg-blue-700 hover:text-white"
+          }`}
+                >
+                  Student List
+                </Link>
+              )}
+
+              {/* Attendance Permission */}
+              {hasPermission("VIEW_STUDENT") && (
+                <Link
+                  to="/students/attendance"
+                  className={`block ml-10 py-2 px-3 rounded-lg text-sm transition
+          ${
+            isActive("/students/attendance")
+              ? "bg-blue-600 text-white"
+              : "text-blue-200 hover:bg-blue-700 hover:text-white"
+          }`}
+                >
+                  Attendance
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Users */}
         {hasPermission("VIEW_USER") && (
@@ -79,10 +141,8 @@ const Sidebar = ({ sidebarOpen }) => {
 
               {sidebarOpen && (
                 <FontAwesomeIcon
-                  icon={faChevronDown}
-                  className={`transition-transform duration-300 ${
-                    reportOpen ? "rotate-180" : ""
-                  }`}
+                  icon={reportOpen ? faMinus : faPlus}
+                  className="text-sm transition-all duration-200"
                 />
               )}
             </button>
@@ -107,7 +167,13 @@ const Sidebar = ({ sidebarOpen }) => {
             </div>
           </div>
         )}
-
+        {/* Organization */}
+        {hasPermission("VIEW_ORGANIZATION") && (
+          <Link to="/organization" className={menuClass("/organization")}>
+            <FontAwesomeIcon icon={faBuilding} className="text-lg" />
+            {sidebarOpen && <span className="ml-3">Organization</span>}
+          </Link>
+        )}
         {/* Settings */}
         {hasPermission("VIEW_SETTING") && (
           <Link to="/setting" className={menuClass("/setting")}>
