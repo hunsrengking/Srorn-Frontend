@@ -3,6 +3,7 @@ import "./Login.css";
 import { useTranslation } from "react-i18next";
 import axiosClient from "../../services/axiosClient";
 import { useEffect } from "react";
+const logo = "/assets/images/logo/logo.PNG";
 
 const Login = () => {
   const { t, i18n } = useTranslation();
@@ -72,7 +73,7 @@ const Login = () => {
 
           <center>
             <img
-              src="/src/assets/images/logo/logo.png"
+              src={logo}
               alt="App Logo"
               width="150px"
               height="130px"
