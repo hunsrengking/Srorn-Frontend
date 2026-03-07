@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosClient from "../../services/axiosClient";
 import UserForm from "./UserForm";
@@ -6,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserEdit } from "@fortawesome/free-solid-svg-icons";
 
 const UserEdit = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
   const [formData, setFormData] = useState({
@@ -55,10 +57,10 @@ const UserEdit = () => {
       <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
         <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
           <FontAwesomeIcon icon={faUserEdit} />
-          Edit User
+          {t("users.create_title")}
         </h1>
         <p className="text-sm text-slate-500">
-          Update user profile and role. Password is not changed here.
+          {t("users.description")}
         </p>
       </div>
 

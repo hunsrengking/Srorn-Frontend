@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useError } from "../../..//context/ErrorContext";
 import axiosClient from "../../../services/axiosClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -11,6 +12,8 @@ const RoleCreate = () => {
   const [roleName, setRoleName] = useState("");
   const [description, setDescription] = useState("");
 
+  const { showSuccess, showError } = useError();
+
   const handleCreate = async (e) => {
     e.preventDefault();
 
@@ -19,9 +22,14 @@ const RoleCreate = () => {
         name: roleName,
         description,
       });
+      showSuccess("Role created successfully");
       navigate("/settings/roles");
     } catch (error) {
       console.error("Create role error:", error);
+      showError(
+        error?.response?.data?.message || error?.message ||
+          "Failed to create role"
+      );
     }
   };
 

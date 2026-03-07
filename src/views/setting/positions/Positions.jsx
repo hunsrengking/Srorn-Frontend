@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import axiosClient from "../../../services/axiosClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBriefcase, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { useError } from "../../..//context/ErrorContext";
 
 const Position = () => {
   // ================= STATE =================
@@ -36,6 +37,8 @@ const Position = () => {
   };
 
   // ================= SAVE / UPDATE =================
+  const { showSuccess, showError } = useError();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -51,14 +54,20 @@ const Position = () => {
 
       if (positionId) {
         await axiosClient.put(`/api/positions/${positionId}`, payload);
+        showSuccess("Position updated successfully");
       } else {
         await axiosClient.post("/api/positions", payload);
+        showSuccess("Position created successfully");
       }
 
       resetForm();
       fetchPositions();
     } catch (err) {
       console.error(err);
+      showError(
+        err?.response?.data?.message || err?.message ||
+          "Failed to save position"
+      );
     } finally {
       setLoading(false);
     }
@@ -80,11 +89,16 @@ const Position = () => {
 
     try {
       await axiosClient.delete(`/api/positions/${id}`);
+      showSuccess("Position deleted");
       fetchPositions();
 
       if (positionId === id) resetForm();
     } catch (err) {
       console.error(err);
+      showError(
+        err?.response?.data?.message || err?.message ||
+          "Failed to delete position"
+      );
     }
   };
 

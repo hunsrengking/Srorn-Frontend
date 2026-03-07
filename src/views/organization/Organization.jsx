@@ -1,5 +1,6 @@
 // src/views/organization/Organization.jsx
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -10,22 +11,23 @@ import { hasPermission } from "../../utils/permission";
 import { faAddressCard } from "@fortawesome/free-regular-svg-icons";
 
 const Organization = () => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
         <h1 className="text-2xl font-semibold text-slate-900 flex items-center gap-2">
           <FontAwesomeIcon icon={faCogs} />
-          Organization
+          {t("organization.title")}
         </h1>
         <p className="text-sm text-slate-500 mt-1">
-          Manage system Organization.
+          {t("organization.description")}
         </p>
       </div>
 
       {/* Cards Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-        {/* Roles & Permissions */}
+        {/* Printer Card */}
         {hasPermission("MANAGE_ROLE") && (
           <Link
             to="/organization/printcard"
@@ -42,17 +44,17 @@ const Organization = () => {
               </div>
               <div>
                 <h2 className="text-base font-semibold text-slate-900 group-hover:text-blue-600">
-                  Printer Card
+                  {t("organization.printer_card")}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Print employee and student cards.
+                  {t("organization.printer_card_description")}
                 </p>
               </div>
             </div>
           </Link>
         )}
 
-        {/* Departments */}
+        {/* Office */}
         {hasPermission("MANAGE_DEPARTMENT") && (
           <Link
             to="/settings/departments"
@@ -69,9 +71,9 @@ const Organization = () => {
               </div>
               <div>
                 <h2 className="text-base font-semibold text-slate-900 group-hover:text-blue-600">
-                  Office
+                  {t("organization.office")}
                 </h2>
-                <p className="text-xs text-slate-500">Manage Office.</p>
+                <p className="text-xs text-slate-500">{t("organization.office_description")}</p>
               </div>
             </div>
           </Link>

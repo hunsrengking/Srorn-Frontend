@@ -1,15 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 // src/views/tickets/CreateTicket.jsx
 import React, { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import axiosClient from "../../services/axiosClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSave, faTimes, faFile } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../../utils/permission";
+import { useError } from "../../context/ErrorContext";
 
 const fileId = (f) => `${f.name}_${f.size}_${f.lastModified}`;
 
 const CreateTicket = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -229,6 +232,8 @@ const CreateTicket = () => {
 
     return res.data.image_path;
   };
+  const { showError, showSuccess } = useError();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -273,12 +278,14 @@ const CreateTicket = () => {
       };
 
       await axiosClient.post("/api/ticket", payload);
-
-      navigate("/ticket", {
-        state: { success: "Ticket created successfully" },
-      });
+      showSuccess("Ticket created successfully");
+      navigate("/ticket");
     } catch (err) {
       console.error(err);
+      showError(
+        err?.response?.data?.message || err?.message ||
+          "Failed to create ticket"
+      );
     } finally {
       setSubmitting(false);
     }
@@ -291,10 +298,10 @@ const CreateTicket = () => {
         <div className="flex items-center gap-3 mb-3">
           <div>
             <h2 className="text-xl font-semibold text-slate-900">
-              Create Ticket
+              {t("tickets.title")}
             </h2>
             <p className="text-sm text-slate-500 mt-1">
-              Create a new support ticket.
+              {t("tickets.management")}
             </p>
           </div>
         </div>

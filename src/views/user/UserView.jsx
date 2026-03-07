@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosClient from "../../services/axiosClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,6 +12,7 @@ import {
 import ChangePasswordModal from "./ChangePasswordModal";
 
 const UsersView = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -58,10 +60,10 @@ const UsersView = () => {
         <div>
           <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
             <FontAwesomeIcon icon={faEye} />
-            User Details
+            {t("users.title")}
           </h1>
           <p className="text-sm text-slate-500">
-            View profile information and manage user.
+            {t("users.description")}
           </p>
         </div>
 
@@ -76,7 +78,7 @@ const UsersView = () => {
                  border-r border-emerald-500"
             >
               <FontAwesomeIcon icon={faLock} />
-              CHANGE PASSWORD
+              {t("auth.change_password")}
             </button>
 
             <button
@@ -85,7 +87,7 @@ const UsersView = () => {
                  bg-blue-600 text-white hover:bg-blue-700"
             >
               <FontAwesomeIcon icon={faEdit} />
-              EDIT
+              {t("common.edit")}
             </button>
           </div>
         </div>
@@ -94,19 +96,19 @@ const UsersView = () => {
       {/* Info Card */}
       <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
-          <Info label="Username" value={user.username} />
-          <Info label="Email" value={user.email} />
+          <Info label={t("users.username")} value={user.username} />
+          <Info label={t("users.email")} value={user.email} />
 
-          <Info label="First Name" value={user.staff?.firstname} />
-          <Info label="Last Name" value={user.staff?.lastname} />
+          <Info label={t("staff.first_name")} value={user.staff?.firstname} />
+          <Info label={t("staff.last_name")} value={user.staff?.lastname} />
 
-          <Info label="Staff" value={user.staff?.display_name} />
+          <Info label={t("users.staff")} value={user.staff?.display_name} />
 
-          <Info label="Role" value={user.role?.name} />
+          <Info label={t("users.role")} value={user.role?.name} />
 
           <Info
-            label="Status"
-            value={user.is_locked === 0 ? "Active" : "Locked"}
+            label={t("users.status")}
+            value={user.is_locked === 0 ? t("users.active") : t("users.locked")}
           />
         </div>
       </div>

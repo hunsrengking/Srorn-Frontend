@@ -1,5 +1,6 @@
 // src/views/settings/users/Users.jsx
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import axiosClient from "../../services/axiosClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -13,6 +14,7 @@ import {
 import { hasPermission } from "../../utils/permission";
 
 const Users = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [users, setUsers] = useState([]);
@@ -82,10 +84,10 @@ const Users = () => {
           <div>
             <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
               <FontAwesomeIcon icon={faUser} />
-              User Management
+              {t("users.title")}
             </h1>
             <p className="text-sm text-slate-500 mt-1">
-              Manage user accounts, roles, and statuses.
+              {t("users.description")}
             </p>
           </div>
 
@@ -97,7 +99,7 @@ const Users = () => {
               </span>
               <input
                 type="text"
-                placeholder="Search users..."
+                placeholder={t("users.search_placeholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-xl
@@ -115,7 +117,7 @@ const Users = () => {
                          focus:ring-blue-500/50"
               >
                 <FontAwesomeIcon icon={faPlus} className="h-4 w-4" />
-                <span>Add User</span>
+                <span>{t("users.add_new")}</span>
               </button>
             )}
           </div>
@@ -128,13 +130,13 @@ const Users = () => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wide">
               <tr>
-                <th className="px-4 py-3">ID</th>
-                <th className="px-4 py-3">Username</th>
-                <th className="px-4 py-3">Email</th>
-                <th className="px-4 py-3">Role</th>
-                <th className="px-4 py-3">Department</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className="px-4 py-3">{t("tickets.id")}</th>
+                <th className="px-4 py-3">{t("users.username")}</th>
+                <th className="px-4 py-3">{t("users.email")}</th>
+                <th className="px-4 py-3">{t("users.role")}</th>
+                <th className="px-4 py-3">{t("users.department")}</th>
+                <th className="px-4 py-3">{t("users.status")}</th>
+                <th className="px-4 py-3 text-right">{t("users.actions")}</th>
               </tr>
             </thead>
 
@@ -145,7 +147,7 @@ const Users = () => {
                     colSpan={7}
                     className="px-4 py-8 text-center text-sm text-slate-400"
                   >
-                    Loading users...
+                    {t("users.loading")}
                   </td>
                 </tr>
               ) : error ? (
@@ -159,7 +161,7 @@ const Users = () => {
                       onClick={loadUsers}
                       className="ml-2 text-blue-600 hover:text-blue-800 underline"
                     >
-                      Retry
+                      {t("users.retry")}
                     </button>
                   </td>
                 </tr>
@@ -261,9 +263,7 @@ const Users = () => {
                     colSpan={7}
                     className="px-4 py-8 text-center text-sm text-slate-400"
                   >
-                    {searchTerm
-                      ? "No users match your search."
-                      : "No users found."}
+                    {t("users.not_found")}
                   </td>
                 </tr>
               )}

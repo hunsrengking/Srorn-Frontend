@@ -1,12 +1,15 @@
 // src/views/settings/users/UserCreate.jsx
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useError } from "../..//context/ErrorContext";
 import axiosClient from "../../services/axiosClient";
 import UserForm from "./UserForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 
 const UserCreate = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
@@ -16,6 +19,8 @@ const UserCreate = () => {
     department_id: "",
     staff_id: "",
   });
+
+  const { showSuccess, showError } = useError();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,9 +35,14 @@ const UserCreate = () => {
 
     try {
       await axiosClient.post("/api/users", payload);
+      showSuccess(t("users.create_success"));
       navigate("/users");
     } catch (err) {
       console.error(err);
+      showError(
+        err?.response?.data?.message || err?.message ||
+          t("users.create_failed")
+      );
     }
   };
 
@@ -42,10 +52,10 @@ const UserCreate = () => {
       <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
         <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
           <FontAwesomeIcon icon={faUserPlus} />
-          Create User
+          {t("users.create_title")}
         </h1>
         <p className="text-sm text-slate-500">
-          Add a new user with login credentials.
+          {t("users.description")}
         </p>
       </div>
 

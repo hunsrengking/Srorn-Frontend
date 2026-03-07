@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import axiosClient from "../../services/axiosClient"; // your axios instance
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePdf, faFileExcel, faFileCsv, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { formatDate } from "../../utils/formatdate";
 
 const Report = () => {
+  const { t } = useTranslation();
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +27,7 @@ const Report = () => {
       });
       setReports(res.data || []);
     } catch (err) {
-      console.error("Load report error:", err);
+      console.error(t("reports.load_error"), err);
     } finally {
       setLoading(false);
     }
@@ -59,8 +61,7 @@ const Report = () => {
       link.click();
       link.remove();
     } catch (err) {
-      console.error("Export error:", err);
-      alert("Failed to export report.");
+      console.error(t("reports.export_failed"), err);
     }
   };
 
@@ -68,16 +69,16 @@ const Report = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-800">Reports</h1>
+        <h1 className="text-xl font-semibold text-gray-800">{t("reports.title")}</h1>
         <div className="flex gap-2">
           <button onClick={() => handleExport("pdf")} className="px-3 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100">
-            <FontAwesomeIcon icon={faFilePdf} /> PDF
+            <FontAwesomeIcon icon={faFilePdf} /> {t("reports.pdf")}
           </button>
           <button onClick={() => handleExport("excel")} className="px-3 py-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100">
-            <FontAwesomeIcon icon={faFileExcel} /> Excel
+            <FontAwesomeIcon icon={faFileExcel} /> {t("reports.excel")}
           </button>
           <button onClick={() => handleExport("csv")} className="px-3 py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100">
-            <FontAwesomeIcon icon={faFileCsv} /> CSV
+            <FontAwesomeIcon icon={faFileCsv} /> {t("reports.csv")}
           </button>
         </div>
       </div>
@@ -85,19 +86,19 @@ const Report = () => {
       {/* Filter */}
       <form onSubmit={handleFilter} className="bg-white rounded-2xl p-5 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
-          <label className="text-sm text-gray-600">From Date</label>
+          <label className="text-sm text-gray-600">{t("reports.from_date")}</label>
           <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="w-full mt-1 border rounded-lg px-3 py-2" />
         </div>
         <div>
-          <label className="text-sm text-gray-600">To Date</label>
+          <label className="text-sm text-gray-600">{t("reports.to_date")}</label>
           <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="w-full mt-1 border rounded-lg px-3 py-2" />
         </div>
         <div>
-          <label className="text-sm text-gray-600">Status</label>
+          <label className="text-sm text-gray-600">{t("reports.status")}</label>
           <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full mt-1 border rounded-lg px-3 py-2">
-            <option value="">All</option>
-            <option value="open">Open</option>
-            <option value="Doing">Doing</option>
+            <option value="">{t("reports.all")}</option>
+            <option value="open">{t("reports.open")}</option>
+            <option value="Doing">{t("reports.doing")}</option>
             <option value="close">Closed</option>
           </select>
         </div>

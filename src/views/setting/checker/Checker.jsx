@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import axiosClient from "../../../services/axiosClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -12,6 +13,7 @@ import { formatDate } from "../../../utils/formatdate";
 import { hasPermission } from "../../../utils/permission";
 
 const TicketChecker = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [tickets, setTickets] = useState([]);

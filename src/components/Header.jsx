@@ -1,6 +1,7 @@
 // src/components/Header.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import axiosClient, {
   getAccessToken,
   isTokenExpired,
@@ -16,6 +17,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 const Header = ({ toggleSidebar }) => {
+  const { t, i18n } = useTranslation();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotif, setShowNotif] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -163,7 +165,7 @@ const Header = ({ toggleSidebar }) => {
 
           <h1 className="text-lg md:text-xl font-semibold text-white tracking-wide">
             Support System
-          </h1>
+            </h1>
         </div>
 
         {/* RIGHT */}
@@ -191,7 +193,7 @@ const Header = ({ toggleSidebar }) => {
             >
               {notifications.length === 0 && (
                 <div className="px-4 py-3 text-sm text-slate-500">
-                  No notifications
+                  {t("header.no_notifications")}
                 </div>
               )}
 

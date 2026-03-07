@@ -116,6 +116,20 @@ axiosClient.interceptors.response.use(
     if (response.config?._loadingShown) {
       loadingService.hide();
     }
+
+    // show any success message returned by the API for write operations
+    try {
+      const method = (response.config?.method || "").toLowerCase();
+      if (["post", "put", "patch", "delete"].includes(method)) {
+        const msg = response?.data?.message;
+        if (msg) {
+          errorService.success(msg);
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+
     return response;
   },
   async (error) => {

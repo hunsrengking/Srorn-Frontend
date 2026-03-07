@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useError } from "../../..//context/ErrorContext";
 import axiosClient from "../../../services/axiosClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBuilding } from "@fortawesome/free-solid-svg-icons";
@@ -9,6 +10,8 @@ const DepartmentCreate = () => {
   const [departmentName, setDepartmentName] = useState("");
   const [description, setDescription] = useState("");
 
+  const { showSuccess, showError } = useError();
+
   const handleCreate = async (e) => {
     e.preventDefault();
 
@@ -17,9 +20,14 @@ const DepartmentCreate = () => {
         name: departmentName,
         description,
       });
+      showSuccess("Department created successfully");
       navigate("/settings/departments");
     } catch (error) {
       console.error("Create department error:", error);
+      showError(
+        error?.response?.data?.message || error?.message ||
+          "Failed to create department"
+      );
     }
   };
 

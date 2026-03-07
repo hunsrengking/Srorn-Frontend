@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChartBar,
@@ -16,6 +17,7 @@ import {
 import { hasPermission } from "../utils/permission";
 
 const Sidebar = ({ sidebarOpen }) => {
+  const { t } = useTranslation();
   const [reportOpen, setReportOpen] = useState(false);
   const [studentOpen, setStudentOpen] = useState(false);
   const location = useLocation();
@@ -40,7 +42,7 @@ const Sidebar = ({ sidebarOpen }) => {
         {hasPermission("VIEW_DASHBOARD") && (
           <Link to="/dashboard" className={menuClass("/dashboard")}>
             <FontAwesomeIcon icon={faChartBar} className="text-lg" />
-            {sidebarOpen && <span className="ml-3">Dashboard</span>}
+            {sidebarOpen && <span className="ml-3">{t("sidebar.dashboard")}</span>}
           </Link>
         )}
 
@@ -48,7 +50,7 @@ const Sidebar = ({ sidebarOpen }) => {
         {hasPermission("VIEW_TICKET") && (
           <Link to="/ticket" className={menuClass("/ticket")}>
             <FontAwesomeIcon icon={faTicket} className="text-lg" />
-            {sidebarOpen && <span className="ml-3">Tickets</span>}
+            {sidebarOpen && <span className="ml-3">{t("sidebar.tickets")}</span>}
           </Link>
         )}
 
@@ -56,7 +58,7 @@ const Sidebar = ({ sidebarOpen }) => {
         {hasPermission("MAKER_CHECKER") && (
           <Link to="/checkermaker" className={menuClass("/checkermaker")}>
             <FontAwesomeIcon icon={faCheckToSlot} className="text-lg" />
-            {sidebarOpen && <span className="ml-3">CheckerBox</span>}
+            {sidebarOpen && <span className="ml-3">{t("sidebar.checkerbox")}</span>}
           </Link>
         )}
         {/* Student Dropdown */}
@@ -69,7 +71,7 @@ const Sidebar = ({ sidebarOpen }) => {
             >
               <div className="flex items-center">
                 <FontAwesomeIcon icon={faUserGraduate} className="text-lg" />
-                {sidebarOpen && <span className="ml-3">Students</span>}
+                {sidebarOpen && <span className="ml-3">{t("sidebar.students")}</span>}
               </div>
 
               {sidebarOpen && (
@@ -96,7 +98,7 @@ const Sidebar = ({ sidebarOpen }) => {
               : "text-blue-200 hover:bg-blue-700 hover:text-white"
           }`}
                 >
-                  Student List
+                  {t("sidebar.student_list")}
                 </Link>
               )}
 
@@ -111,7 +113,7 @@ const Sidebar = ({ sidebarOpen }) => {
               : "text-blue-200 hover:bg-blue-700 hover:text-white"
           }`}
                 >
-                  Attendance
+                  {t("sidebar.attendance")}
                 </Link>
               )}
             </div>
@@ -122,7 +124,7 @@ const Sidebar = ({ sidebarOpen }) => {
         {hasPermission("VIEW_USER") && (
           <Link to="/users" className={menuClass("/users")}>
             <FontAwesomeIcon icon={faUsers} className="text-lg" />
-            {sidebarOpen && <span className="ml-3">Users</span>}
+            {sidebarOpen && <span className="ml-3">{t("sidebar.users")}</span>}
           </Link>
         )}
 
@@ -136,7 +138,7 @@ const Sidebar = ({ sidebarOpen }) => {
             >
               <div className="flex items-center">
                 <FontAwesomeIcon icon={faChartArea} className="text-lg" />
-                {sidebarOpen && <span className="ml-3">Reports</span>}
+                {sidebarOpen && <span className="ml-3">{t("sidebar.reports")}</span>}
               </div>
 
               {sidebarOpen && (
@@ -162,7 +164,7 @@ const Sidebar = ({ sidebarOpen }) => {
                     : "text-blue-200 hover:bg-blue-700 hover:text-white"
                 }`}
               >
-                Ticket Report
+                {t("sidebar.ticket_report")}
               </Link>
             </div>
           </div>
@@ -171,14 +173,14 @@ const Sidebar = ({ sidebarOpen }) => {
         {hasPermission("VIEW_ORGANIZATION") && (
           <Link to="/organization" className={menuClass("/organization")}>
             <FontAwesomeIcon icon={faBuilding} className="text-lg" />
-            {sidebarOpen && <span className="ml-3">Organization</span>}
+            {sidebarOpen && <span className="ml-3">{t("sidebar.organization")}</span>}
           </Link>
         )}
         {/* Settings */}
         {hasPermission("VIEW_SETTING") && (
           <Link to="/setting" className={menuClass("/setting")}>
             <FontAwesomeIcon icon={faSliders} className="text-lg" />
-            {sidebarOpen && <span className="ml-3">Settings</span>}
+            {sidebarOpen && <span className="ml-3">{t("sidebar.settings")}</span>}
           </Link>
         )}
       </nav>

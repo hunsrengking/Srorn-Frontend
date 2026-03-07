@@ -16,7 +16,7 @@ const PAGE_SIZE = 10;
 const DepartmentMember = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { showError } = useError();
+  const { showError, showSuccess } = useError();
   const [department, setDepartment] = useState(null);
   const [members, setMembers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
@@ -99,9 +99,13 @@ const DepartmentMember = () => {
       });
       setIsAddOpen(false);
       loadMembers();
+      showSuccess("Member added");
     } catch (err) {
       console.error(err);
-      alert("Failed to add member.");
+      showError(
+        err?.response?.data?.message || err?.message ||
+          "Failed to add member."
+      );
     }
   };
 
@@ -111,9 +115,13 @@ const DepartmentMember = () => {
     try {
       await axiosClient.delete(`/api/department/${id}/members/${userId}remove`);
       setMembers((prev) => prev.filter((m) => m.id !== userId));
+      showSuccess("Member removed");
     } catch (err) {
       console.error(err);
-      showError("Failed to remove member.");
+      showError(
+        err?.response?.data?.message || err?.message ||
+          "Failed to remove member."
+      );
     }
   };
 
