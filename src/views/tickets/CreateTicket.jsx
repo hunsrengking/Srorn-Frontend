@@ -1,15 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 // src/views/tickets/CreateTicket.jsx
 import React, { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import axiosClient from "../../services/axiosClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSave, faTimes, faFile } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../../utils/permission";
+import { useError } from "../../context/ErrorContext";
 
 const fileId = (f) => `${f.name}_${f.size}_${f.lastModified}`;
 
 const CreateTicket = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -229,6 +232,8 @@ const CreateTicket = () => {
 
     return res.data.image_path;
   };
+  const { showError, showSuccess } = useError();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -273,12 +278,14 @@ const CreateTicket = () => {
       };
 
       await axiosClient.post("/api/ticket", payload);
-
-      navigate("/ticket", {
-        state: { success: "Ticket created successfully" },
-      });
+      showSuccess(t("tickets.create_success", "Ticket created successfully"));
+      navigate("/ticket");
     } catch (err) {
       console.error(err);
+      showError(
+        err?.response?.data?.message || err?.message ||
+          t("tickets.create_failed", "Failed to create ticket")
+      );
     } finally {
       setSubmitting(false);
     }
@@ -291,10 +298,10 @@ const CreateTicket = () => {
         <div className="flex items-center gap-3 mb-3">
           <div>
             <h2 className="text-xl font-semibold text-slate-900">
-              Create Ticket
+              {t("tickets.title")}
             </h2>
             <p className="text-sm text-slate-500 mt-1">
-              Create a new support ticket.
+              {t("tickets.management")}
             </p>
           </div>
         </div>
@@ -310,7 +317,7 @@ const CreateTicket = () => {
           {/* Subject */}
           <div className="space-y-1">
             <label className="block text-sm font-medium text-slate-700">
-              Subject <span className="text-red-500">*</span>
+              {t("tickets.subject", "Subject")} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -319,7 +326,7 @@ const CreateTicket = () => {
               onChange={handleChange}
               required
               className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 outline-none"
-              placeholder="Short title for the ticket"
+              placeholder={t("tickets.subject_placeholder", "Short title for the ticket")}
             />
           </div>
 
@@ -327,7 +334,7 @@ const CreateTicket = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
               <label className="block text-sm font-medium text-slate-700">
-                Priority
+                {t("tickets.priority", "Priority")}
               </label>
               <select
                 name="priority"
@@ -335,10 +342,10 @@ const CreateTicket = () => {
                 onChange={handleChange}
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 bg-white outline-none"
               >
-                <option value="">Select priority</option>
+                <option value="">{t("tickets.select_priority", "Select priority")}</option>
                 {loadingPriority ? (
                   <option value="" disabled>
-                    Loading...
+                    {t("common.loading", "Loading...")}
                   </option>
                 ) : priorities.length > 0 ? (
                   priorities.map((p) => (
@@ -347,13 +354,13 @@ const CreateTicket = () => {
                     </option>
                   ))
                 ) : (
-                  <option value="">No priorities available</option>
+                  <option value="">{t("tickets.no_priorities", "No priorities available")}</option>
                 )}
               </select>
             </div>
             <div className="space-y-1">
               <label className="block text-sm font-medium text-slate-700">
-                Category
+                {t("tickets.category", "Category")}
               </label>
               <select
                 name="category"
@@ -361,10 +368,10 @@ const CreateTicket = () => {
                 onChange={handleChange}
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 bg-white outline-none"
               >
-                <option value="">Select category</option>
+                <option value="">{t("tickets.select_category", "Select category")}</option>
                 {loadingCategory ? (
                   <option value="" disabled>
-                    Loading...
+                    {t("common.loading", "Loading...")}
                   </option>
                 ) : categories.length > 0 ? (
                   categories.map((c) => (
@@ -373,7 +380,7 @@ const CreateTicket = () => {
                     </option>
                   ))
                 ) : (
-                  <option value="">No categories available</option>
+                  <option value="">{t("tickets.no_categories", "No categories available")}</option>
                 )}
               </select>
             </div>
@@ -382,7 +389,7 @@ const CreateTicket = () => {
             {canAssign ? (
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-slate-700">
-                  Assigned To
+                  {t("tickets.assigned_to", "Assigned To")}
                 </label>
                 <select
                   name="assigned_to"
@@ -390,10 +397,10 @@ const CreateTicket = () => {
                   onChange={handleChange}
                   className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 bg-white outline-none"
                 >
-                  <option value="">Unassigned</option>
+                  <option value="">{t("tickets.unassigned", "Unassigned")}</option>
                   {loadingAssigned ? (
                     <option value="" disabled>
-                      Loading...
+                      {t("common.loading", "Loading...")}
                     </option>
                   ) : assignedUsers.length > 0 ? (
                     assignedUsers.map((u) => (
@@ -405,17 +412,17 @@ const CreateTicket = () => {
                       </option>
                     ))
                   ) : (
-                    <option value="">No users available</option>
+                    <option value="">{t("tickets.no_users", "No users available")}</option>
                   )}
                 </select>
               </div>
             ) : (
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-slate-700">
-                  Assigned To
+                  {t("tickets.assigned_to", "Assigned To")}
                 </label>
                 <div className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl bg-slate-50 text-slate-600">
-                  Unassigned — you don't have permission to assign staff
+                  {t("tickets.no_permission_assign", "Unassigned — you don't have permission to assign staff")}
                 </div>
               </div>
             )}
@@ -425,7 +432,7 @@ const CreateTicket = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
               <label className="block text-sm font-medium text-slate-700">
-                Department
+                {t("tickets.department", "Department")}
               </label>
               <select
                 name="department"
@@ -433,10 +440,10 @@ const CreateTicket = () => {
                 onChange={handleChange}
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 bg-white outline-none"
               >
-                <option value="">Select department</option>
+                <option value="">{t("tickets.select_department", "Select department")}</option>
                 {loadingDepartments ? (
                   <option value="" disabled>
-                    Loading...
+                    {t("common.loading", "Loading...")}
                   </option>
                 ) : (
                   departments.map((d) => (
@@ -450,7 +457,7 @@ const CreateTicket = () => {
 
             <div className="space-y-1">
               <label className="block text-sm font-medium text-slate-700">
-                Start Date
+                {t("tickets.start_date", "Start Date")}
               </label>
               <input
                 type="date"
@@ -463,7 +470,7 @@ const CreateTicket = () => {
 
             <div className="space-y-1">
               <label className="block text-sm font-medium text-slate-700">
-                End Date
+                {t("tickets.end_date", "End Date")}
               </label>
               <input
                 type="date"
@@ -479,7 +486,7 @@ const CreateTicket = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="block text-sm font-medium text-slate-700">
-                Images
+                {t("tickets.images", "Images")}
               </label>
               <input
                 ref={imageInputRef}
@@ -518,7 +525,7 @@ const CreateTicket = () => {
 
             <div className="space-y-1">
               <label className="block text-sm font-medium text-slate-700">
-                Attachments
+                {t("tickets.attachments", "Attachments")}
               </label>
               <input
                 ref={attachmentInputRef}
@@ -565,7 +572,7 @@ const CreateTicket = () => {
           {/* Description */}
           <div className="space-y-1">
             <label className="block text-sm font-medium text-slate-700">
-              Description
+              {t("tickets.description", "Description")}
             </label>
             <textarea
               name="description"
@@ -573,7 +580,7 @@ const CreateTicket = () => {
               onChange={handleChange}
               rows={4}
               className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 outline-none resize-y"
-              placeholder="Describe the issue or request..."
+              placeholder={t("tickets.desc_placeholder", "Describe the issue or request...")}
             />
           </div>
 
@@ -585,7 +592,7 @@ const CreateTicket = () => {
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl bg-blue-600 text-white shadow-sm hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <FontAwesomeIcon icon={faSave} className="text-xs" />
-              {submitting ? "Saving..." : "Save Ticket"}
+              {submitting ? t("common.saving", "Saving...") : t("tickets.save_ticket", "Save Ticket")}
             </button>
           </div>
         </form>

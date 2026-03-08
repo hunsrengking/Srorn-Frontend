@@ -9,18 +9,18 @@ export const formatDate = (value) => {
 
   // Month short names
   const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
+    "January",
+    "February",
+    "March",
+    "April",
     "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
   const monthName = months[date.getMonth()];
 
@@ -30,5 +30,6 @@ export const formatDate = (value) => {
   const hours = date.getHours();
   const minutes = date.getMinutes().toString().padStart(2, "0");
 
-  return `${day}-${monthName}-${year} ${hours}:${minutes}`;
+  // return `${day} ${monthName} ${year} ${hours}:${minutes}`;
+  return `${day} ${monthName} ${year}`;
 };

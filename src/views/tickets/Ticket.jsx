@@ -1,5 +1,6 @@
 // src/views/settings/users/Users.jsx
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import axiosClient from "../../services/axiosClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,6 +11,7 @@ import { useError } from "../../context/ErrorContext";
 const PAGE_SIZE = 15;
 
 const Ticket = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [tickets, setTickets] = useState([]);
@@ -29,7 +31,7 @@ const Ticket = () => {
       setTickets(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error loading tickets:", err);
-      setError("Failed to load tickets. Please try again.");
+      setError(t("tickets.load_failed", "Failed to load tickets. Please try again."));
       setTickets([]);
     } finally {
       setLoading(false);
@@ -38,10 +40,6 @@ const Ticket = () => {
 
   useEffect(() => {
     loadTickets();
-    if (location.state?.success) {
-      showSuccess(location.state.success);
-      window.history.replaceState({}, document.title);
-    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadTickets]);
 
@@ -110,9 +108,9 @@ const Ticket = () => {
           <div>
             <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
               <FontAwesomeIcon icon={faTicket} />
-              Ticket
+              {t("tickets.title")}
             </h1>
-            <p className="text-sm text-slate-500">Ticket Management</p>
+            <p className="text-sm text-slate-500">{t("tickets.management")}</p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -122,7 +120,7 @@ const Ticket = () => {
               </span>
               <input
                 type="text"
-                placeholder="Search ticket..."
+                placeholder={t("tickets.search_placeholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-xl
@@ -139,7 +137,7 @@ const Ticket = () => {
                 focus:ring-blue-500/50"
             >
               <FontAwesomeIcon icon={faPlus} className="h-4 w-4" />
-              Add Ticket
+              {t("tickets.add_new")}
             </button>
           </div>
         </div>
@@ -151,15 +149,15 @@ const Ticket = () => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wide">
               <tr>
-                <th className="px-4 py-3">ID</th>
-                <th className="px-4 py-3">Title</th>
-                <th className="px-4 py-3">Category</th>
-                <th className="px-4 py-3">Priority</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Assigned To</th>
-                <th className="px-4 py-3">Created At</th>
-                <th className="px-4 py-3">Start Date</th>
-                <th className="px-4 py-3">End Date</th>
+                <th className="px-4 py-3">{t("tickets.id")}</th>
+                <th className="px-4 py-3">{t("tickets.title")}</th>
+                <th className="px-4 py-3">{t("tickets.category")}</th>
+                <th className="px-4 py-3">{t("tickets.priority")}</th>
+                <th className="px-4 py-3">{t("tickets.status")}</th>
+                <th className="px-4 py-3">{t("tickets.assigned_to")}</th>
+                <th className="px-4 py-3">{t("tickets.created_at")}</th>
+                <th className="px-4 py-3">{t("tickets.start_date")}</th>
+                <th className="px-4 py-3">{t("tickets.end_date")}</th>
               </tr>
             </thead>
 
@@ -170,7 +168,7 @@ const Ticket = () => {
                     colSpan={9}
                     className="px-4 py-8 text-center text-slate-400"
                   >
-                    Loading tickets...
+                    {t("tickets.loading")}
                   </td>
                 </tr>
               ) : error ? (
@@ -219,7 +217,7 @@ const Ticket = () => {
                     colSpan={9}
                     className="px-4 py-8 text-center text-slate-400"
                   >
-                    No tickets found.
+                    {t("tickets.not_found")}
                   </td>
                 </tr>
               )}
@@ -230,8 +228,10 @@ const Ticket = () => {
         {/* ✅ PAGINATION UI */}
         <div className="px-4 py-3 bg-slate-50 flex justify-between items-center text-sm">
           <span className="text-slate-500">
-            Showing {paginatedTickets.length} of {filteredTickets.length}{" "}
-            tickets
+            {t("tickets.pagination_showing", {
+              start: paginatedTickets.length,
+              total: filteredTickets.length,
+            })}
           </span>
 
           <div className="flex gap-2">
@@ -240,11 +240,14 @@ const Ticket = () => {
               onClick={() => setPage((p) => p - 1)}
               className="px-3 py-1 rounded-lg border disabled:opacity-50"
             >
-              Prev
+              {t("tickets.pagination_prev")}
             </button>
 
             <span className="px-2 text-slate-600">
-              Page {page} of {totalPages || 1}
+              {t("tickets.pagination_page", {
+                current: page,
+                total: totalPages || 1,
+              })}
             </span>
 
             <button
@@ -252,7 +255,7 @@ const Ticket = () => {
               onClick={() => setPage((p) => p + 1)}
               className="px-3 py-1 rounded-lg border disabled:opacity-50"
             >
-              Next
+              {t("tickets.pagination_next")}
             </button>
           </div>
         </div>

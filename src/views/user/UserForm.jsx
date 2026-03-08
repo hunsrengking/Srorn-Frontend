@@ -1,5 +1,6 @@
 // src/views/settings/users/UserForm.jsx
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import axiosClient from "../../services/axiosClient";
 
 const UserForm = ({
@@ -9,6 +10,7 @@ const UserForm = ({
   onSubmit,
   onCancel,
 }) => {
+  const { t } = useTranslation();
   const [roles, setRoles] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [staffs, setStaffs] = useState([]);

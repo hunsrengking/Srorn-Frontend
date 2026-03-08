@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import axiosClient from "../../../services/axiosClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,9 +11,12 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { formatDate } from "../../../utils/formatdate";
 import { hasPermission } from "../../../utils/permission";
+import { useError } from "../../../context/ErrorContext";
 
 const TicketChecker = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const { showSuccess, showError } = useError();
 
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true); // KEEP
@@ -29,7 +33,7 @@ const TicketChecker = () => {
       setTickets(res.data || []);
     } catch (err) {
       console.error("Error loading tickets:", err);
-      setError("Failed to load tickets. Please try again.");
+      setError(t("checker.load_failed"));
       setTickets([]);
     } finally {
       setLoading(false);
@@ -101,10 +105,10 @@ const TicketChecker = () => {
   // --- BULK DELETE ---
   const handleBulkDelete = async () => {
     if (selectedIds.length === 0) {
-      alert("Please select at least one ticket.");
+      showError(t("checker.select_required"));
       return;
     }
-    if (!window.confirm("Are you sure you want to delete selected tickets?")) {
+    if (!window.confirm(t("checker.delete_confirm"))) {
       return;
     }
 
@@ -116,11 +120,12 @@ const TicketChecker = () => {
       );
 
       await Promise.allSettled(calls);
+      showSuccess(t("checker.delete_success", "Tickets deleted successfully"));
       await loadTickets();
       setSelectedIds([]);
     } catch (err) {
       console.error(err);
-      alert("Delete error.");
+      showError(t("positions.delete_failed", "Delete error."));
     } finally {
       setActionLoading(false);
     }
@@ -129,16 +134,14 @@ const TicketChecker = () => {
   // --- BULK APPROVE / REJECT ---
   const handleBulkStatusChange = async (newStatus) => {
     if (selectedIds.length === 0) {
-      alert("Please select at least one ticket.");
+      showError(t("checker.select_required"));
       return;
     }
 
     const isApprove = newStatus === "Approved";
-    const label = isApprove ? "approve" : "reject";
+    const confirmMessage = isApprove ? t("checker.approve_confirm") : t("checker.reject_confirm");
 
-    if (
-      !window.confirm(`Are you sure you want to ${label} selected tickets?`)
-    ) {
+    if (!window.confirm(confirmMessage)) {
       return;
     }
 
@@ -152,11 +155,12 @@ const TicketChecker = () => {
       );
 
       await Promise.allSettled(calls);
+      showSuccess(t("checker.status_updated", "Status updated successfully"));
       await loadTickets();
       setSelectedIds([]);
     } catch (err) {
       console.error(err);
-      alert("Update failed.");
+      showError(t("checker.update_failed"));
     } finally {
       setActionLoading(false);
     }
@@ -170,20 +174,20 @@ const TicketChecker = () => {
           <div>
             <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
               <FontAwesomeIcon icon={faTicket} />
-              Ticket Checker
+              {t("checker.title")}
             </h1>
             <p className="text-sm text-slate-500">
-              Tickets waiting for approval
+              {t("checker.description")}
             </p>
             <p className="text-xs text-slate-400 mt-1">
-              Selected: {selectedIds.length}
+              {t("checker.selected", { count: selectedIds.length })}
             </p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <input
               type="text"
-              placeholder="filter ticket..."
+              placeholder={t("checker.filter_placeholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full sm:w-72 pl-3 pr-3 py-2 text-sm border border-slate-200 rounded-xl
@@ -204,7 +208,7 @@ const TicketChecker = () => {
                   }`}
                 >
                   <FontAwesomeIcon icon={faCheck} className="h-4 w-4" />
-                  Approve
+                  {t("checker.approve")}
                 </button>
               )}
 
@@ -221,7 +225,7 @@ const TicketChecker = () => {
                   }`}
                 >
                   <FontAwesomeIcon icon={faXmark} className="h-4 w-4" />
-                  Reject
+                  {t("checker.reject")}
                 </button>
               )}
 
@@ -238,7 +242,7 @@ const TicketChecker = () => {
                   }`}
                 >
                   <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
-                  Delete
+                  {t("checker.delete")}
                 </button>
               )}
             </div>
@@ -254,12 +258,12 @@ const TicketChecker = () => {
               <tr>
                 <th className="px-4 py-3"></th>
                 <th className="px-4 py-3">ID</th>
-                <th className="px-4 py-3">Subject</th>
-                <th className="px-4 py-3">Category</th>
-                <th className="px-4 py-3">Priority</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Create By</th>
-                <th className="px-4 py-3">Created At</th>
+                <th className="px-4 py-3">{t("checker.subject")}</th>
+                <th className="px-4 py-3">{t("checker.category")}</th>
+                <th className="px-4 py-3">{t("checker.priority")}</th>
+                <th className="px-4 py-3">{t("checker.status")}</th>
+                <th className="px-4 py-3">{t("tickets.created_by", "Create By")}</th>
+                <th className="px-4 py-3">{t("checker.created_at")}</th>
               </tr>
             </thead>
 
@@ -305,7 +309,7 @@ const TicketChecker = () => {
                             t.status
                           )}`}
                         />
-                        {t.status}
+                        {t.status === "Waiting Approval" ? t("checker.waiting_approval") : t.status}
                       </span>
                     </td>
                     <td className="px-4 py-3">{t.created_by || "-"}</td>
@@ -320,7 +324,7 @@ const TicketChecker = () => {
                     colSpan={8}
                     className="px-4 py-8 text-center text-slate-400"
                   >
-                    No tickets waiting for approval.
+                    {t("checker.not_found")}
                   </td>
                 </tr>
               )}

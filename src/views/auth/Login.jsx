@@ -6,13 +6,40 @@ import { useEffect } from "react";
 const logo = "/assets/images/logo/logo.PNG";
 
 const Login = () => {
-  const { t, i18n } = useTranslation();
+  const { t, i18n, ready } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
+  // Show loading if i18n not ready
+  if (!ready) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading...</div>;
+  }
+  
   const changeLanguage = (lang) => {
     i18n.changeLanguage(lang);
+    localStorage.setItem('app_language', lang); // Save language preference
   };
+
+  useEffect(() => {
+    // Load Bootstrap CSS
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.crossorigin = "anonymous";
+    link.href =
+      "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css";
+    document.head.appendChild(link);
+
+    // Initialize language from localStorage
+    const savedLang = localStorage.getItem('app_language') || 'en';
+    if (i18n.language !== savedLang) {
+      i18n.changeLanguage(savedLang);
+    }
+
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, [i18n]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,18 +69,6 @@ const Login = () => {
       setIsLoading(false);
     }
   };
-  useEffect(() => {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.crossorigin = "anonymous";
-    link.href =
-      "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css";
-    document.head.appendChild(link);
-
-    return () => {
-      document.head.removeChild(link);
-    };
-  }, []);
 
   return (
     <div className="login-container">
@@ -61,13 +76,14 @@ const Login = () => {
         {/* Left Side */}
         <div className="login-left">
           <div className="language-selector">
-            <label htmlFor="language">{t("change_language")}</label>
+            <label htmlFor="language">{t("auth.change_language")}</label>
             <select
               id="language"
+              value={i18n.language}
               onChange={(e) => changeLanguage(e.target.value)}
             >
-              <option value="en">English</option>
-              <option value="kh">Khmer</option>
+              <option value="en">{t("auth.english")}</option>
+              <option value="kh">{t("auth.khmer")}</option>
             </select>
           </div>
 
@@ -81,7 +97,7 @@ const Login = () => {
             />
           </center>
 
-          <div className="title">{t("login")}</div>
+          <div className="title">{t("auth.login")}</div>
           <br />
           <form id="loginForm" onSubmit={handleSubmit}>
             <div className="input-box">
@@ -90,7 +106,7 @@ const Login = () => {
                 type="email"
                 className="form-control"
                 id="email"
-                placeholder={t("email")}
+                placeholder={t("auth.email")}
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -103,7 +119,7 @@ const Login = () => {
                 type="password"
                 className="form-control"
                 id="password"
-                placeholder={t("password")}
+                placeholder={t("auth.password")}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -118,7 +134,7 @@ const Login = () => {
                 disabled={isLoading}
               >
                 <span className="btn-text">
-                  {isLoading ? t("logging_in") : t("login")}
+                  {isLoading ? t("auth.logging_in") : t("auth.login")}
                 </span>
 
                 {isLoading && (
@@ -130,9 +146,9 @@ const Login = () => {
         </div>
         {/* Right Side */}
         <div className="login-right">
-          <h1>{t("brand_text.title")}</h1>
-          <p>{t("brand_text.subtitle1")}</p>
-          <p>{t("brand_text.subtitle2")}</p>
+          <h1>{t("auth.brand_text.title")}</h1>
+          <p>{t("auth.brand_text.subtitle1")}</p>
+          <p>{t("auth.brand_text.subtitle2")}</p>
         </div>
       </div>
     </div>

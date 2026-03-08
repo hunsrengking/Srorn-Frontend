@@ -1,23 +1,23 @@
-// src/views/settings/users/UserCreate.jsx
+// src/views/settings/Student/StudentCreate.jsx
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useError } from "../..//context/ErrorContext";
+import { useError } from "../../context/ErrorContext";
 import axiosClient from "../../services/axiosClient";
-import UserForm from "./UserForm";
+import StudentForm from "./StudentForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import { faUserGraduate } from "@fortawesome/free-solid-svg-icons";
 
-const UserCreate = () => {
+const StudentCreate = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    role_id: "",
-    department_id: "",
-    staff_id: "",
+    firstname: "",
+    lastname: "",
+    khmer_firstname: "",
+    khmer_lastname: "",
+    is_active: true,
   });
 
   const { showSuccess, showError } = useError();
@@ -25,23 +25,27 @@ const UserCreate = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Convert empty strings to null for backend
     const payload = {
-      ...formData,
-      role_id: formData.role_id ? Number(formData.role_id) : null,
-      department_id: formData.department_id ? Number(formData.department_id) : null,
-      staff_id: formData.staff_id ? Number(formData.staff_id) : null,
+      firstname: formData.firstname,
+      lastname: formData.lastname,
+      khmer_firstname: formData.khmer_firstname || null,
+      khmer_lastname: formData.khmer_lastname || null,
+      is_active: formData.is_active,
     };
 
     try {
-      await axiosClient.post("/api/users", payload);
-      showSuccess(t("users.create_success"));
-      navigate("/users");
+      await axiosClient.post("/api/students", payload);
+
+      showSuccess(t("Student.create_success"));
+
+      navigate("/students");
     } catch (err) {
       console.error(err);
+
       showError(
-        err?.response?.data?.message || err?.message ||
-          t("users.create_failed")
+        err?.response?.data?.message ||
+          err?.message ||
+          t("Student.create_failed")
       );
     }
   };
@@ -51,23 +55,24 @@ const UserCreate = () => {
       {/* Header */}
       <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
         <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
-          <FontAwesomeIcon icon={faUserPlus} />
-          {t("users.create_title")}
+          <FontAwesomeIcon icon={faUserGraduate} />
+          {t("Student.create_title")}
         </h1>
+
         <p className="text-sm text-slate-500">
-          {t("users.description")}
+          {t("Student.description")}
         </p>
       </div>
 
-      <UserForm
+      <StudentForm
         isEdit={false}
         formData={formData}
         onChange={setFormData}
         onSubmit={handleSubmit}
-        onCancel={() => navigate("/users")}
+        onCancel={() => navigate("/students")}
       />
     </div>
   );
 };
 
-export default UserCreate;
+export default StudentCreate;

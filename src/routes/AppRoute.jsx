@@ -39,8 +39,8 @@ const Dashboard = lazy(() => import("../views/dashboard/Dashboard"));
 const Users = lazy(() => import("../views/user/User"));
 const Settings = lazy(() => import("../views/setting/Settings"));
 
-const RolePermission = lazy(() =>
-  import("../views/setting/roles/RolePermission")
+const RolePermission = lazy(
+  () => import("../views/setting/roles/RolePermission"),
 );
 const RoleCreate = lazy(() => import("../views/setting/roles/RoleCreate"));
 const RoleList = lazy(() => import("../views/setting/roles/RoleList"));
@@ -56,7 +56,10 @@ const NoPermission = lazy(() => import("../views/errors/NoPermission"));
 const Ticket = lazy(() => import("../views/tickets/Ticket"));
 const ViewTicket = lazy(() => import("../views/tickets/ViewTicket"));
 
-
+const Students = lazy(() => import("../views/student/Student"));
+const StudentCreate = lazy(() => import("../views/student/StudentCreate"));
+const StudentEdit = lazy(() => import("../views/student/StudentEdit"));
+// const StudentView = lazy(() => import("../views/student/StudentView"));
 
 /* ---------- Global loading helper (NO permission logic here) ---------- */
 const GlobalLoaderFix = ({ children }) => {
@@ -329,10 +332,45 @@ const AppRoute = () => {
                   path="/organization/printcard/newcard"
                   element={
                     <RequirePermission perm="VIEW_ORGANIZATION">
-                      <PrintCardNew/>
+                      <PrintCardNew />
                     </RequirePermission>
                   }
                 />
+
+                {/* student routes */}
+                <Route
+                  path="/students"
+                  element={
+                    <RequirePermission perm="VIEW_STUDENTS">
+                      <Students />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/students/create"
+                  element={
+                    <RequirePermission perm="CREATE_STUDENTS">
+                      <StudentCreate />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/students/:id/edit"
+                  element={
+                    <RequirePermission perm="UPDATE_STUDENTS">
+                      <StudentEdit />
+                    </RequirePermission>
+                  }
+                />
+                {/* <Route
+                  path="/students/:id/view"
+                  element={
+                    <RequirePermission perm="VIEW_STUDENTS">
+                      <StudentView />
+                    </RequirePermission>
+                  }
+                /> */}
+                {/* end student routes */}
 
                 <Route path="*" element={<div>404 Not Found</div>} />
               </Route>

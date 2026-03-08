@@ -1,5 +1,6 @@
 // src/views/settings/Settings.jsx
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -13,16 +14,17 @@ import {
 import { hasPermission } from "../../utils/permission";
 
 const Settings = () => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
         <h1 className="text-2xl font-semibold text-slate-900 flex items-center gap-2">
           <FontAwesomeIcon icon={faCogs} />
-          Setting System
+          {t("settings.title")}
         </h1>
         <p className="text-sm text-slate-500 mt-1">
-          Manage system configuration.
+          {t("settings.description")}
         </p>
       </div>
 
@@ -45,9 +47,9 @@ const Settings = () => {
               </div>
               <div>
                 <h2 className="text-base font-semibold text-slate-900 group-hover:text-blue-600">
-                  Roles & Permissions
+                  {t("settings.roles_title")}
                 </h2>
-                <p className="text-xs text-slate-500">Manage access control.</p>
+                <p className="text-xs text-slate-500">{t("settings.roles_description")}</p>
               </div>
             </div>
           </Link>
@@ -70,9 +72,9 @@ const Settings = () => {
               </div>
               <div>
                 <h2 className="text-base font-semibold text-slate-900 group-hover:text-blue-600">
-                  Departments
+                  {t("settings.departments_title")}
                 </h2>
-                <p className="text-xs text-slate-500">Manage departments.</p>
+                <p className="text-xs text-slate-500">{t("settings.departments_description")}</p>
               </div>
             </div>
           </Link>
@@ -95,9 +97,9 @@ const Settings = () => {
               </div>
               <div>
                 <h2 className="text-base font-semibold text-slate-900 group-hover:text-blue-600">
-                  Employees
+                  {t("settings.employees_title")}
                 </h2>
-                <p className="text-xs text-slate-500">Manage employees.</p>
+                <p className="text-xs text-slate-500">{t("settings.employees_description")}</p>
               </div>
             </div>
           </Link>
@@ -120,9 +122,9 @@ const Settings = () => {
               </div>
               <div>
                 <h2 className="text-base font-semibold text-slate-900 group-hover:text-blue-600">
-                  Positions
+                  {t("settings.positions_title")}
                 </h2>
-                <p className="text-xs text-slate-500">Manage positions.</p>
+                <p className="text-xs text-slate-500">{t("settings.positions_description")}</p>
               </div>
             </div>
           </Link>
@@ -145,10 +147,10 @@ const Settings = () => {
               </div>
               <div>
                 <h2 className="text-base font-semibold text-slate-900 group-hover:text-blue-600">
-                  Telegram
+                  {t("settings.telegram_title")}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Telegram configuration.
+                  {t("settings.telegram_description")}
                 </p>
               </div>
             </div>

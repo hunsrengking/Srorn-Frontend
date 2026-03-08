@@ -1,49 +1,35 @@
-// src/views/settings/roles/RoleList.jsx
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import axiosClient from "../../../services/axiosClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPlus,
-  faKey,
-  faTrash,
-} from "@fortawesome/free-solid-svg-icons";
-import { hasPermission } from "../../../utils/permission";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { faAddressCard } from "@fortawesome/free-regular-svg-icons";
+import { formatDate } from "../../../utils/formatdate";
 
 const PrintCard = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const [roles, setRoles] = useState([]);
+  const [printCards, setPrintCards] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const loadRoles = async () => {
+  const loadPrintCards = async () => {
     try {
-      const res = await axiosClient.get("/api/role");
-      setRoles(res.data || []);
+      const res = await axiosClient.get("/api/organization/printcards");
+      setPrintCards(res.data || []);
     } catch (err) {
-      console.error("Error loading roles:", err);
+      console.error("Error loading print cards:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadRoles();
+    loadPrintCards();
   }, []);
 
-  const handleDisable = async (id) => {
-    if (!window.confirm("Disable this role?")) return;
-
-    try {
-      await axiosClient.delete(`/api/role/${id}`);
-      setRoles((prev) => prev.filter((r) => r.id !== id));
-    } catch (err) {
-      console.error("Delete role error:", err);
-    }
-  };
-
   if (loading)
-    return <p className="text-sm text-slate-500">Loading roles...</p>;
+    return <p className="text-sm text-slate-500">{t("roles.loading")}</p>;
 
   return (
     <div className="space-y-6">
@@ -52,76 +38,84 @@ const PrintCard = () => {
         <div>
           <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
             <FontAwesomeIcon icon={faAddressCard} />
-            Printer Card
+            {t("print_card.title")}
           </h1>
           <p className="text-sm text-slate-500">
-            Print employee and student cards.
+            {t("print_card.description")}
           </p>
         </div>
-        {hasPermission("CREATE_ROLES") && (
-          <Link
-            to="/organization/printcard/newcard"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white text-sm px-4 py-2 rounded-xl shadow hover:bg-blue-700"
-          >
-            <FontAwesomeIcon icon={faPlus} />
-            Print New Card
-          </Link>
-        )}
+
+        <Link
+          to="/organization/printcard/newcard"
+          className="inline-flex items-center gap-2 bg-blue-600 text-white text-sm px-4 py-2 rounded-xl shadow hover:bg-blue-700"
+        >
+          <FontAwesomeIcon icon={faPlus} />
+          {t("print_card.print_new")}
+        </Link>
       </div>
 
-      {/* Roles Table */}
+      {/* Table */}
       <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-        {roles.length === 0 ? (
-          <p className="text-sm text-slate-500">No roles found.</p>
+        {printCards.length === 0 ? (
+          <p className="text-sm text-slate-500">{t("roles.not_found")}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="text-left text-slate-500 border-b">
-                  <th className="py-2 pr-4">#</th>
-                  <th className="py-2 pr-4">Role Name</th>
+                  <th className="py-2 pr-4">No.</th>
+                  <th className="py-2 pr-4">Person Name</th>
+                  <th className="py-2 pr-4">Print Date</th>
+                  <th className="py-2 pr-4">Seller By</th>
+                  <th className="py-2 pr-4">Is Print Card</th>
                   <th className="py-2 pr-4">Description</th>
-                  <th className="py-2 pr-4 text-right">Actions</th>
                 </tr>
               </thead>
+
               <tbody>
-                {roles.map((role, index) => (
+                {printCards.map((printCard, index) => (
                   <tr
-                    key={role.id}
-                    className="border-b last:border-b-0 hover:bg-slate-50"
+                    key={printCard.id}
+                    onClick={() =>
+                      navigate(`/organization/printcard/${printCard.id}`)
+                    }
+                    className="border-b last:border-b-0 hover:bg-slate-50 cursor-pointer"
                   >
-                    <td className="py-2 pr-4">{index + 1}</td>
+                    <td className="py-2 pr-4">{printCard.id}</td>
+
                     <td className="py-2 pr-4 font-medium text-slate-800">
-                      {role.name}
+                      {printCard.person_name}
                     </td>
+
                     <td className="py-2 pr-4 text-slate-600">
-                      {role.description || "-"}
+                      {formatDate(printCard.print_date)}
                     </td>
+
+                    <td className="py-2 pr-4 text-slate-600">
+                      {printCard.seller_name}
+                    </td>
+
                     <td className="py-2 pr-4">
-                      <div className="flex justify-end gap-2">
-                        {hasPermission("UPDATE_PERMISSIONS") && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              navigate(`/settings/roles/${role.id}/permissions`)
-                            }
-                            className="text-xs px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center gap-1"
-                          >
-                            <FontAwesomeIcon icon={faKey} />
-                            Permissions
-                          </button>
-                        )}
-                        {hasPermission("DISABLE_ROLES") && (
-                          <button
-                            type="button"
-                            onClick={() => handleDisable(role.id)}
-                            className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center gap-1"
-                          >
-                            <FontAwesomeIcon icon={faTrash} />
-                            Disable
-                          </button>
-                        )}
-                      </div>
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
+                          printCard.is_print_card
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-zinc-100 text-zinc-500"
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            printCard.is_print_card
+                              ? "bg-emerald-500"
+                              : "bg-zinc-400"
+                          }`}
+                        />
+                        {printCard.is_print_card ? "True" : "False"}
+                      </span>
+                    </td>
+
+                    <td className="py-2 pr-4 text-slate-600">
+                      {printCard.description}
                     </td>
                   </tr>
                 ))}

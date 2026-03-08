@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -10,9 +11,12 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../../../utils/permission";
 import axiosClient from "../../../services/axiosClient";
+import { errorService } from "../../../services/errorService";
 
 const Staff = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [staffs, setStaffs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +31,7 @@ const Staff = () => {
       setStaffs(res.data || []);
     } catch (err) {
       console.error("Error loading staff:", err);
-      setError("Failed to load staff. Please try again.");
+      setError(t("staff.load_failed"));
       setStaffs([]);
     } finally {
       setLoading(false);
@@ -36,6 +40,9 @@ const Staff = () => {
 
   useEffect(() => {
     loadStaffs();
+    if (location.state?.message) {
+      errorService.success(location.state.message);
+    }
   }, []);
 
   const handleAddStaff = () => {
@@ -47,14 +54,15 @@ const Staff = () => {
   };
 
   const handleDeleteStaff = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this staff?")) return;
+    if (!window.confirm(t("staff.delete_confirm"))) return;
 
     try {
       await axiosClient.delete(`/api/staff/${id}`);
       setStaffs((prev) => prev.filter((s) => s.id !== id));
+      errorService.success(t("staff.delete_success"));
     } catch (err) {
       console.error("Error deleting staff:", err);
-      alert("Failed to delete staff.");
+      alert(t("staff.delete_failed"));
     }
   };
 
@@ -79,10 +87,10 @@ const Staff = () => {
           <div>
             <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
               <FontAwesomeIcon icon={faUserTie} />
-              Staff Management
+              {t("staff.title")}
             </h1>
             <p className="text-sm text-slate-500 mt-1">
-              Manage staff information and positions.
+              {t("staff.description")}
             </p>
           </div>
 
@@ -93,7 +101,7 @@ const Staff = () => {
               </span>
               <input
                 type="text"
-                placeholder="Search staff..."
+                placeholder={t("staff.search_placeholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-xl
@@ -111,7 +119,7 @@ const Staff = () => {
                          focus:ring-blue-500/50"
               >
                 <FontAwesomeIcon icon={faPlus} className="h-4 w-4" />
-                <span>Add Staff</span>
+                <span>{t("staff.add_new")}</span>
               </button>
             )}
           </div>
@@ -124,14 +132,14 @@ const Staff = () => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wide">
               <tr>
-                <th className="px-4 py-3">ID</th>
-                <th className="px-4 py-3">First Name</th>
-                <th className="px-4 py-3">Last Name</th>
-                <th className="px-4 py-3">Display Name</th>
-                <th className="px-4 py-3">Mobile</th>
-                <th className="px-4 py-3">Position</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className="px-4 py-3">{t("staff.id")}</th>
+                <th className="px-4 py-3">{t("staff.first_name")}</th>
+                <th className="px-4 py-3">{t("staff.last_name")}</th>
+                <th className="px-4 py-3">{t("staff.display_name")}</th>
+                <th className="px-4 py-3">{t("staff.mobile")}</th>
+                <th className="px-4 py-3">{t("staff.position")}</th>
+                <th className="px-4 py-3">{t("staff.status")}</th>
+                <th className="px-4 py-3 text-right">{t("users.actions")}</th>
               </tr>
             </thead>
 
@@ -142,7 +150,7 @@ const Staff = () => {
                     colSpan={8}
                     className="px-4 py-8 text-center text-slate-400"
                   >
-                    Loading staff...
+                    {t("staff.loading")}
                   </td>
                 </tr>
               ) : error ? (
@@ -156,7 +164,7 @@ const Staff = () => {
                       onClick={loadStaffs}
                       className="ml-2 text-blue-600 underline"
                     >
-                      Retry
+                      {t("common.retry")}
                     </button>
                   </td>
                 </tr>
@@ -191,7 +199,7 @@ const Staff = () => {
                               : "bg-gray-200 text-gray-700 border border-gray-300"
                           }`}
                       >
-                        {s.is_active ? "Active" : "Inactive"}
+                        {s.is_active ? t("staff.active") : t("staff.inactive")}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -225,7 +233,7 @@ const Staff = () => {
                     colSpan={8}
                     className="px-4 py-8 text-center text-slate-400"
                   >
-                    No staff found.
+                    {t("staff.not_found")}
                   </td>
                 </tr>
               )}
@@ -235,9 +243,9 @@ const Staff = () => {
 
         <div className="px-4 py-3 text-xs text-slate-500 bg-slate-50 flex justify-between">
           <span>
-            Showing {filteredStaffs.length} of {staffs.length} staff
+            {t("staff.showing", { filtered: filteredStaffs.length, total: staffs.length })}
           </span>
-          <span className="text-slate-400">Page 1 of 1</span>
+          <span className="text-slate-400">{t("tickets.pagination_page", { current: 1, total: 1 })}</span>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 // src/views/settings/roles/RolePermission.jsx
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosClient from "../../../services/axiosClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,10 +10,13 @@ import {
   faCheckSquare,
   faSquare,
 } from "@fortawesome/free-solid-svg-icons";
+import { useError } from "../../../context/ErrorContext";
 
 const RolePermission = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showSuccess, showError } = useError();
 
   const [role, setRole] = useState(null);
   const [permissions, setPermissions] = useState([]);
@@ -82,13 +86,22 @@ const RolePermission = () => {
      Save
   ====================== */
   const saveAssign = async () => {
-    await axiosClient.put(`/api/role/${id}/permissions`, {
-      permissions: selected,
-    });
-    navigate("/settings/roles");
+    try {
+      await axiosClient.put(`/api/role/${id}/permissions`, {
+        permissions: selected,
+      });
+      showSuccess(t("roles.assign_success", "Permissions assigned successfully"));
+      navigate("/settings/roles");
+    } catch (err) {
+      console.error("Assign permission error:", err);
+      showError(
+        err?.response?.data?.message || err?.message ||
+          t("roles.assign_failed", "Failed to assign permissions")
+      );
+    }
   };
 
-  if (!role) return <p>Loading...</p>;
+  if (!role) return <p>{t("common.loading")}</p>;
 
   return (
     <div className="space-y-6">
@@ -96,10 +109,10 @@ const RolePermission = () => {
       <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
         <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
           <FontAwesomeIcon icon={faKey} />
-          Assign Permissions - {role.name}
+          {t("roles.assign_permissions")} - {role.name}
         </h1>
         <p className="text-sm text-slate-500">
-          Click a group to view permissions.
+          {t("roles.click_group")}
         </p>
       </div>
 
@@ -108,7 +121,7 @@ const RolePermission = () => {
         {/* LEFT: GROUP LIST */}
         <div className="w-1/3 border-r-2 border-slate-300">
           <div className="p-4 font-semibold border-b text-slate-700">
-            Permission Groups
+            {t("roles.permission_groups")}
           </div>
 
           {groups.map((group) => (
@@ -132,7 +145,7 @@ const RolePermission = () => {
           {/* Header + Buttons */}
           <div className="flex items-center justify-between mb-4 border-b pb-2">
             <h3 className="text-sm font-semibold text-slate-700 uppercase">
-              Permissions : {activeGroup}
+              {t("roles.permissions")} : {activeGroup}
             </h3>
 
             <div className="flex gap-2">
@@ -142,7 +155,7 @@ const RolePermission = () => {
                 className="text-xs px-3 py-1 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 flex items-center gap-1"
               >
                 <FontAwesomeIcon icon={faCheckSquare} />
-                Select All
+                {t("roles.select_all")}
               </button>
 
               <button
@@ -151,7 +164,7 @@ const RolePermission = () => {
                 className="text-xs px-3 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center gap-1"
               >
                 <FontAwesomeIcon icon={faSquare} />
-                Deselect All
+                {t("roles.deselect_all")}
               </button>
             </div>
           </div>
@@ -180,7 +193,7 @@ const RolePermission = () => {
           onClick={saveAssign}
           className="bg-blue-600 text-white px-4 py-2 rounded-xl shadow hover:bg-blue-700"
         >
-          Submit
+          {t("common.submit")}
         </button>
 
         <button
@@ -188,7 +201,7 @@ const RolePermission = () => {
           className="px-4 py-2 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 flex items-center gap-2"
         >
           <FontAwesomeIcon icon={faArrowLeft} />
-          Back
+          {t("checker.back")}
         </button>
       </div>
     </div>
