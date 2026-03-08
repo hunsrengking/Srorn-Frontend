@@ -10,6 +10,7 @@ import {
   faUsers,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
+import { errorService } from "../../../services/errorService";
 
 const DepartmentList = () => {
   const { t } = useTranslation();
@@ -38,6 +39,7 @@ const DepartmentList = () => {
     try {
       await axiosClient.delete(`/api/department/${id}`);
       setDepartments((prev) => prev.filter((d) => d.id !== id));
+      errorService.success(t("departments.disable_success", "Department disabled successfully"));
     } catch (err) {
       console.error("Delete department error:", err);
     }

@@ -5,11 +5,13 @@ import axiosClient from "../../services/axiosClient";
 import UserForm from "./UserForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserEdit } from "@fortawesome/free-solid-svg-icons";
+import { useError } from "../../context/ErrorContext";
 
 const UserEdit = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
+  const { showSuccess, showError } = useError();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -45,9 +47,14 @@ const UserEdit = () => {
     };
     try {
       await axiosClient.put(`/api/users/${id}`, payload);
+      showSuccess(t("users.update_success", "User updated successfully"));
       navigate("/users");
     } catch (err) {
       console.error(err);
+      showError(
+        err?.response?.data?.message || err?.message ||
+          t("users.update_failed", "Failed to update user")
+      );
     }
   };
 

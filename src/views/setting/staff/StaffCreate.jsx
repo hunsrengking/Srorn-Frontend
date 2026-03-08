@@ -1,12 +1,16 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import StaffForm from "./StaffForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserTie } from "@fortawesome/free-solid-svg-icons";
 import axiosClient from "../../../services/axiosClient";
+import { useError } from "../../../context/ErrorContext";
 
 const StaffCreate = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const { showSuccess, showError } = useError();
 
   const [formData, setFormData] = useState({
     external_id: "",
@@ -24,9 +28,14 @@ const StaffCreate = () => {
 
     try {
       await axiosClient.post("/api/staff", formData);
+      showSuccess(t("staff.create_success", "Staff created successfully"));
       navigate("/settings/employees");
     } catch (err) {
       console.error("Create staff error:", err);
+      showError(
+        err?.response?.data?.message || err?.message ||
+          t("staff.create_failed", "Failed to create staff")
+      );
     }
   };
 
@@ -36,10 +45,10 @@ const StaffCreate = () => {
       <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
         <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
           <FontAwesomeIcon icon={faUserTie} />
-          Create Staff
+          {t("staff.create_title")}
         </h1>
         <p className="text-sm text-slate-500">
-          Add a new staff member and assign position.
+          {t("staff.create_desc")}
         </p>
       </div>
 

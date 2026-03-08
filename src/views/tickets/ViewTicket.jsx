@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 // src/views/tickets/ViewTicket.jsx
 import React, { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosClient from "../../services/axiosClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,10 +18,11 @@ import { Download } from "lucide-react";
 import { useError } from "../../context/ErrorContext";
 
 const ViewTicket = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+    import.meta.env.VITE_API_BASE_URL;
   // ticket + ui state
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -152,14 +154,14 @@ const ViewTicket = () => {
       console.error("Error loading ticket:", err);
       if (err?.response?.status === 404) {
         setTicket(null);
-        setError("Ticket not found.");
+        setError(t("tickets.not_found", "Ticket not found."));
       } else {
-        setError("Failed to load ticket. Please try again.");
+        setError(t("tickets.load_failed", "Failed to load ticket. Please try again."));
       }
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, t]);
 
   useEffect(() => {
     loadDepartments();
@@ -257,12 +259,12 @@ const ViewTicket = () => {
       await axiosClient.patch(`/api/ticket/${id}`, payload);
       await loadTicket();
       setEditing(false);
-      showSuccess("Ticket updated successfully");
+      showSuccess(t("tickets.update_success", "Ticket updated successfully"));
     } catch (err) {
       console.error("Error saving ticket:", err);
       setError(
         err?.response?.data?.detail ??
-          "Failed to save changes. Please try again."
+          t("tickets.save_failed", "Failed to save changes. Please try again.")
       );
     } finally {
       setSaving(false);
@@ -333,10 +335,10 @@ const ViewTicket = () => {
 
             <div>
               <h2 className="text-xl font-semibold text-slate-900">
-                Ticket Detail
+                {t("tickets.detail_title", "Ticket Detail")}
               </h2>
               <p className="text-sm text-slate-500 mt-1">
-                View information for ticket #{id}.
+                {t("tickets.detail_desc", `View information for ticket #${id}.`)}
               </p>
             </div>
           </div>
@@ -351,7 +353,7 @@ const ViewTicket = () => {
                            rounded-xl bg-blue-600 text-white shadow-sm hover:bg-blue-700 disabled:opacity-50"
               >
                 <FontAwesomeIcon icon={faEdit} className="h-4 w-4" />
-                Edit
+                {t("common.edit", "Edit")}
               </button>
             ) : (
               <>
@@ -361,7 +363,7 @@ const ViewTicket = () => {
                   className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 disabled:opacity-60"
                 >
                   <FontAwesomeIcon icon={faSave} className="h-4 w-4" />
-                  {saving ? "Saving..." : "Save"}
+                  {saving ? t("common.saving", "Saving...") : t("common.save", "Save")}
                 </button>
 
                 <button
@@ -370,7 +372,7 @@ const ViewTicket = () => {
                   className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-xl bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 disabled:opacity-60"
                 >
                   <FontAwesomeIcon icon={faTimes} className="h-4 w-4" />
-                  Cancel
+                  {t("common.cancel", "Cancel")}
                 </button>
               </>
             )}
@@ -381,7 +383,7 @@ const ViewTicket = () => {
       {/* Content */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
         {loading ? (
-          <p className="text-sm text-slate-400">Loading ticket...</p>
+          <p className="text-sm text-slate-400">{t("tickets.loading_ticket", "Loading ticket...")}</p>
         ) : error ? (
           <div className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">
             {error}
@@ -392,11 +394,11 @@ const ViewTicket = () => {
               }}
               className="ml-2 text-blue-600 hover:text-blue-800 underline"
             >
-              Retry
+              {t("common.retry", "Retry")}
             </button>
           </div>
         ) : !ticket ? (
-          <p className="text-sm text-slate-400">Ticket not found.</p>
+          <p className="text-sm text-slate-400">{t("tickets.not_found", "Ticket not found.")}</p>
         ) : (
           <div className="space-y-6">
             {/* Top row */}
@@ -425,10 +427,10 @@ const ViewTicket = () => {
                       ticket.status_name ?? ticket.status
                     )}`}
                   >
-                    {ticket.status_name ?? ticket.status ?? "Unknown"}
+                    {ticket.status_name ?? ticket.status ?? t("common.unknown", "Unknown")}
                   </span>
                 ) : loadingStatus ? (
-                  <p className="text-sm text-slate-400">Loading statuses...</p>
+                  <p className="text-sm text-slate-400">{t("common.loading", "Loading...")}</p>
                 ) : Array.isArray(statuses) && statuses.length > 0 ? (
                   <select
                     name="status_name"
@@ -458,7 +460,7 @@ const ViewTicket = () => {
 
                 {(ticket.priority || ticket.priority_id) && (
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">
-                    Priority: {ticket.priority ?? ticket.priority_id}
+                    {t("tickets.priority", "Priority")}: {ticket.priority ?? ticket.priority_id}
                   </span>
                 )}
               </div>
@@ -469,7 +471,7 @@ const ViewTicket = () => {
               <div className="space-y-2">
                 <div>
                   <p className="text-slate-500 text-xs uppercase tracking-wide">
-                    Category
+                    {t("tickets.category", "Category")}
                   </p>
 
                   {!editing ? (
@@ -487,7 +489,7 @@ const ViewTicket = () => {
                       onChange={handleChange}
                       className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
                     >
-                      <option value="">-- Select category --</option>
+                      <option value="">{t("tickets.select_category", "-- Select category --")}</option>
                       {categories.map((c) => (
                         <option key={c.id} value={c.id}>
                           {c.name ?? c.label}
@@ -507,14 +509,14 @@ const ViewTicket = () => {
 
                 <div>
                   <p className="text-slate-500 text-xs uppercase tracking-wide">
-                    Created By
+                    {t("tickets.created_by", "Created By")}
                   </p>
                   <p className="text-slate-800">{ticket.created_by ?? "-"}</p>
                 </div>
 
                 <div>
                   <p className="text-slate-500 text-xs uppercase tracking-wide">
-                    Created At
+                    {t("tickets.created_at", "Created At")}
                   </p>
                   <p className="text-slate-800">
                     {formatDate(ticket.created_at)}
@@ -525,7 +527,7 @@ const ViewTicket = () => {
               <div className="space-y-2">
                 <div>
                   <p className="text-slate-500 text-xs uppercase tracking-wide">
-                    Assigned To
+                    {t("tickets.assigned_to", "Assigned To")}
                   </p>
 
                   {/* Editable assigned_to: use assignedUsers when editing */}
@@ -549,7 +551,7 @@ const ViewTicket = () => {
                       onChange={handleChange}
                       className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
                     >
-                      <option value="">-- Unassigned --</option>
+                      <option value="">{t("tickets.unassigned", "-- Unassigned --")}</option>
                       {assignedUsers.map((u) => (
                         <option key={u.id} value={u.id}>
                           {u.username}
@@ -562,7 +564,7 @@ const ViewTicket = () => {
                       name="assigned_to"
                       value={form.assigned_to}
                       onChange={handleChange}
-                      placeholder="Type assignee id or name"
+                      placeholder={t("tickets.type_assignee", "Type assignee id or name")}
                       className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
                     />
                   )}
@@ -570,7 +572,7 @@ const ViewTicket = () => {
                 {/* Start / End Date (editable only when editing) */}
                 <div>
                   <p className="text-slate-500 text-xs uppercase tracking-wide">
-                    Start Date
+                    {t("tickets.start_date", "Start Date")}
                   </p>
                   {!editing ? (
                     <p className="text-slate-800">
@@ -593,7 +595,7 @@ const ViewTicket = () => {
 
                 <div>
                   <p className="text-slate-500 text-xs uppercase tracking-wide">
-                    End Date
+                    {t("tickets.end_date", "End Date")}
                   </p>
                   {!editing ? (
                     <p className="text-slate-800">
@@ -615,7 +617,7 @@ const ViewTicket = () => {
                 {/* Priority (editable) */}
                 <div>
                   <p className="text-slate-500 text-xs uppercase tracking-wide">
-                    Priority
+                    {t("tickets.priority", "Priority")}
                   </p>
                   {!editing ? (
                     <p className="text-slate-800">{ticket.priority ?? "-"}</p>
@@ -630,7 +632,7 @@ const ViewTicket = () => {
                       onChange={handleChange}
                       className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
                     >
-                      <option value="">-- Select priority --</option>
+                      <option value="">{t("tickets.select_priority", "-- Select priority --")}</option>
                       {priorities.map((p) => (
                         <option
                           key={p.id ?? p.value ?? p.name}
@@ -646,7 +648,7 @@ const ViewTicket = () => {
                       name="priority_id"
                       value={form.priority_id}
                       onChange={handleChange}
-                      placeholder="Type priority"
+                      placeholder={t("tickets.type_priority", "Type priority")}
                       className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
                     />
                   )}
@@ -654,11 +656,10 @@ const ViewTicket = () => {
               </div>
             </div>
 
-            {/* Items / Attachments */}
             {Array.isArray(ticket?.items) && ticket.items.length > 0 && (
               <div className="mt-6">
                 <p className="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-3">
-                  Attachments
+                  {t("tickets.attachments", "Attachments")}
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -714,7 +715,7 @@ const ViewTicket = () => {
                              bg-emerald-50 border border-emerald-200 rounded-lg
                              hover:bg-emerald-100 transition whitespace-nowrap"
                             >
-                              Image
+                              {t("tickets.image", "Image")}
                               <FontAwesomeIcon icon={faDownload} />
                             </a>
                           )}
@@ -745,7 +746,7 @@ const ViewTicket = () => {
                              bg-blue-50 border border-blue-200 rounded-lg
                              hover:bg-blue-100 transition whitespace-nowrap"
                             >
-                              File
+                              {t("tickets.file", "File")}
                               <FontAwesomeIcon icon={faDownload} />
                             </a>
                           )}
@@ -760,12 +761,12 @@ const ViewTicket = () => {
             {/* Description */}
             <div>
               <p className="text-slate-500 text-xs uppercase tracking-wide mb-1">
-                Description
+                {t("tickets.description", "Description")}
               </p>
 
               {!editing ? (
                 <div className="text-sm text-slate-800 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 whitespace-pre-wrap">
-                  {ticket.description || "No description provided."}
+                  {ticket.description || t("tickets.no_description", "No description provided.")}
                 </div>
               ) : (
                 <textarea
@@ -774,7 +775,7 @@ const ViewTicket = () => {
                   onChange={handleChange}
                   rows={5}
                   className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                  placeholder="Enter description..."
+                  placeholder={t("tickets.desc_placeholder", "Enter description...")}
                 />
               )}
             </div>

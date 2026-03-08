@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 
 import StaffForm from "./StaffForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserTie } from "@fortawesome/free-solid-svg-icons";
 import axiosClient from "../../../services/axiosClient";
+import { useError } from "../../../context/ErrorContext";
 
 const StaffEdit = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
+  const { showSuccess, showError } = useError();
 
   const [formData, setFormData] = useState({
     external_id: "",
@@ -44,9 +48,14 @@ const StaffEdit = () => {
 
     try {
       await axiosClient.put(`/api/staff/${id}`, formData);
+      showSuccess(t("staff.update_success", "Staff updated successfully"));
       navigate("/settings/employees");
     } catch (err) {
       console.error("Update staff error:", err);
+      showError(
+        err?.response?.data?.message || err?.message ||
+          t("staff.update_failed", "Failed to update staff")
+      );
     }
   };
 
@@ -56,10 +65,10 @@ const StaffEdit = () => {
       <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
         <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
           <FontAwesomeIcon icon={faUserTie} />
-          Edit Staff
+          {t("staff.edit_title")}
         </h1>
         <p className="text-sm text-slate-500">
-          Update staff profile and position.
+          {t("staff.edit_desc")}
         </p>
       </div>
 

@@ -1,5 +1,6 @@
 // src/views/settings/staff/StaffForm.jsx
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import axiosClient from "../../../services/axiosClient";
 
 const StaffForm = ({
@@ -9,6 +10,7 @@ const StaffForm = ({
   onSubmit,
   onCancel,
 }) => {
+  const { t } = useTranslation();
   const [positions, setPositions] = useState([]);
   const [loading, setLoading] = useState({
     positions: true,
@@ -57,7 +59,7 @@ const StaffForm = ({
     >
       {/* External ID */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-        <label className="text-sm text-slate-600 sm:w-32">External ID</label>
+        <label className="text-sm text-slate-600 sm:w-32">{t("staff.external_id")}</label>
         <input
           type="text"
           name="external_id"
@@ -72,7 +74,7 @@ const StaffForm = ({
       {/* First Name */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-2">
         <label className="text-sm text-slate-600 sm:w-32">
-          First Name <span className="text-red-500">*</span>
+          {t("staff.first_name")} <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
@@ -88,7 +90,7 @@ const StaffForm = ({
       {/* Last Name */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-2">
         <label className="text-sm text-slate-600 sm:w-32">
-          Last Name <span className="text-red-500">*</span>
+          {t("staff.last_name")} <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
@@ -103,7 +105,7 @@ const StaffForm = ({
 
       {/* Mobile */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-        <label className="text-sm text-slate-600 sm:w-32">Mobile No</label>
+        <label className="text-sm text-slate-600 sm:w-32">{t("staff.mobile_no")}</label>
         <input
           type="text"
           name="mobile_no"
@@ -117,7 +119,7 @@ const StaffForm = ({
       {/* Join Date */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-2">
         <label className="text-sm text-slate-600 sm:w-32">
-          Join Date <span className="text-red-500">*</span>
+          {t("staff.join_date")} <span className="text-red-500">*</span>
         </label>
         <input
           type="date"
@@ -133,7 +135,7 @@ const StaffForm = ({
       {/* Position */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-2">
         <label className="text-sm text-slate-600 sm:w-32">
-          Position <span className="text-red-500">*</span>
+          {t("staff.position")} <span className="text-red-500">*</span>
         </label>
         <select
           name="position_id"
@@ -144,7 +146,7 @@ const StaffForm = ({
           className="w-full sm:max-w-md border rounded-xl p-2.5 text-sm
              focus:ring-2 focus:ring-blue-400"
         >
-          <option value="">Select position</option>
+          <option value="">{t("staff.select_position")}</option>
           {positions.map((p) => (
             <option key={p.id} value={p.id}>
               {p.title}
@@ -162,7 +164,7 @@ const StaffForm = ({
           onChange={handleChange}
           className="h-4 w-4 rounded border-slate-300 text-blue-600"
         />
-        <label className="text-sm text-slate-600">Active</label>
+        <label className="text-sm text-slate-600">{t("staff.active")}</label>
       </div>
 
       {/* Actions */}
@@ -172,7 +174,7 @@ const StaffForm = ({
           disabled={isLoading}
           className="bg-blue-600 text-white px-4 py-2 rounded-xl shadow hover:bg-blue-700 text-sm"
         >
-          {isEdit ? "Update" : "Create"}
+          {isEdit ? t("common.update") : t("common.create")}
         </button>
 
         <button
@@ -180,7 +182,7 @@ const StaffForm = ({
           onClick={onCancel}
           className="px-4 py-2 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm"
         >
-          Cancel
+          {t("common.cancel")}
         </button>
       </div>
     </form>

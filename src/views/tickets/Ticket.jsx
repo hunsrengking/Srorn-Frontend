@@ -31,7 +31,7 @@ const Ticket = () => {
       setTickets(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error loading tickets:", err);
-      setError("Failed to load tickets. Please try again.");
+      setError(t("tickets.load_failed", "Failed to load tickets. Please try again."));
       setTickets([]);
     } finally {
       setLoading(false);

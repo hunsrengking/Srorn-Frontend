@@ -1,5 +1,6 @@
 // src/views/settings/department/DepartmentMember.jsx
 import React, { useEffect, useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useError } from "../../../context/ErrorContext";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosClient from "../../../services/axiosClient";
@@ -14,6 +15,7 @@ import {
 const PAGE_SIZE = 10;
 
 const DepartmentMember = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { showError, showSuccess } = useError();
@@ -38,7 +40,7 @@ const DepartmentMember = () => {
       setMembers(res.data?.members || []);
     } catch (err) {
       console.error(err);
-      setError("Failed to load department members.");
+      setError(t("departments.load_failed"));
     } finally {
       setLoading(false);
     }
@@ -99,34 +101,34 @@ const DepartmentMember = () => {
       });
       setIsAddOpen(false);
       loadMembers();
-      showSuccess("Member added");
+      showSuccess(t("departments.member_added"));
     } catch (err) {
       console.error(err);
       showError(
         err?.response?.data?.message || err?.message ||
-          "Failed to add member."
+          t("departments.add_failed")
       );
     }
   };
 
   // Remove member
   const handleRemove = async (userId, name) => {
-    if (!window.confirm(`Remove ${name}?`)) return;
+    if (!window.confirm(t("departments.remove_confirm", { name }))) return;
     try {
       await axiosClient.delete(`/api/department/${id}/members/${userId}remove`);
       setMembers((prev) => prev.filter((m) => m.id !== userId));
-      showSuccess("Member removed");
+      showSuccess(t("departments.member_removed"));
     } catch (err) {
       console.error(err);
       showError(
         err?.response?.data?.message || err?.message ||
-          "Failed to remove member."
+          t("departments.remove_failed")
       );
     }
   };
 
   if (loading)
-    return <p className="text-sm text-slate-500">Loading members...</p>;
+    return <p className="text-sm text-slate-500">{t("departments.loading_members")}</p>;
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -134,10 +136,10 @@ const DepartmentMember = () => {
         <div>
           <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
             <FontAwesomeIcon icon={faUsers} />
-            Members — {department?.name}
+            {t("departments.members_title", { name: department?.name })}
           </h1>
           <p className="text-sm text-slate-500">
-            Manage users in this department.
+            {t("departments.members_desc")}
           </p>
         </div>
 
@@ -154,7 +156,7 @@ const DepartmentMember = () => {
                 setQuery(e.target.value);
                 setPage(1);
               }}
-              placeholder="Search..."
+              placeholder={t("users.search_placeholder", "Search users...")}
               className="bg-transparent outline-none text-sm w-44"
             />
           </div>
@@ -165,7 +167,7 @@ const DepartmentMember = () => {
             className="inline-flex items-center gap-2 bg-blue-600 text-white text-sm px-4 py-2 rounded-xl shadow hover:bg-blue-700"
           >
             <FontAwesomeIcon icon={faUserPlus} />
-            Add Member
+            {t("departments.add_member")}
           </button>
         </div>
       </div>
@@ -173,17 +175,17 @@ const DepartmentMember = () => {
       {/* Table */}
       <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
         {filtered.length === 0 ? (
-          <p className="text-sm text-slate-500">No members found.</p>
+          <p className="text-sm text-slate-500">{t("departments.no_members")}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="text-left text-slate-500 border-b">
-                  <th className="py-2 pr-4">#</th>
-                  <th className="py-2 pr-4">Name</th>
-                  <th className="py-2 pr-4">Email</th>
-                  <th className="py-2 pr-4">Job Title</th>
-                  <th className="py-2 pr-4 text-right">Actions</th>
+                  <th className="py-2 pr-4">{t("departments.number")}</th>
+                  <th className="py-2 pr-4">{t("departments.member_name")}</th>
+                  <th className="py-2 pr-4">{t("users.email")}</th>
+                  <th className="py-2 pr-4">{t("departments.job_title")}</th>
+                  <th className="py-2 pr-4 text-right">{t("users.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -211,7 +213,7 @@ const DepartmentMember = () => {
                           className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center gap-1"
                         >
                           <FontAwesomeIcon icon={faTrash} />
-                          Remove
+                          {t("common.delete", "Remove")}
                         </button>
                       </div>
                     </td>
@@ -227,7 +229,7 @@ const DepartmentMember = () => {
       {filtered.length > PAGE_SIZE && (
         <div className="flex justify-between text-sm text-slate-500">
           <span>
-            Page {page} / {totalPages}
+            {t("tickets.pagination_page", { current: page, total: totalPages })}
           </span>
           <div className="flex gap-2">
             <button
@@ -235,14 +237,14 @@ const DepartmentMember = () => {
               onClick={() => setPage((p) => p - 1)}
               className="px-3 py-1 border rounded disabled:opacity-50"
             >
-              Prev
+              {t("Student.previous")}
             </button>
             <button
               disabled={page === totalPages}
               onClick={() => setPage((p) => p + 1)}
               className="px-3 py-1 border rounded disabled:opacity-50"
             >
-              Next
+              {t("Student.next")}
             </button>
           </div>
         </div>
@@ -259,7 +261,7 @@ const DepartmentMember = () => {
             onSubmit={handleAddMember}
             className="relative bg-white rounded-2xl p-6 w-full max-w-md shadow-lg"
           >
-            <h3 className="text-lg font-semibold mb-4">Add Member</h3>
+            <h3 className="text-lg font-semibold mb-4">{t("departments.add_member")}</h3>
 
             <select
               value={selectedUserId}
@@ -267,9 +269,9 @@ const DepartmentMember = () => {
               className="w-full border rounded-xl p-2 text-sm"
               required
             >
-              <option value="">-- Select user --</option>
+              <option value="">{t("departments.select_user")}</option>
               {loadingUsers ? (
-                <option disabled>Loading...</option>
+                <option disabled>{t("common.loading")}</option>
               ) : (
                 candidateUsers.map((u) => (
                   <option key={u.id} value={u.id}>
@@ -285,13 +287,13 @@ const DepartmentMember = () => {
                 onClick={() => setIsAddOpen(false)}
                 className="px-4 py-2 border rounded-xl text-sm"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 type="submit"
                 className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm"
               >
-                Add
+                {t("departments.add_member", "Add")}
               </button>
             </div>
           </form>

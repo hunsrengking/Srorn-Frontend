@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import axiosClient from "../../../services/axiosClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { useError } from "../../../context/ErrorContext";
 
 const Telegram = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const { showSuccess, showError } = useError();
 
   const [botToken, setBotToken] = useState("");
   const [chatId, setChatId] = useState("");
@@ -55,8 +59,10 @@ const Telegram = () => {
 
       resetForm();
       fetchConfigList();
+      showSuccess(t("telegram.save_success", "Telegram configuration saved successfully"));
     } catch (err) {
       console.error(err);
+      showError(err?.response?.data?.message || err?.message || t("telegram.save_failed", "Failed to save configuration"));
     } finally {
       setLoading(false);
     }
@@ -72,15 +78,17 @@ const Telegram = () => {
 
   // ================= DELETE =================
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this Telegram config?")) return;
+    if (!window.confirm(t("telegram.delete_confirm"))) return;
 
     try {
       await axiosClient.delete(`/api/telegram/${id}`);
       fetchConfigList();
 
       if (configId === id) resetForm();
+      showSuccess(t("telegram.delete_success", "Telegram configuration deleted successfully"));
     } catch (err) {
       console.error(err);
+      showError(err?.response?.data?.message || err?.message || t("telegram.delete_failed", "Failed to delete configuration"));
     }
   };
 
@@ -97,10 +105,10 @@ const Telegram = () => {
       <div className="bg-white rounded-2xl p-5 shadow-sm">
         <h1 className="text-2xl font-semibold flex items-center gap-2">
           <FontAwesomeIcon icon={faPaperPlane} />
-          Telegram Configuration
+          {t("telegram.title")}
         </h1>
         <p className="text-sm text-slate-500">
-          Click row to edit, delete from action column
+          {t("telegram.edit_info")}
         </p>
       </div>
 
@@ -111,7 +119,7 @@ const Telegram = () => {
           className="bg-white rounded-2xl p-5 shadow-sm space-y-4"
         >
           <div>
-            <label className="text-sm">Bot Token</label>
+            <label className="text-sm">{t("telegram.bot_token")}</label>
             <input
               value={botToken}
               onChange={(e) => setBotToken(e.target.value)}
@@ -121,7 +129,7 @@ const Telegram = () => {
           </div>
 
           <div>
-            <label className="text-sm">Chat ID</label>
+            <label className="text-sm">{t("telegram.chat_id")}</label>
             <input
               value={chatId}
               onChange={(e) => setChatId(e.target.value)}
@@ -131,7 +139,7 @@ const Telegram = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium">Active</span>
+            <span className="text-sm font-medium">{t("telegram.active")}</span>
             <button
               type="button"
               onClick={() => setIsActive(!isActive)}
@@ -152,7 +160,7 @@ const Telegram = () => {
               disabled={loading}
               className="bg-blue-600 text-white px-4 py-2 rounded-xl"
             >
-              {configId ? "Update" : "Save"}
+              {configId ? t("telegram.update") : t("telegram.save")}
             </button>
 
             {configId && (
@@ -161,7 +169,7 @@ const Telegram = () => {
                 onClick={resetForm}
                 className="border px-4 py-2 rounded-xl"
               >
-                Clear
+                {t("telegram.clear")}
               </button>
             )}
           </div>
@@ -169,18 +177,18 @@ const Telegram = () => {
 
         {/* LIST */}
         <div className="bg-white rounded-2xl p-5 shadow-sm">
-          <h2 className="font-semibold mb-4">Telegram List</h2>
+          <h2 className="font-semibold mb-4">{t("telegram.list_title")}</h2>
 
           {loadingList ? (
-            <p className="text-sm">Loading...</p>
+            <p className="text-sm">{t("telegram.loading")}</p>
           ) : (
             <table className="w-full text-sm">
               <thead className="bg-slate-100">
                 <tr>
-                  <th className="p-2 text-left">Bot Token</th>
-                  <th className="p-2 text-left">Chat ID</th>
-                  <th className="p-2 text-center">Status</th>
-                  <th className="p-2 text-center">Action</th>
+                  <th className="p-2 text-left">{t("telegram.bot_token")}</th>
+                  <th className="p-2 text-left">{t("telegram.chat_id")}</th>
+                  <th className="p-2 text-center">{t("users.status", "Status")}</th>
+                  <th className="p-2 text-center">{t("users.actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -197,7 +205,7 @@ const Telegram = () => {
                     </td>
                     <td className="p-2">{item.chat_id}</td>
                     <td className="p-2 text-center">
-                      {item.is_active ? "Active" : "Inactive"}
+                      {item.is_active ? t("telegram.active") : t("telegram.inactive")}
                     </td>
                     <td
                       className="p-2 text-center"

@@ -1,18 +1,21 @@
 // src/views/organization/card/PrintCardForm.jsx
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Select from "react-select";
 import axiosClient from "../../../services/axiosClient";
 import { faPlusCircle, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
+  const { t } = useTranslation();
   const [positions, setPositions] = useState([]);
+  const [allNames, setAllNames] = useState([]);
   const [names, setNames] = useState([]);
   const [loadingPositions, setLoadingPositions] = useState(true);
   const [loadingNames, setLoadingNames] = useState(false);
 
   const [cableChecked, setCableChecked] = useState(false);
-  const [cables, setCables] = useState([]); // array of { value, color }
+  const [cables, setCables] = useState([]);
 
   // Load positions
   const loadPositions = async () => {
@@ -26,22 +29,63 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
     }
   };
 
-  // Load names based on position
-  const loadNames = async (positionId) => {
-    if (!positionId) return setNames([]);
-    setLoadingNames(true);
+  // Load students
+  const loadStudents = async () => {
     try {
-      const res = await axiosClient.get(`/api/staff?position_id=${positionId}`);
-      setNames(res.data || []);
+      const res = await axiosClient.get("/api/students");
+      const data = res.data || [];
+      setAllNames((prev) => {
+        const merged = [...prev, ...data];
+        const unique = merged.filter(
+          (item, index, self) =>
+            index === self.findIndex((t) => t.id === item.id),
+        );
+        return unique;
+      });
     } catch (err) {
       console.error("Error loading names:", err);
-    } finally {
-      setLoadingNames(false);
     }
   };
 
+  // Load Employees
+  const loadEmployees = async () => {
+    try {
+      const res = await axiosClient.get("/api/staff");
+      const data = res.data || [];
+      setAllNames((prev) => {
+        const merged = [...prev, ...data];
+        const unique = merged.filter(
+          (item, index, self) =>
+            index === self.findIndex((t) => t.id === item.id),
+        );
+        return unique;
+      });
+    } catch (err) {
+      console.error("Error loading names:", err);
+    }
+  };
+
+  // Load names based on position
+  const loadNames = async (positionId) => {
+    if (!positionId) return setNames([]);
+
+    const filtered = allNames.filter(
+      (item) => String(item.position_id) === String(positionId),
+    );
+
+    // remove duplicate ids
+    const unique = filtered.filter(
+      (item, index, self) => index === self.findIndex((t) => t.id === item.id),
+    );
+
+    setNames(unique);
+  };
+
   useEffect(() => {
+    setAllNames([]); // prevent duplicate in React StrictMode
     loadPositions();
+    loadStudents();
+    loadEmployees();
   }, []);
 
   // Handlers
@@ -54,6 +98,7 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
       display_name: "",
       print_date: "",
       description: "",
+      is_print_card: "",
       cables: [],
     });
     setCableChecked(false);
@@ -79,8 +124,8 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
   const handleCableCheckbox = (e) => {
     const checked = e.target.checked;
     setCableChecked(checked);
+
     if (checked && cables.length === 0) {
-      // Add first cable by default
       const newCables = [{ value: "", color: "" }];
       setCables(newCables);
       onChange({ ...formData, cables: newCables });
@@ -115,6 +160,7 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
     value: p.id,
     label: p.title,
   }));
+
   const nameOptions = names.map((n) => ({
     value: n.id,
     label: n.display_name,
@@ -126,7 +172,13 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
     { value: "3", label: "Blue" },
     { value: "4", label: "Yellow" },
   ];
-
+  const handleSellerChange = (selected) => {
+    onChange({
+      ...formData,
+      seller_id: selected ? selected.value : "",
+      seller_name: selected ? selected.label : "",
+    });
+  };
   return (
     <form
       onSubmit={onSubmit}
@@ -135,14 +187,15 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
       {/* Position select */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-2">
         <label className="text-sm text-slate-600 sm:w-32">
-          Position <span className="text-red-500">*</span>
+          {t("staff.position", "Position")}{" "}
+          <span className="text-red-500">*</span>
         </label>
         <div className="w-full sm:max-w-md">
           <Select
             options={positionOptions}
             isLoading={loadingPositions}
             onChange={handlePositionChange}
-            placeholder="Select position..."
+            placeholder={t("staff.select_position")}
             value={
               positionOptions.find((o) => o.value === formData.position_id) ||
               null
@@ -158,14 +211,18 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
           {/* Name select */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-2">
             <label className="text-sm text-slate-600 sm:w-32">
-              Name <span className="text-red-500">*</span>
+              {t("departments.member_name", "Name")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <div className="w-full sm:max-w-md">
               <Select
                 options={nameOptions}
                 isLoading={loadingNames}
                 onChange={handleNameChange}
-                placeholder="Select and search by name..."
+                placeholder={t(
+                  "print_card.search_name",
+                  "Select and search by name...",
+                )}
                 value={
                   nameOptions.find((o) => o.value === formData.staff_id) || null
                 }
@@ -174,11 +231,33 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
               />
             </div>
           </div>
+          {/* Print Card Checkbox */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <label className="text-sm text-slate-600 sm:w-32">
+              {t("print_card.print_card", "Print Card")}
+            </label>
 
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={Boolean(formData.is_print_card)}
+                onChange={(e) =>
+                  onChange({
+                    ...formData,
+                    is_print_card: e.target.checked,
+                  })
+                }
+              />
+              <span className="text-sm text-slate-600">
+                {t("print_card.enable_print", "Enable printing")}
+              </span>
+            </div>
+          </div>
           {/* Print Date */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-2">
             <label className="text-sm text-slate-600 sm:w-32">
-              Print Date <span className="text-red-500">*</span>
+              {t("print_card.print_date", "Print Date")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <input
               type="date"
@@ -193,16 +272,29 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
           {/* Seller By Section */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-2">
             <label className="text-sm text-slate-600 sm:w-32">
-              Seller By <span className="text-red-500">*</span>
+              {t("print_card.seller_by", "Seller By")}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <div className="w-full sm:max-w-md">
               <Select
-                options={nameOptions}
+                options={[
+                  ...new Map(
+                    allNames.map((n) => [
+                      n.id,
+                      { value: n.id, label: n.display_name },
+                    ]),
+                  ).values(),
+                ]}
                 isLoading={loadingNames}
-                onChange={handleNameChange}
-                placeholder="Select and search by name..."
+                onChange={handleSellerChange}
+                placeholder={t(
+                  "print_card.search_name",
+                  "Select and search by name...",
+                )}
                 value={
-                  nameOptions.find((o) => o.value === formData.staff_id) || null
+                  allNames
+                    .map((n) => ({ value: n.id, label: n.display_name }))
+                    .find((o) => o.value === formData.seller_id) || null
                 }
                 isClearable
                 isSearchable
@@ -212,9 +304,10 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
 
           {/* Cable Section */}
           <div className="flex flex-col gap-2">
-            {/* Label + checkbox + Add button row */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <label className="text-sm text-slate-600 sm:w-32">Cable</label>
+              <label className="text-sm text-slate-600 sm:w-32">
+                {t("print_card.cable", "Cable")}
+              </label>
               <div className="flex items-center gap-2 flex-1">
                 <input
                   type="checkbox"
@@ -237,7 +330,6 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
               </div>
             </div>
 
-            {/* Cable entries: value + color */}
             {cableChecked &&
               cables.map((c, idx) => (
                 <div
@@ -246,7 +338,10 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
                 >
                   <input
                     type="text"
-                    placeholder="Enter cable value..."
+                    placeholder={t(
+                      "print_card.enter_cable",
+                      "Enter cable value...",
+                    )}
                     value={c.value}
                     onChange={(e) =>
                       handleCableChange(idx, "value", e.target.value)
@@ -261,7 +356,10 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
                     onChange={(sel) =>
                       handleCableChange(idx, "color", sel?.value || "")
                     }
-                    placeholder="Select color..."
+                    placeholder={t(
+                      "print_card.select_color",
+                      "Select color...",
+                    )}
                     isClearable
                     className="w-64"
                   />
@@ -270,7 +368,6 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
                     onClick={() => handleRemoveCable(idx)}
                     className="px-3 py-1 bg-red-500 text-white rounded-xl text-sm"
                   >
-                    {/* <FontAwesomeIcon icon={faPlus} /> */}
                     <FontAwesomeIcon icon={faXmarkCircle} />
                   </button>
                 </div>
@@ -280,7 +377,7 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
           {/* Description */}
           <div className="flex flex-col sm:flex-row sm:items-start gap-2">
             <label className="text-sm text-slate-600 sm:w-32">
-              Description
+              {t("departments.description")}
             </label>
             <textarea
               name="description"
@@ -288,7 +385,7 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
               onChange={handleInputChange}
               rows={3}
               className="w-full sm:max-w-md border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-400 resize-none"
-              placeholder="Enter description..."
+              placeholder={t("departments.desc_placeholder")}
             />
           </div>
         </>
@@ -306,7 +403,7 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
           }
           className="bg-blue-600 text-white px-4 py-2 rounded-xl shadow hover:bg-blue-700 text-sm"
         >
-          Submit
+          {t("common.submit")}
         </button>
 
         <button
@@ -314,7 +411,7 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
           onClick={onCancel}
           className="px-4 py-2 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm"
         >
-          Cancel
+          {t("common.cancel")}
         </button>
       </div>
     </form>

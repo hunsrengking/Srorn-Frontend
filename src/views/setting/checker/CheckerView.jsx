@@ -1,5 +1,6 @@
 // src/views/settings/users/CheckerView.jsx
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosClient from "../../../services/axiosClient";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,10 +11,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { formatDate } from "../../../utils/formatdate";
 import { hasPermission } from "../../../utils/permission";
+import { useError } from "../../../context/ErrorContext";
 
 const TicketCheckerView = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showSuccess, showError } = useError();
 
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,7 +31,7 @@ const TicketCheckerView = () => {
       setTicket(res.data);
     } catch (err) {
       console.error("Failed to load ticket:", err);
-      setError("Failed to load ticket details.");
+      setError(t("checker.load_error", "Failed to load ticket details."));
     } finally {
       setLoading(false);
     }
@@ -38,10 +42,10 @@ const TicketCheckerView = () => {
   }, [id]);
 
   const updateStatus = async (action) => {
-    const label = action === "approve" ? "approve" : "reject";
-
-    if (!window.confirm(`Are you sure you want to ${label} this ticket?`)) {
-      return;
+    if (action === "approve") {
+      if (!window.confirm(t("checker.approve_confirm_single"))) return;
+    } else {
+      if (!window.confirm(t("checker.reject_confirm_single"))) return;
     }
 
     try {
@@ -49,29 +53,29 @@ const TicketCheckerView = () => {
 
       await axiosClient.patch(`/api/ticket/${id}/${action}`);
 
-      alert("Status updated!");
+      showSuccess(t("checker.status_updated"));
       navigate("/checkermaker");
       await loadTicket(); // reload fresh data
     } catch (err) {
       console.error(err.response?.data || err);
-      alert(err.response?.data?.detail || "Update failed");
+      showError(err.response?.data?.detail || t("checker.update_failed"));
     } finally {
       setActionLoading(false);
     }
   };
   const deleteTicket = async () => {
-    if (!window.confirm("Are you sure you want to delete this ticket?")) {
+    if (!window.confirm(t("checker.delete_confirm_single"))) {
       return;
     }
 
     try {
       setActionLoading(true);
       await axiosClient.delete(`/api/ticket/${id}`);
-      alert("Ticket deleted!");
+      showSuccess(t("checker.ticket_deleted"));
       navigate("/checkermaker");
     } catch (err) {
       console.error("Delete failed:", err);
-      alert("Failed to delete ticket.");
+      showError(t("positions.delete_failed", "Failed to delete ticket."));
     } finally {
       setActionLoading(false);
     }
@@ -80,14 +84,14 @@ const TicketCheckerView = () => {
   if (loading) {
     return (
       <div className="p-10 text-center text-slate-500">
-        Loading ticket details...
+        {t("checker.loading_details")}
       </div>
     );
   }
 
   if (!ticket) {
     return (
-      <div className="p-10 text-center text-slate-500">Ticket not found.</div>
+      <div className="p-10 text-center text-slate-500">{t("checker.not_found_single")}</div>
     );
   }
 
@@ -100,7 +104,7 @@ const TicketCheckerView = () => {
           className="text-sm flex items-center gap-2 px-3 py-2 rounded-xl border bg-slate-50 hover:bg-slate-100"
         >
           <FontAwesomeIcon icon={faArrowLeft} />
-          Back
+          {t("checker.back")}
         </button>
 
         <div className="flex gap-2">
@@ -110,7 +114,7 @@ const TicketCheckerView = () => {
               disabled={actionLoading}
               className="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm"
             >
-              <FontAwesomeIcon icon={faCheck} className="mr-1" /> Approve
+              <FontAwesomeIcon icon={faCheck} className="mr-1" /> {t("checker.approve")}
             </button>
           )}
 
@@ -120,7 +124,7 @@ const TicketCheckerView = () => {
               disabled={actionLoading}
               className="px-4 py-2 rounded-xl bg-amber-600 text-white hover:bg-amber-700 text-sm"
             >
-              <FontAwesomeIcon icon={faXmark} className="mr-1" /> Reject
+              <FontAwesomeIcon icon={faXmark} className="mr-1" /> {t("checker.reject")}
             </button>
           )}
 
@@ -131,7 +135,7 @@ const TicketCheckerView = () => {
               disabled={actionLoading}
               className="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700 text-sm"
             >
-              <FontAwesomeIcon icon={faXmark} className="mr-1" /> Delete
+              <FontAwesomeIcon icon={faXmark} className="mr-1" /> {t("checker.delete")}
             </button>
           )}
         </div>
@@ -140,42 +144,42 @@ const TicketCheckerView = () => {
       {/* Details */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
         <h2 className="text-xl font-semibold text-slate-900 mb-4">
-          Ticket #{ticket.id}
+          {t("checker.view_title", { id: ticket.id })}
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
           <div>
-            <p className="text-slate-500">Subject</p>
+            <p className="text-slate-500">{t("checker.subject")}</p>
             <p className="font-medium text-slate-800">{ticket.subject}</p>
           </div>
 
           <div>
-            <p className="text-slate-500">Category</p>
+            <p className="text-slate-500">{t("checker.category")}</p>
             <p className="font-medium text-slate-800">{ticket.category}</p>
           </div>
 
           <div>
-            <p className="text-slate-500">Priority</p>
+            <p className="text-slate-500">{t("checker.priority")}</p>
             <p className="font-medium text-slate-800">{ticket.priority}</p>
           </div>
 
           <div>
-            <p className="text-slate-500">Status</p>
+            <p className="text-slate-500">{t("checker.status")}</p>
             <p className="font-medium text-slate-800">{ticket.status}</p>
           </div>
 
           <div>
-            <p className="text-slate-500">Created By</p>
+            <p className="text-slate-500">{t("tickets.created_by", "Created By")}</p>
             <p className="font-medium text-slate-800">{ticket.created_by}</p>
           </div>
 
           <div>
-            <p className="text-slate-500">Assigned To</p>
+            <p className="text-slate-500">{t("checker.assigned_to")}</p>
             <p className="font-medium text-slate-800">{ticket.assigned_to}</p>
           </div>
 
           <div>
-            <p className="text-slate-500">Created At</p>
+            <p className="text-slate-500">{t("checker.created_at")}</p>
             <p className="font-medium text-slate-800">
               {formatDate(ticket.created_at)}
             </p>
@@ -184,9 +188,9 @@ const TicketCheckerView = () => {
 
         {/* Description */}
         <div>
-          <p className="text-slate-500">Description</p>
+          <p className="text-slate-500">{t("tickets.description")}</p>
           <p className="mt-1 text-slate-700 whitespace-pre-wrap">
-            {ticket.description || "No description"}
+            {ticket.description || t("common.no_data")}
           </p>
         </div>
       </div>
