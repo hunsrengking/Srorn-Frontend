@@ -498,7 +498,7 @@ const CreateTicket = () => {
                 className="block w-full text-sm text-slate-700 file:mr-4 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200"
               />
               {imagePreviews.length > 0 && (
-                <div className="mt-3 grid grid-cols-3 gap-3">
+                <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {imagePreviews.map((p) => (
                     <div
                       key={p.id}

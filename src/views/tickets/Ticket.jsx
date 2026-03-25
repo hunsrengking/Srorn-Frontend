@@ -166,7 +166,7 @@ const Ticket = () => {
                 <tr>
                   <td
                     colSpan={9}
-                    className="px-4 py-8 text-center text-slate-400"
+                    className="px-4 py-8 text-center text-sm text-slate-400"
                   >
                     {t("tickets.loading")}
                   </td>
@@ -175,7 +175,7 @@ const Ticket = () => {
                 <tr>
                   <td
                     colSpan={9}
-                    className="px-4 py-8 text-center text-red-500"
+                    className="px-4 py-8 text-center text-sm text-red-500"
                   >
                     {error}
                   </td>
@@ -185,12 +185,12 @@ const Ticket = () => {
                   <tr
                     key={t.id}
                     onClick={() => handleViewTicket(t.id)}
-                    className="hover:bg-slate-50 cursor-pointer"
+                    className="transition-colors duration-150 hover:bg-slate-50 cursor-pointer"
                   >
-                    <td className="px-4 py-3">{t.id}</td>
-                    <td className="px-4 py-3">{t.title ?? "-"}</td>
-                    <td className="px-4 py-3">{t.category ?? "-"}</td>
-                    <td className="px-4 py-3">{t.priority ?? "-"}</td>
+                    <td className="px-4 py-3 text-slate-700 font-medium">{t.id}</td>
+                    <td className="px-4 py-3 text-slate-800 font-medium">{t.title ?? "-"}</td>
+                    <td className="px-4 py-3 text-slate-700">{t.category ?? "-"}</td>
+                    <td className="px-4 py-3 text-slate-700">{t.priority ?? "-"}</td>
                     <td className="px-4 py-3">
                       <span
                         className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusBadgeClasses(
@@ -205,17 +205,17 @@ const Ticket = () => {
                         {t.status ?? "Unknown"}
                       </span>
                     </td>
-                    <td className="px-4 py-3">{t.assigned_to ?? "-"}</td>
-                    <td className="px-4 py-3">{formatDate(t.create_date)}</td>
-                    <td className="px-4 py-3">{formatDate(t.start_date)}</td>
-                    <td className="px-4 py-3">{formatDate(t.end_date)}</td>
+                    <td className="px-4 py-3 text-slate-700">{t.assigned_to ?? "-"}</td>
+                    <td className="px-4 py-3 text-slate-600">{formatDate(t.create_date)}</td>
+                    <td className="px-4 py-3 text-slate-600">{formatDate(t.start_date)}</td>
+                    <td className="px-4 py-3 text-slate-600">{formatDate(t.end_date)}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td
                     colSpan={9}
-                    className="px-4 py-8 text-center text-slate-400"
+                    className="px-4 py-8 text-center text-sm text-slate-400"
                   >
                     {t("tickets.not_found")}
                   </td>

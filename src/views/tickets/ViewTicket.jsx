@@ -683,7 +683,7 @@ const ViewTicket = () => {
                     return (
                       <div
                         key={it.id ?? idx}
-                        className="flex items-center justify-between gap-6
+                        className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6
                        p-4 rounded-xl bg-white
                         hover:shadow-md transition"
                       >

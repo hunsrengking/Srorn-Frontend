@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { ErrorProvider } from "./context/ErrorContext";
 import { LoadingProvider } from "./context/LoadingContext";
+import { SystemProvider } from "./context/SystemContext";
 import ErrorAlert from "./components/common/ErrorAlert";
 import AppRoute from "./routes/AppRoute";
 import SuccessAlert from "./components/common/SuccessAlert";
@@ -17,9 +18,11 @@ function App() {
   return (
     <ErrorProvider>
       <LoadingProvider>
-        <ErrorAlert />
-        <SuccessAlert />
-        <AppRoute />
+        <SystemProvider>
+          <ErrorAlert />
+          <SuccessAlert />
+          <AppRoute />
+        </SystemProvider>
       </LoadingProvider>
     </ErrorProvider>
   );

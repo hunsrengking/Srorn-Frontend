@@ -14,6 +14,7 @@ import {
   faMinus,
   faBuilding,
   faChalkboardTeacher,
+  faBox,
 } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../utils/permission";
 
@@ -26,16 +27,15 @@ const Sidebar = ({ sidebarOpen }) => {
 
   const menuClass = (path) =>
     `flex items-center p-2.5 rounded-xl transition-all duration-200 group
-     ${
-       isActive(path)
-         ? "bg-blue-600 text-white shadow-md"
-         : "text-blue-100 hover:bg-blue-700 hover:text-white"
-     }`;
+     ${isActive(path)
+      ? "bg-blue-600 text-white shadow-md"
+      : "text-blue-100 hover:bg-blue-700 hover:text-white"
+    }`;
 
   return (
     <aside
-      className={`h-screen sticky top-0 bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 
-      shadow-xl transition-all duration-300 ${sidebarOpen ? "w-64" : "w-20"}`}
+      className={`h-full flex-1 bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 
+      shadow-xl transition-all duration-300 overflow-y-auto overflow-x-hidden ${sidebarOpen ? "w-64" : "w-64 md:w-20"}`}
     >
       <nav className="p-4 space-y-2 text-sm font-medium">
         {/* Dashboard */}
@@ -77,6 +77,15 @@ const Sidebar = ({ sidebarOpen }) => {
             )}
           </Link>
         )}
+        {/* Inventory */}
+        {hasPermission("VIEW_INVENTORY") && (
+          <Link to="/inventory" className={menuClass("/inventory")}>
+            <FontAwesomeIcon icon={faBox} className="text-lg" />
+            {sidebarOpen && (
+              <span className="ml-3">{t("sidebar.inventory")}</span>
+            )}
+          </Link>
+        )}
 
         {/* Users */}
         {hasPermission("VIEW_USER") && (
@@ -111,18 +120,16 @@ const Sidebar = ({ sidebarOpen }) => {
 
             {/* Submenu */}
             <div
-              className={`overflow-hidden transition-all duration-300 ${
-                reportOpen && sidebarOpen ? "max-h-40 mt-2" : "max-h-0"
-              }`}
+              className={`overflow-hidden transition-all duration-300 ${reportOpen && sidebarOpen ? "max-h-40 mt-2" : "max-h-0"
+                }`}
             >
               <Link
                 to="/reports/summary"
                 className={`block ml-10 py-2 px-3 rounded-lg text-sm transition
-                ${
-                  isActive("/reports")
+                ${isActive("/reports")
                     ? "bg-blue-600 text-white"
                     : "text-blue-200 hover:bg-blue-700 hover:text-white"
-                }`}
+                  }`}
               >
                 {t("sidebar.ticket_report")}
               </Link>
@@ -147,6 +154,7 @@ const Sidebar = ({ sidebarOpen }) => {
             )}
           </Link>
         )}
+
       </nav>
     </aside>
   );

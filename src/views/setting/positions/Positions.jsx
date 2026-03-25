@@ -218,55 +218,85 @@ const Position = () => {
         </form>
 
         {/* LIST (BIG) */}
-        <div className="lg:col-span-3 bg-white rounded-2xl p-5 shadow-sm">
-          <h2 className="font-semibold mb-4">{t("positions.list_title")}</h2>
+        <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+          <div className="p-5 border-b border-slate-100">
+            <h2 className="font-semibold">{t("positions.list_title")}</h2>
+          </div>
 
           {loadingList ? (
-            <p className="text-sm">{t("common.loading")}</p>
+            <div className="p-8 text-center text-sm text-slate-400">
+              {t("common.loading")}
+            </div>
           ) : (
-            <table className="w-full text-sm">
-              <thead className="bg-slate-100">
-                <tr>
-                  <th className="p-2 text-left">{t("positions.job_title")}</th>
-                  <th className="p-2 text-left">{t("positions.level")}</th>
-                  <th className="p-2 text-left">{t("positions.salary")}</th>
-                  <th className="p-2 text-center">{t("positions.status")}</th>
-                  <th className="p-2 text-center">{t("users.actions")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {positions.map((item) => (
-                  <tr
-                    key={item.id}
-                    onClick={() => handleSelectRow(item)}
-                    className={`border-t cursor-pointer hover:bg-blue-50 ${
-                      positionId === item.id ? "bg-blue-100" : ""
-                    }`}
-                  >
-                    <td className="p-2">{item.title}</td>
-                    <td className="p-2">{item.level}</td>
-                    <td className="p-2">
-                      ${item.min_salary} - ${item.max_salary}
-                    </td>
-                    <td className="p-2 text-center">
-                      {item.is_active ? t("positions.active") : t("staff.inactive")}
-                    </td>
-                    <td
-                      className="p-2 text-center"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </button>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm text-left">
+                <thead className="bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                  <tr>
+                    <th className="px-4 py-3">{t("positions.job_title")}</th>
+                    <th className="px-4 py-3">{t("positions.level")}</th>
+                    <th className="px-4 py-3">{t("positions.salary")}</th>
+                    <th className="px-4 py-3">{t("positions.status")}</th>
+                    <th className="px-4 py-3 text-right">{t("users.actions")}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {positions.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-8 text-center text-sm text-slate-400">
+                        {t("positions.not_found")}
+                      </td>
+                    </tr>
+                  ) : (
+                    positions.map((item) => (
+                      <tr
+                        key={item.id}
+                        onClick={() => handleSelectRow(item)}
+                        className={`transition-colors duration-150 cursor-pointer 
+                          ${positionId === item.id ? "bg-blue-50" : "hover:bg-slate-50"}`}
+                      >
+                        <td className="px-4 py-3 text-slate-700 font-medium">{item.title}</td>
+                        <td className="px-4 py-3 text-slate-600">{item.level}</td>
+                        <td className="px-4 py-3 text-slate-600">
+                          ${item.min_salary} - ${item.max_salary}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
+                              ${item.is_active
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                                : "bg-red-50 text-red-700 border border-red-100"
+                              }`}
+                          >
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full mr-1.5
+                                ${item.is_active ? "bg-emerald-500" : "bg-red-500"}`}
+                            />
+                            {item.is_active ? t("positions.active") : t("staff.inactive")}
+                          </span>
+                        </td>
+                        <td
+                          className="px-4 py-3 text-right"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            onClick={() => handleDelete(item.id)}
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg
+                                     text-slate-500 hover:text-red-600 hover:bg-red-50
+                                     transition-colors"
+                          >
+                            <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           )}
+          <div className="px-4 py-3 text-xs text-slate-500 bg-slate-50 mt-auto border-t border-slate-100">
+            Showing {positions.length} positions
+          </div>
         </div>
       </div>
     </div>

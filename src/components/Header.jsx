@@ -16,8 +16,11 @@ import {
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
 
+import { useSystem } from "../context/SystemContext";
+
 const Header = ({ toggleSidebar }) => {
   const { t, i18n } = useTranslation();
+  const { systemInfo } = useSystem();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotif, setShowNotif] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -152,10 +155,10 @@ const Header = ({ toggleSidebar }) => {
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 shadow-lg border-b border-blue-700">
-      <div className="flex items-center justify-between px-6 py-3">
+    <header className="sticky top-0 z-30 w-full bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 shadow-lg border-b border-blue-700">
+      <div className="flex items-center justify-between px-4 md:px-6 py-3">
         {/* LEFT */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3 md:space-x-4">
           <button
             onClick={toggleSidebar}
             className="p-2 rounded-lg hover:bg-blue-700 transition"
@@ -163,9 +166,18 @@ const Header = ({ toggleSidebar }) => {
             <FontAwesomeIcon icon={faBars} className="text-white text-lg" />
           </button>
 
-          <h1 className="text-lg md:text-xl font-semibold text-white tracking-wide">
-            Support System
+          <div className="flex items-center gap-3 group px-2 py-1 rounded-xl hover:bg-white/5 transition-colors cursor-default">
+            <div className="w-9 h-9 rounded-lg bg-white/10 backdrop-blur-md p-1.5  border-white/20 shadow-inner group-hover:scale-105 transition-transform">
+              <img 
+                src={systemInfo.logo_url} 
+                alt="Logo" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <h1 className="text-lg md:text-xl font-bold text-white tracking-tight drop-shadow-sm">
+              {systemInfo.system_name}
             </h1>
+          </div>
         </div>
 
         {/* RIGHT */}

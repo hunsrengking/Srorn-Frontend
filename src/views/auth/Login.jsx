@@ -3,19 +3,20 @@ import "./Login.css";
 import { useTranslation } from "react-i18next";
 import axiosClient from "../../services/axiosClient";
 import { useEffect } from "react";
-const logo = "/assets/images/logo/logo.PNG";
+import { useSystem } from "../../context/SystemContext";
 
 const Login = () => {
   const { t, i18n, ready } = useTranslation();
+  const { systemInfo } = useSystem();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
+
   // Show loading if i18n not ready
   if (!ready) {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading...</div>;
   }
-  
+
   const changeLanguage = (lang) => {
     i18n.changeLanguage(lang);
     localStorage.setItem('app_language', lang); // Save language preference
@@ -89,7 +90,7 @@ const Login = () => {
 
           <center>
             <img
-              src={logo}
+              src={systemInfo.logo_url}
               alt="App Logo"
               width="150px"
               height="130px"

@@ -23,16 +23,15 @@ import TicketCheckerView from "../views/setting/checker/CheckerView";
 import DepartmentList from "../views/setting/department/Department";
 import DepartmentCreate from "../views/setting/department/CreateDepartment";
 import Telegram from "../views/setting/configuration/Telegram";
+import GeneralSettings from "../views/setting/configuration/GeneralSettings";
 import DepartmentMember from "../views/setting/department/DepartmentMember";
 import Report from "../views/report/Report";
 import Position from "../views/setting/positions/Positions";
-import Staff from "../views/setting/staff/Staff";
-import StaffCreate from "../views/setting/staff/StaffCreate";
-import StaffEdit from "../views/setting/staff/StaffEdit";
-import ViewStaff from "../views/setting/staff/ViewStaff";
 import Organization from "../views/organization/Organization";
 import PrintCard from "../views/organization/card/PrintCard";
 import PrintCardNew from "../views/organization/card/PrintCardNew";
+import PrintCardView from "../views/organization/card/PrintCardView";
+import PrintCardEdit from "../views/organization/card/PrintCardEdit";
 
 /* ---------- Lazy-loaded pages ---------- */
 const Dashboard = lazy(() => import("../views/dashboard/Dashboard"));
@@ -59,9 +58,17 @@ const ViewTicket = lazy(() => import("../views/tickets/ViewTicket"));
 const Students = lazy(() => import("../views/student/Student"));
 const StudentCreate = lazy(() => import("../views/student/StudentCreate"));
 const StudentEdit = lazy(() => import("../views/student/StudentEdit"));
-// const StudentView = lazy(() => import("../views/student/StudentView"));
+const Inventory = lazy(() => import("../views/Inventory/Inventory"));
+const Office = lazy(() => import("../views/organization/office/Office"));
+const OfficeCreate = lazy(() => import("../views/organization/office/OfficeCreate"));
+const OfficeEdit = lazy(() => import("../views/organization/office/OfficeEdit"));
+const OfficeView = lazy(() => import("../views/organization/office/ViewOffice"));
+const Staff = lazy(() => import("../views/setting/staff/Staff"));
+const StaffCreate = lazy(() => import("../views/setting/staff/StaffCreate"));
+const StaffEdit = lazy(() => import("../views/setting/staff/StaffEdit"));
+const StaffView = lazy(() => import("../views/setting/staff/ViewStaff"));
 
-/* ---------- Global loading helper (NO permission logic here) ---------- */
+/* ---------- Global loading helper ---------- */
 const GlobalLoaderFix = ({ children }) => {
   const { loading } = useLoading();
   const location = useLocation();
@@ -265,6 +272,14 @@ const AppRoute = () => {
                   }
                 />
                 <Route
+                  path="/settings/general"
+                  element={
+                    <RequirePermission perm="MANAGE_SYSTEM">
+                      <GeneralSettings />
+                    </RequirePermission>
+                  }
+                />
+                <Route
                   path="settings/positions"
                   element={
                     <RequirePermission perm="UPDATE_PERMISSIONS">
@@ -272,6 +287,43 @@ const AppRoute = () => {
                     </RequirePermission>
                   }
                 />
+
+                <Route
+                  path="/settings/employees"
+                  element={
+                    <RequirePermission perm="VIEW_STAFF">
+                      <Staff />
+                    </RequirePermission>
+                  }
+                />
+
+                <Route
+                  path="/settings/employees/create"
+                  element={
+                    <RequirePermission perm="CREATE_STAFF">
+                      <StaffCreate />
+                    </RequirePermission>
+                  }
+                />
+
+                <Route
+                  path="/settings/employees/:id/edit"
+                  element={
+                    <RequirePermission perm="UPDATE_STAFF">
+                      <StaffEdit />
+                    </RequirePermission>
+                  }
+                />
+
+                <Route
+                  path="/settings/employees/:id/view"
+                  element={
+                    <RequirePermission perm="VIEW_STAFF">
+                      <StaffView />
+                    </RequirePermission>
+                  }
+                />
+
                 <Route
                   path="/reports/summary"
                   element={
@@ -280,38 +332,7 @@ const AppRoute = () => {
                     </RequirePermission>
                   }
                 />
-                <Route
-                  path="/settings/employees"
-                  element={
-                    <RequirePermission perm="VIEW_SETTING">
-                      <Staff />
-                    </RequirePermission>
-                  }
-                />
-                <Route
-                  path="/settings/employees/create"
-                  element={
-                    <RequirePermission perm="VIEW_SETTING">
-                      <StaffCreate />
-                    </RequirePermission>
-                  }
-                />
-                <Route
-                  path="/settings/employees/:id/edit"
-                  element={
-                    <RequirePermission perm="VIEW_SETTING">
-                      <StaffEdit />
-                    </RequirePermission>
-                  }
-                />
-                <Route
-                  path="/settings/employees/:id/view"
-                  element={
-                    <RequirePermission perm="VIEW_SETTING">
-                      <ViewStaff />
-                    </RequirePermission>
-                  }
-                />
+                
                 <Route
                   path="/organization"
                   element={
@@ -320,6 +341,39 @@ const AppRoute = () => {
                     </RequirePermission>
                   }
                 />
+                <Route
+                  path="/organization/office"
+                  element={
+                    <RequirePermission perm="VIEW_OFFICE">
+                      <Office />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/organization/office/create"
+                  element={
+                    <RequirePermission perm="CREATE_OFFICE">
+                      <OfficeCreate />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/organization/office/:id/edit"
+                  element={
+                    <RequirePermission perm="UPDATE_OFFICE">
+                      <OfficeEdit />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/organization/office/:id/view"
+                  element={
+                    <RequirePermission perm="VIEW_OFFICE">
+                      <OfficeView />
+                    </RequirePermission>
+                  }
+                />
+
                 <Route
                   path="/organization/printcard"
                   element={
@@ -333,6 +387,22 @@ const AppRoute = () => {
                   element={
                     <RequirePermission perm="VIEW_ORGANIZATION">
                       <PrintCardNew />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/organization/printcard/:id"
+                  element={
+                    <RequirePermission perm="VIEW_ORGANIZATION">
+                      <PrintCardView />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/organization/printcard/:id/edit"
+                  element={
+                    <RequirePermission perm="VIEW_ORGANIZATION">
+                      <PrintCardEdit />
                     </RequirePermission>
                   }
                 />
@@ -362,15 +432,18 @@ const AppRoute = () => {
                     </RequirePermission>
                   }
                 />
-                {/* <Route
-                  path="/students/:id/view"
+                {/* end student routes */}
+
+                {/* inventory routes */}
+                <Route
+                  path="/inventory"
                   element={
-                    <RequirePermission perm="VIEW_STUDENTS">
-                      <StudentView />
+                    <RequirePermission perm="VIEW_INVENTORY">
+                      <Inventory />
                     </RequirePermission>
                   }
-                /> */}
-                {/* end student routes */}
+                />
+                {/* end inventory routes */}
 
                 <Route path="*" element={<div>404 Not Found</div>} />
               </Route>

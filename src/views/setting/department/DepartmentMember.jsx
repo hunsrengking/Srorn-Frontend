@@ -173,82 +173,89 @@ const DepartmentMember = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-        {filtered.length === 0 ? (
-          <p className="text-sm text-slate-500">{t("departments.no_members")}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="text-left text-slate-500 border-b">
-                  <th className="py-2 pr-4">{t("departments.number")}</th>
-                  <th className="py-2 pr-4">{t("departments.member_name")}</th>
-                  <th className="py-2 pr-4">{t("users.email")}</th>
-                  <th className="py-2 pr-4">{t("departments.job_title")}</th>
-                  <th className="py-2 pr-4 text-right">{t("users.actions")}</th>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm text-left">
+            <thead className="bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+              <tr>
+                <th className="px-4 py-3">{t("departments.number")}</th>
+                <th className="px-4 py-3">{t("departments.member_name")}</th>
+                <th className="px-4 py-3">{t("users.email")}</th>
+                <th className="px-4 py-3">{t("departments.job_title")}</th>
+                <th className="px-4 py-3 text-right">{t("users.actions")}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filtered.length === 0 ? (
+                <tr>
+                   <td
+                    colSpan={5}
+                    className="px-4 py-8 text-center text-sm text-slate-400"
+                  >
+                    {t("departments.no_members")}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {pageItems.map((m, index) => (
+              ) : (
+                pageItems.map((m, index) => (
                   <tr
                     key={m.id}
-                    className="border-b last:border-b-0 hover:bg-slate-50"
+                    className="transition-colors duration-150 hover:bg-slate-50"
                   >
-                    <td className="py-2 pr-4">
+                    <td className="px-4 py-3 text-slate-700 font-medium">
                       {(page - 1) * PAGE_SIZE + index + 1}
                     </td>
-                    <td className="py-2 pr-4 font-medium text-slate-800">
+                    <td className="px-4 py-3 text-slate-800 font-medium">
                       {m.firstName} {m.lastName}
                     </td>
-                    <td className="py-2 pr-4 text-slate-600">{m.email}</td>
-                    <td className="py-2 pr-4 text-slate-600">
+                    <td className="px-4 py-3 text-slate-600">{m.email}</td>
+                    <td className="px-4 py-3 text-slate-600">
                       {m.jobTitle || "-"}
                     </td>
-                    <td className="py-2 pr-4">
-                      <div className="flex justify-end">
+                    <td className="px-4 py-3 text-right">
+                      <div className="inline-flex items-center gap-2">
                         <button
                           onClick={() =>
                             handleRemove(m.id, `${m.firstName} ${m.lastName}`)
                           }
-                          className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center gap-1"
+                          className="inline-flex items-center justify-center h-8 px-3 rounded-lg
+                                   text-red-600 bg-red-50 hover:bg-red-100
+                                   transition-colors text-xs font-medium"
                         >
-                          <FontAwesomeIcon icon={faTrash} />
+                          <FontAwesomeIcon icon={faTrash} className="mr-1" />
                           {t("common.delete", "Remove")}
                         </button>
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
-      {/* Pagination */}
-      {filtered.length > PAGE_SIZE && (
-        <div className="flex justify-between text-sm text-slate-500">
+        {/* Footer with Pagination */}
+        <div className="px-4 py-3 text-xs text-slate-500 bg-slate-50 flex justify-between items-center border-t border-slate-100">
           <span>
             {t("tickets.pagination_page", { current: page, total: totalPages })}
           </span>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <button
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
-              className="px-3 py-1 border rounded disabled:opacity-50"
+              className="px-2 py-1 text-xs border border-slate-200 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-100"
             >
               {t("Student.previous")}
             </button>
             <button
               disabled={page === totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className="px-3 py-1 border rounded disabled:opacity-50"
+              className="px-2 py-1 text-xs border border-slate-200 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-100"
             >
               {t("Student.next")}
             </button>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Add Member Modal */}
       {isAddOpen && (

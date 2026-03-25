@@ -256,7 +256,14 @@ const TicketChecker = () => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wide">
               <tr>
-                <th className="px-4 py-3"></th>
+                <th className="px-4 py-3">
+                   <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={toggleSelectAll}
+                    className="accent-blue-600 rounded"
+                  />
+                </th>
                 <th className="px-4 py-3">ID</th>
                 <th className="px-4 py-3">{t("checker.subject")}</th>
                 <th className="px-4 py-3">{t("checker.category")}</th>
@@ -272,7 +279,7 @@ const TicketChecker = () => {
                 <tr>
                   <td
                     colSpan={8}
-                    className="px-4 py-8 text-center text-red-500"
+                    className="px-4 py-8 text-center text-sm text-red-500"
                   >
                     {error}
                   </td>
@@ -282,7 +289,7 @@ const TicketChecker = () => {
                   <tr
                     key={t.id}
                     onClick={() => handleViewTicket(t.id)}
-                    className="hover:bg-slate-50 cursor-pointer"
+                    className="transition-colors duration-150 hover:bg-slate-50 cursor-pointer"
                   >
                     <td
                       className="px-4 py-3"
@@ -292,12 +299,13 @@ const TicketChecker = () => {
                         type="checkbox"
                         checked={selectedIds.includes(t.id)}
                         onChange={() => toggleSelect(t.id)}
+                        className="accent-blue-600 rounded"
                       />
                     </td>
-                    <td className="px-4 py-3">{t.id}</td>
-                    <td className="px-4 py-3">{t.title || t.subject || "-"}</td>
-                    <td className="px-4 py-3">{t.category || "-"}</td>
-                    <td className="px-4 py-3">{t.priority || "-"}</td>
+                    <td className="px-4 py-3 text-slate-700 font-medium">{t.id}</td>
+                    <td className="px-4 py-3 text-slate-800 font-medium">{t.title || t.subject || "-"}</td>
+                    <td className="px-4 py-3 text-slate-700">{t.category || "-"}</td>
+                    <td className="px-4 py-3 text-slate-700">{t.priority || "-"}</td>
                     <td className="px-4 py-3">
                       <span
                         className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusBadgeClasses(
@@ -312,8 +320,8 @@ const TicketChecker = () => {
                         {t.status === "Waiting Approval" ? t("checker.waiting_approval") : t.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3">{t.created_by || "-"}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-slate-700">{t.created_by || "-"}</td>
+                    <td className="px-4 py-3 text-slate-600">
                       {formatDate(t.created_at || "-")}
                     </td>
                   </tr>
@@ -322,7 +330,7 @@ const TicketChecker = () => {
                 <tr>
                   <td
                     colSpan={8}
-                    className="px-4 py-8 text-center text-slate-400"
+                    className="px-4 py-8 text-center text-sm text-slate-400"
                   >
                     {t("checker.not_found")}
                   </td>
@@ -330,6 +338,12 @@ const TicketChecker = () => {
               )}
             </tbody>
           </table>
+        </div>
+        <div className="px-4 py-3 text-xs text-slate-500 bg-slate-50 flex justify-between items-center border-t border-slate-100">
+          <span>
+            {selectedIds.length} {t("checker.selected_items", "items selected")}
+          </span>
+          <span className="text-slate-400">Total: {filteredTickets.length}</span>
         </div>
       </div>
     </div>

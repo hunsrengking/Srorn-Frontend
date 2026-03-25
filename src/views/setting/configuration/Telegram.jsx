@@ -176,53 +176,83 @@ const Telegram = () => {
         </form>
 
         {/* LIST */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm">
-          <h2 className="font-semibold mb-4">{t("telegram.list_title")}</h2>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+          <div className="p-5 border-b border-slate-100">
+            <h2 className="font-semibold">{t("telegram.list_title")}</h2>
+          </div>
 
           {loadingList ? (
-            <p className="text-sm">{t("telegram.loading")}</p>
+            <div className="p-8 text-center text-sm text-slate-400">
+              {t("telegram.loading")}
+            </div>
           ) : (
-            <table className="w-full text-sm">
-              <thead className="bg-slate-100">
-                <tr>
-                  <th className="p-2 text-left">{t("telegram.bot_token")}</th>
-                  <th className="p-2 text-left">{t("telegram.chat_id")}</th>
-                  <th className="p-2 text-center">{t("users.status", "Status")}</th>
-                  <th className="p-2 text-center">{t("users.actions")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {configs.map((item) => (
-                  <tr
-                    key={item.id}
-                    onClick={() => handleSelectRow(item)}
-                    className={`border-t cursor-pointer hover:bg-blue-50 ${
-                      configId === item.id ? "bg-blue-100" : ""
-                    }`}
-                  >
-                    <td className="p-2 truncate max-w-[160px]">
-                      {item.bot_token}
-                    </td>
-                    <td className="p-2">{item.chat_id}</td>
-                    <td className="p-2 text-center">
-                      {item.is_active ? t("telegram.active") : t("telegram.inactive")}
-                    </td>
-                    <td
-                      className="p-2 text-center"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </button>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm text-left">
+                <thead className="bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                  <tr>
+                    <th className="px-4 py-3">{t("telegram.bot_token")}</th>
+                    <th className="px-4 py-3">{t("telegram.chat_id")}</th>
+                    <th className="px-4 py-3">{t("users.status", "Status")}</th>
+                    <th className="px-4 py-3 text-right">{t("users.actions")}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {configs.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-4 py-8 text-center text-sm text-slate-400">
+                        {t("reports.no_data", "No data found")}
+                      </td>
+                    </tr>
+                  ) : (
+                    configs.map((item) => (
+                      <tr
+                        key={item.id}
+                        onClick={() => handleSelectRow(item)}
+                        className={`transition-colors duration-150 cursor-pointer 
+                          ${configId === item.id ? "bg-blue-50" : "hover:bg-slate-50"}`}
+                      >
+                        <td className="px-4 py-3 text-slate-600 truncate max-w-[160px]">
+                          {item.bot_token}
+                        </td>
+                        <td className="px-4 py-3 text-slate-800 font-medium">{item.chat_id}</td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
+                              ${item.is_active
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                                : "bg-red-50 text-red-700 border border-red-100"
+                              }`}
+                          >
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full mr-1.5
+                                ${item.is_active ? "bg-emerald-500" : "bg-red-500"}`}
+                            />
+                            {item.is_active ? t("telegram.active") : t("telegram.inactive")}
+                          </span>
+                        </td>
+                        <td
+                          className="px-4 py-3 text-right"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            onClick={() => handleDelete(item.id)}
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg
+                                     text-slate-500 hover:text-red-600 hover:bg-red-50
+                                     transition-colors"
+                          >
+                            <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           )}
+          <div className="px-4 py-3 text-xs text-slate-500 bg-slate-50 mt-auto border-t border-slate-100">
+            Total: {configs.length} configs
+          </div>
         </div>
       </div>
     </div>

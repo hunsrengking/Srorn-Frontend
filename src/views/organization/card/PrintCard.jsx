@@ -55,43 +55,44 @@ const PrintCard = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-        {printCards.length === 0 ? (
-          <p className="text-sm text-slate-500">{t("roles.not_found")}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="text-left text-slate-500 border-b">
-                  <th className="py-2 pr-4">No.</th>
-                  <th className="py-2 pr-4">Person Name</th>
-                  <th className="py-2 pr-4">Print Date</th>
-                  <th className="py-2 pr-4">Seller By</th>
-                  <th className="py-2 pr-4">Is Print Card</th>
-                  <th className="py-2 pr-4">Description</th>
-                </tr>
-              </thead>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm text-left">
+            <thead className="bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+              <tr>
+                <th className="px-4 py-3">No.</th>
+                <th className="px-4 py-3">Person Name</th>
+                <th className="px-4 py-3">Print Date</th>
+                <th className="px-4 py-3">Seller By</th>
+                <th className="px-4 py-3">Is Print Card</th>
+                <th className="px-4 py-3">Description</th>
+              </tr>
+            </thead>
 
-              <tbody>
-                {printCards.map((printCard, index) => (
+            <tbody className="divide-y divide-slate-100">
+              {printCards.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="px-4 py-8 text-center text-sm text-slate-400">
+                    {t("roles.not_found")}
+                  </td>
+                </tr>
+              ) : (
+                printCards.map((printCard, index) => (
                   <tr
                     key={printCard.id}
                     onClick={() =>
                       navigate(`/organization/printcard/${printCard.id}`)
                     }
-                    className="border-b last:border-b-0 hover:bg-slate-50 cursor-pointer"
+                    className="transition-colors duration-150 hover:bg-slate-50 cursor-pointer"
                   >
-                    <td className="py-2 pr-4">{printCard.id}</td>
-
-                    <td className="py-2 pr-4 font-medium text-slate-800">
+                    <td className="px-4 py-3 text-slate-700 font-medium">{printCard.id}</td>
+                    <td className="px-4 py-3 text-slate-800 font-medium">
                       {printCard.person_name}
                     </td>
-
-                    <td className="py-2 pr-4 text-slate-600">
+                    <td className="px-4 py-3 text-slate-600">
                       {formatDate(printCard.print_date)}
                     </td>
-
-                    <td className="py-2 pr-4 text-slate-600">
+                    <td className="px-4 py-3 text-slate-600">
                       {printCard.seller_name}
                     </td>
 
@@ -118,11 +119,11 @@ const PrintCard = () => {
                       {printCard.description}
                     </td>
                   </tr>
-                ))}
+                  ))
+                )}
               </tbody>
             </table>
           </div>
-        )}
       </div>
     </div>
   );

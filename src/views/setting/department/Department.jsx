@@ -72,62 +72,79 @@ const DepartmentList = () => {
       </div>
 
       {/* Departments Table */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-        {departments.length === 0 ? (
-          <p className="text-sm text-slate-500">{t("departments.not_found")}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="text-left text-slate-500 border-b">
-                  <th className="py-2 pr-4">{t("departments.number")}</th>
-                  <th className="py-2 pr-4">{t("departments.name")}</th>
-                  <th className="py-2 pr-4">{t("departments.description")}</th>
-                  <th className="py-2 pr-4 text-right">{t("common.edit")}</th>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm text-left">
+            <thead className="bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+              <tr>
+                <th className="px-4 py-3">{t("departments.number")}</th>
+                <th className="px-4 py-3">{t("departments.name")}</th>
+                <th className="px-4 py-3">{t("departments.description")}</th>
+                <th className="px-4 py-3 text-right">{t("users.actions")}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {departments.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="px-4 py-8 text-center text-sm text-slate-400"
+                  >
+                    {t("departments.not_found")}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {departments.map((dept, index) => (
+              ) : (
+                departments.map((dept, index) => (
                   <tr
                     key={dept.id}
-                    className="border-b last:border-b-0 hover:bg-slate-50"
+                    className="transition-colors duration-150 hover:bg-slate-50"
                   >
-                    <td className="py-2 pr-4">{index + 1}</td>
-                    <td className="py-2 pr-4 font-medium text-slate-800">
+                    <td className="px-4 py-3 text-slate-700 font-medium">{index + 1}</td>
+                    <td className="px-4 py-3 text-slate-800 font-medium">
                       {dept.name}
                     </td>
-                    <td className="py-2 pr-4 text-slate-600">
+                    <td className="px-4 py-3 text-slate-600">
                       {dept.description || "-"}
                     </td>
-                    <td className="py-2 pr-4">
-                      <div className="flex justify-end gap-2">
+                    <td className="px-4 py-3 text-right">
+                      <div className="inline-flex items-center gap-2">
                         <button
                           type="button"
                           onClick={() =>
                             navigate(`/settings/department/${dept.id}/members`)
                           }
-                          className="text-xs px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center gap-1"
+                          className="inline-flex items-center justify-center h-8 px-3 rounded-lg
+                                   text-indigo-600 bg-indigo-50 hover:bg-indigo-100
+                                   transition-colors text-xs font-medium"
                         >
-                          <FontAwesomeIcon icon={faUsers} />
+                          <FontAwesomeIcon icon={faUsers} className="mr-1" />
                           {t("departments.members")}
                         </button>
 
                         <button
                           type="button"
                           onClick={() => handleDisable(dept.id)}
-                          className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center gap-1"
+                          className="inline-flex items-center justify-center h-8 px-3 rounded-lg
+                                   text-red-600 bg-red-50 hover:bg-red-100
+                                   transition-colors text-xs font-medium"
                         >
-                          <FontAwesomeIcon icon={faTrash} />
+                          <FontAwesomeIcon icon={faTrash} className="mr-1" />
                           {t("departments.disable")}
                         </button>
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="px-4 py-3 text-xs text-slate-500 bg-slate-50 flex justify-between items-center">
+          <span>
+            Showing {departments.length} departments
+          </span>
+          <span className="text-slate-400">Page 1 of 1</span>
+        </div>
       </div>
     </div>
   );

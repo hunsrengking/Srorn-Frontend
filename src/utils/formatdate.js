@@ -24,6 +24,11 @@ export const formatDate = (value) => {
   ];
   const monthName = months[date.getMonth()];
 
+  const weekdays = [
+    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+  ];
+  const weekday = weekdays[date.getDay()];
+
   const year = date.getFullYear();
 
   // Time
@@ -31,5 +36,5 @@ export const formatDate = (value) => {
   const minutes = date.getMinutes().toString().padStart(2, "0");
 
   // return `${day} ${monthName} ${year} ${hours}:${minutes}`;
-  return `${day} ${monthName} ${year}`;
+  return `${weekday} ${day} ${monthName} ${year}`;
 };

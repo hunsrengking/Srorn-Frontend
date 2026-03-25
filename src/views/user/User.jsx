@@ -181,11 +181,10 @@ const Users = () => {
                         : undefined
                     }
                     className={`transition-colors duration-150
-    ${
-      hasPermission("VIEW_USER")
-        ? "hover:bg-slate-50 cursor-pointer"
-        : "cursor-not-allowed opacity-60"
-    }`}
+    ${hasPermission("VIEW_USER")
+                        ? "hover:bg-slate-50 cursor-pointer"
+                        : "cursor-not-allowed opacity-60"
+                      }`}
                   >
                     <td className="px-4 py-3 text-slate-700 font-medium">
                       {u.id}
@@ -205,20 +204,18 @@ const Users = () => {
                     <td className="px-4 py-3">
                       <span
                         className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
-                          ${
-                            u.status === "Active"
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                              : u.status === "Locked"
+                          ${u.status === "Active"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                            : u.status === "Locked"
                               ? "bg-gray-200 text-gray-700 border border-gray-300"
                               : "bg-red-50 text-red-700 border border-red-100"
                           }`}
                       >
                         <span
                           className={`w-1.5 h-1.5 rounded-full mr-1.5
-                            ${
-                              u.status === "Active"
-                                ? "bg-emerald-500"
-                                : u.status === "Locked"
+                            ${u.status === "Active"
+                              ? "bg-emerald-500"
+                              : u.status === "Locked"
                                 ? "bg-gray-500"
                                 : "bg-red-500"
                             }`}
