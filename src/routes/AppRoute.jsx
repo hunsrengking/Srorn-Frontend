@@ -59,6 +59,15 @@ const Students = lazy(() => import("../views/student/Student"));
 const StudentCreate = lazy(() => import("../views/student/StudentCreate"));
 const StudentEdit = lazy(() => import("../views/student/StudentEdit"));
 const Inventory = lazy(() => import("../views/Inventory/Inventory"));
+const Product = lazy(() => import("../views/Inventory/product/Product"));
+const ProductCreate = lazy(() => import("../views/Inventory/product/ProductCreate"));
+const ProductEdit = lazy(() => import("../views/Inventory/product/ProductEdit"));
+const Stock = lazy(() => import("../views/Inventory/stock/Stock"));
+const StockAdjust = lazy(() => import("../views/Inventory/stock/StockAdjust"));
+const Asset = lazy(() => import("../views/Inventory/asset/Asset"));
+const AssetCreate = lazy(() => import("../views/Inventory/asset/AssetCreate"));
+const AssetEdit = lazy(() => import("../views/Inventory/asset/AssetEdit"));
+const AssetView = lazy(() => import("../views/Inventory/asset/AssetView"));
 const Office = lazy(() => import("../views/organization/office/Office"));
 const OfficeCreate = lazy(() => import("../views/organization/office/OfficeCreate"));
 const OfficeEdit = lazy(() => import("../views/organization/office/OfficeEdit"));
@@ -440,6 +449,78 @@ const AppRoute = () => {
                   element={
                     <RequirePermission perm="VIEW_INVENTORY">
                       <Inventory />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/inventory/product"
+                  element={
+                    <RequirePermission perm="MANAGE_PRODUCT">
+                      <Product />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/inventory/product/create"
+                  element={
+                    <RequirePermission perm="MANAGE_PRODUCT">
+                      <ProductCreate />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/inventory/product/:id/edit"
+                  element={
+                    <RequirePermission perm="MANAGE_PRODUCT">
+                      <ProductEdit />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/inventory/stock"
+                  element={
+                    <RequirePermission perm="MANAGE_STOCK">
+                      <Stock />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/inventory/stock/adjust"
+                  element={
+                    <RequirePermission perm="MANAGE_STOCK">
+                      <StockAdjust />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/inventory/asset"
+                  element={
+                    <RequirePermission perm="MANAGE_STOCK">
+                      <Asset />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/inventory/asset/create"
+                  element={
+                    <RequirePermission perm="MANAGE_STOCK">
+                      <AssetCreate />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/inventory/asset/:id/edit"
+                  element={
+                    <RequirePermission perm="MANAGE_STOCK">
+                      <AssetEdit />
+                    </RequirePermission>
+                  }
+                />
+                <Route
+                  path="/inventory/asset/:id/view"
+                  element={
+                    <RequirePermission perm="MANAGE_STOCK">
+                      <AssetView />
                     </RequirePermission>
                   }
                 />

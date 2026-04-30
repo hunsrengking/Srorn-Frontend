@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGear, faImage, faSave } from "@fortawesome/free-solid-svg-icons";
+import { faGear, faImage, faSave, faClock } from "@fortawesome/free-solid-svg-icons";
 import axiosClient from "../../../services/axiosClient";
 import { useError } from "../../../context/ErrorContext";
 import { useSystem } from "../../../context/SystemContext";
@@ -14,6 +14,8 @@ const GeneralSettings = () => {
   const [formData, setFormData] = useState({
     system_name: "",
     logo: null,
+    auto_logout_enabled: false,
+    auto_logout_time: 30,
   });
   const [previewLogo, setPreviewLogo] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,12 +24,18 @@ const GeneralSettings = () => {
     setFormData({
       system_name: systemInfo.system_name,
       logo: null,
+      auto_logout_enabled: systemInfo.auto_logout_enabled,
+      auto_logout_time: systemInfo.auto_logout_time,
     });
     setPreviewLogo(systemInfo.logo_url);
   }, [systemInfo]);
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setFormData({ 
+      ...formData, 
+      [name]: type === "checkbox" ? checked : value 
+    });
   };
 
   const handleLogoChange = (e) => {
@@ -49,6 +57,8 @@ const GeneralSettings = () => {
     try {
       const data = new FormData();
       data.append("system_name", formData.system_name);
+      data.append("auto_logout_enabled", formData.auto_logout_enabled);
+      data.append("auto_logout_time", formData.auto_logout_time);
       if (formData.logo) {
         data.append("logo", formData.logo);
       }
@@ -60,6 +70,8 @@ const GeneralSettings = () => {
       updateSystemInfo({
         system_name: res.data.system_name,
         logo_url: res.data.logo_url,
+        auto_logout_enabled: res.data.auto_logout_enabled,
+        auto_logout_time: res.data.auto_logout_time,
       });
 
       showSuccess(t("settings.update_success", "Settings updated successfully"));
@@ -131,6 +143,52 @@ const GeneralSettings = () => {
                 </p>
               </div>
             </div>
+          </div>
+
+          <div className="border-t border-slate-100 pt-6 space-y-4">
+            <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+              <FontAwesomeIcon icon={faClock} className="text-blue-500" />
+              {t("settings.security_title", "Security & Auto Logout")}
+            </h3>
+            
+            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+              <div className="space-y-0.5">
+                <label className="text-sm font-medium text-slate-700">
+                  {t("settings.auto_logout", "Auto Logout")}
+                </label>
+                <p className="text-xs text-slate-500">
+                  {t("settings.auto_logout_desc", "Automatically log out user after a period of inactivity")}
+                </p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="auto_logout_enabled"
+                  className="sr-only peer"
+                  checked={formData.auto_logout_enabled}
+                  onChange={handleInputChange}
+                />
+                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+
+            {formData.auto_logout_enabled && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                <label className="text-sm font-medium text-slate-700">
+                  {t("settings.logout_time", "Inactivity Timeout (Minutes)")}
+                </label>
+                <input
+                  type="number"
+                  name="auto_logout_time"
+                  value={formData.auto_logout_time}
+                  onChange={handleInputChange}
+                  min="1"
+                  max="1440"
+                  className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-400 outline-none transition"
+                  placeholder="30"
+                />
+              </div>
+            )}
           </div>
 
           <div className="pt-4 flex justify-end">

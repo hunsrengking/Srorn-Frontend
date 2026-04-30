@@ -83,6 +83,31 @@ const Inventory = () => {
           </Link>
         )}
 
+        {/* Assets */}
+        {hasPermission("MANAGE_STOCK") && (
+          <Link
+            to="/inventory/asset"
+            className="group bg-white rounded-2xl border border-slate-200 p-5 shadow-sm 
+                       hover:shadow-md hover:border-blue-400 hover:-translate-y-1 
+                       transition-all duration-200 block"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-blue-50 flex items-center justify-center">
+                <FontAwesomeIcon
+                  icon={faBoxesStacked}
+                  className="text-blue-600 w-5 h-5"
+                />
+              </div>
+              <div>
+                <h2 className="text-base font-semibold text-slate-900 group-hover:text-blue-600">
+                  {t("inventory.asset_title", "Asset Management")}
+                </h2>
+                <p className="text-xs text-slate-500">{t("inventory.asset_description", "Hardware & Device Inventory")}</p>
+              </div>
+            </div>
+          </Link>
+        )}
+
       </div>
     </div>
   );

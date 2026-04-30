@@ -65,7 +65,7 @@ const OfficeForm = ({
 
         {/* Active Status */}
         <div className="flex items-center gap-3 py-2">
-          <div className="relative inline-flex items-center cursor-pointer">
+          <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
               name="is_active"
@@ -82,7 +82,7 @@ const OfficeForm = ({
             <span className="ml-3 text-sm font-medium text-slate-600">
               {formData.is_active ?? true ? t("office.active") : t("office.inactive")}
             </span>
-          </div>
+          </label>
         </div>
       </div>
 

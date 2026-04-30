@@ -7,6 +7,8 @@ export const SystemProvider = ({ children }) => {
   const [systemInfo, setSystemInfo] = useState({
     system_name: "Support System",
     logo_url: "/assets/images/logo/logo.PNG",
+    auto_logout_enabled: false,
+    auto_logout_time: 30,
   });
   const [loading, setLoading] = useState(true);
 
@@ -25,6 +27,8 @@ export const SystemProvider = ({ children }) => {
         setSystemInfo({
           system_name: res.data.system_name || "Support System",
           logo_url: getFullImageUrl(res.data.logo_url),
+          auto_logout_enabled: res.data.auto_logout_enabled || false,
+          auto_logout_time: res.data.auto_logout_time || 30,
         });
       }
     } catch (err) {

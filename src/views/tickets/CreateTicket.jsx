@@ -61,7 +61,8 @@ const CreateTicket = () => {
     setLoadingCategory(true);
     try {
       const res = await axiosClient.get("/api/category");
-      setCategories(Array.isArray(res.data) ? res.data : []);
+      const filtered = res.data.filter(item => item.groups === "Ticket");
+      setCategories(Array.isArray(filtered) ? filtered : []);
     } catch (err) {
       console.error("Error loading categories:", err);
       setCategories([]);
