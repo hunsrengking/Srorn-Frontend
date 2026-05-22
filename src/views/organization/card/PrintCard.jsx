@@ -115,7 +115,6 @@ const PrintCard = () => {
                 <th className="px-4 py-3">Seller By</th>
                 <th className="px-4 py-3">Is Print Card</th>
                 <th className="px-4 py-3">Description</th>
-                <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
 
@@ -203,16 +202,6 @@ const PrintCard = () => {
                         className="inline-flex items-center gap-2"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <button
-                          onClick={() => handleEditPrintCard(printCard.id)}
-                          className="inline-flex items-center justify-center w-8 h-8 rounded-lg
-                                     text-slate-500 hover:text-blue-600 hover:bg-blue-50
-                                     transition-colors"
-                          aria-label="Edit print card"
-                          title="Edit print card"
-                        >
-                          <FontAwesomeIcon icon={faEdit} className="h-4 w-4" />
-                        </button>
                       </div>
                     </td>
                   </tr>

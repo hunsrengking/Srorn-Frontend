@@ -11,6 +11,7 @@ import {
   faUsers,
   faIdBadge,
   faGlobe,
+  faCode,
 } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../../utils/permission";
 
@@ -50,7 +51,12 @@ const Settings = () => {
                 <h2 className="text-base font-semibold text-slate-900 group-hover:text-blue-600">
                   {t("settings.general_title", "General Settings")}
                 </h2>
-                <p className="text-xs text-slate-500">{t("settings.general_description", "Manage system name and logo")}</p>
+                <p className="text-xs text-slate-500">
+                  {t(
+                    "settings.general_description",
+                    "Manage system name and logo",
+                  )}
+                </p>
               </div>
             </div>
           </Link>
@@ -75,7 +81,9 @@ const Settings = () => {
                 <h2 className="text-base font-semibold text-slate-900 group-hover:text-blue-600">
                   {t("settings.roles_title")}
                 </h2>
-                <p className="text-xs text-slate-500">{t("settings.roles_description")}</p>
+                <p className="text-xs text-slate-500">
+                  {t("settings.roles_description")}
+                </p>
               </div>
             </div>
           </Link>
@@ -100,7 +108,9 @@ const Settings = () => {
                 <h2 className="text-base font-semibold text-slate-900 group-hover:text-blue-600">
                   {t("settings.departments_title")}
                 </h2>
-                <p className="text-xs text-slate-500">{t("settings.departments_description")}</p>
+                <p className="text-xs text-slate-500">
+                  {t("settings.departments_description")}
+                </p>
               </div>
             </div>
           </Link>
@@ -125,7 +135,9 @@ const Settings = () => {
                 <h2 className="text-base font-semibold text-slate-900 group-hover:text-blue-600">
                   {t("settings.employees_title")}
                 </h2>
-                <p className="text-xs text-slate-500">{t("settings.employees_description")}</p>
+                <p className="text-xs text-slate-500">
+                  {t("settings.employees_description")}
+                </p>
               </div>
             </div>
           </Link>
@@ -150,7 +162,9 @@ const Settings = () => {
                 <h2 className="text-base font-semibold text-slate-900 group-hover:text-blue-600">
                   {t("settings.positions_title")}
                 </h2>
-                <p className="text-xs text-slate-500">{t("settings.positions_description")}</p>
+                <p className="text-xs text-slate-500">
+                  {t("settings.positions_description")}
+                </p>
               </div>
             </div>
           </Link>
@@ -177,6 +191,32 @@ const Settings = () => {
                 </h2>
                 <p className="text-xs text-slate-500">
                   {t("settings.telegram_description")}
+                </p>
+              </div>
+            </div>
+          </Link>
+        )}
+        {/* Manage Code */}
+        {hasPermission("READ_CODE") && (
+          <Link
+            to="/settings/codes"
+            className="group bg-white rounded-2xl border border-slate-200 p-5 shadow-sm 
+                       hover:shadow-md hover:border-blue-400 hover:-translate-y-1 
+                       transition-all duration-200 block"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-blue-50 flex items-center justify-center">
+                <FontAwesomeIcon
+                  icon={faCode}
+                  className="text-blue-600 w-5 h-5"
+                />
+              </div>
+              <div>
+                <h2 className="text-base font-semibold text-slate-900 group-hover:text-blue-600">
+                  {t("settings.codes_title", "Codes")}
+                </h2>
+                <p className="text-xs text-slate-500">
+                  {t("settings.codes_description", "Manage codes and sub codes.")}
                 </p>
               </div>
             </div>

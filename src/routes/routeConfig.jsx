@@ -30,6 +30,10 @@ const DepartmentMember = lazy(() => import("@/views/setting/department/Departmen
 const Telegram = lazy(() => import("@/views/setting/configuration/Telegram"));
 const GeneralSettings = lazy(() => import("@/views/setting/configuration/GeneralSettings"));
 const Position = lazy(() => import("@/views/setting/positions/Positions"));
+const Code = lazy(() => import("@/views/setting/code/Code"));
+const CodeCreate = lazy(() => import("@/views/setting/code/CodeCreate"));
+const CodeValueList = lazy(() => import("@/views/setting/code/CodeValueList"));
+const CodeValueForm = lazy(() => import("@/views/setting/code/CodeValueForm"));
 const Staff = lazy(() => import("@/views/setting/staff/Staff"));
 const StaffCreate = lazy(() => import("@/views/setting/staff/StaffCreate"));
 const StaffEdit = lazy(() => import("@/views/setting/staff/StaffEdit"));
@@ -106,6 +110,19 @@ export const protectedRoutes = [
   { path: "settings/telegram", permission: "UPDATE_PERMISSIONS", element: <Telegram /> },
   { path: "settings/general", permission: "MANAGE_SYSTEM", element: <GeneralSettings /> },
   { path: "settings/positions", permission: "UPDATE_PERMISSIONS", element: <Position /> },
+  { path: "settings/codes", permission: "READ_CODE", element: <Code /> },
+  { path: "settings/codes/create", permission: "READ_CODE", element: <CodeCreate /> },
+  { path: "settings/codes/:codeId/values", permission: "READ_CODE", element: <CodeValueList /> },
+  {
+    path: "settings/codes/:codeId/values/create",
+    permission: "READ_CODE",
+    element: <CodeValueForm />,
+  },
+  {
+    path: "settings/codes/:codeId/values/:valueId/edit",
+    permission: "READ_CODE",
+    element: <CodeValueForm />,
+  },
   { path: "settings/employees", permission: "VIEW_STAFF", element: <Staff /> },
   { path: "settings/employees/create", permission: "CREATE_STAFF", element: <StaffCreate /> },
   { path: "settings/employees/:id/edit", permission: "UPDATE_STAFF", element: <StaffEdit /> },

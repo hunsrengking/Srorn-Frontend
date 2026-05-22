@@ -336,7 +336,9 @@
     "quantity": "Qty",
     "total_qty": "Total distributed",
     "no_cables": "No cable data",
-    "entry_id": "Entry ID"
+    "entry_id": "Entry ID",
+    "enable_print": "Enable printing",
+    "enable_cable": "Enable cables"
   },
   "print_card_new": {
     "title": "Print Card New",
@@ -584,5 +586,9 @@
     "load_failed": "Failed to load office data",
     "back": "Back",
     "cancel": "Cancel"
+  },
+  "codes": {
+    "is_active": "is Active",
+    "filter_placeholder": "Filter by name..."
   }
 }

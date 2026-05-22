@@ -18,6 +18,7 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
   const [positions, setPositions] = useState([]);
   const [allNames, setAllNames] = useState([]);
   const [names, setNames] = useState([]);
+  const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [cableChecked, setCableChecked] = useState(false);
@@ -28,9 +29,10 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
     try {
       setLoading(true);
       const res = await printCardService.getPrintCardTemplates();
-      const { staffs, students, positions } = res.data;
+      const { staffs, students, positions, card_colors, colors } = res.data;
 
       setPositions(positions || []);
+      setColors(card_colors || colors || []);
 
       const combined = [
         ...(staffs || []).map((s) => ({
@@ -69,7 +71,6 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
         );
         if (person) {
           currentPositionId = person.position_id;
-          // Silently update parent with the discovered position_id
           onChange({
             ...formData,
             position_id: currentPositionId,
@@ -216,12 +217,10 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
       label: n.display_name,
     }));
 
-  const colorOptions = [
-    { value: "1", label: "Red" },
-    { value: "2", label: "Green" },
-    { value: "3", label: "Blue" },
-    { value: "4", label: "Yellow" },
-  ];
+  const colorOptions = colors.map((c) => ({
+    value: c.id,
+    label: c.code_value,
+  }));
 
   return (
     <form
@@ -373,13 +372,15 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
                   type="checkbox"
                   checked={cableChecked}
                   onChange={handleCableCheckbox}
-                  className="h-5 w-5"
                 />
+                <span className="text-sm text-slate-600">
+                  {t("print_card.enable_cable", "Enable cables")}
+                </span>
                 <button
                   type="button"
                   onClick={handleAddCable}
                   disabled={!cableChecked}
-                  className={`px-3 py-1 rounded-xl text-sm text-white ${
+                  className={`w-6 h-6 flex items-center justify-center rounded-lg text-xs text-white transition-colors ${
                     cableChecked
                       ? "bg-green-600 hover:bg-green-700"
                       : "bg-gray-300 cursor-not-allowed"

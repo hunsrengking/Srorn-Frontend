@@ -201,7 +201,6 @@ const RolePermission = () => {
           onClick={() => navigate("/settings/roles")}
           className="px-4 py-2 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 flex items-center gap-2"
         >
-          <FontAwesomeIcon icon={faArrowLeft} />
           {t("checker.back")}
         </button>
       </div>
