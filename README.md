@@ -2,6 +2,17 @@
 
 React + Vite frontend for the Srorn support and management system.
 
+The frontend calls the backend through `/api` by default. In local development,
+Vite proxies `/api` to the FastAPI server.
+
+## Setup
+
+```bash
+npm install
+copy .env.example .env
+npm run dev
+```
+
 ## Scripts
 
 ```bash
@@ -10,6 +21,11 @@ npm run dev
 npm run build
 npm run lint
 ```
+
+## Environment
+
+- `VITE_API_BASE_URL`: API base URL. Use `/api` for the Vite/nginx proxy or a full URL such as `http://localhost:8000/api`.
+- `VITE_API_PROXY_TARGET`: local Vite proxy target, usually `http://localhost:8000`.
 
 ## Project Structure
 

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import printCardService from "@/services/printCardService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { faAddressCard } from "@fortawesome/free-regular-svg-icons";
 import { formatDate } from "../../../utils/formatdate";
 
@@ -12,13 +12,19 @@ const PrintCard = () => {
   const navigate = useNavigate();
   const [printCards, setPrintCards] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const loadPrintCards = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const res = await printCardService.getPrintCards();
       setPrintCards(res.data || []);
     } catch (err) {
       console.error("Error loading print cards:", err);
+      setError("Failed to load print cards. Please try again.");
+      setPrintCards([]);
     } finally {
       setLoading(false);
     }
@@ -28,33 +34,76 @@ const PrintCard = () => {
     loadPrintCards();
   }, []);
 
-  if (loading)
-    return <p className="text-sm text-slate-500">{t("roles.loading")}</p>;
+  const handleViewPrintCard = (id) => {
+    navigate(`/organization/printcard/${id}`);
+  };
+
+  const handleEditPrintCard = (id) => {
+    navigate(`/organization/printcard/${id}/edit`);
+  };
+
+  const filteredPrintCards = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return printCards;
+
+    return printCards.filter((printCard) =>
+      [
+        printCard.id,
+        printCard.person_name,
+        printCard.seller_name,
+        printCard.description,
+        formatDate(printCard.print_date),
+        printCard.is_print_card ? "printed true" : "not printed false",
+      ]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(term)),
+    );
+  }, [printCards, searchTerm]);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
-            <FontAwesomeIcon icon={faAddressCard} />
-            {t("print_card.title")}
-          </h1>
-          <p className="text-sm text-slate-500">
-            {t("print_card.description")}
-          </p>
-        </div>
+    <div className="space-y-5">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
+              <FontAwesomeIcon icon={faAddressCard} />
+              {t("print_card.title")}
+            </h1>
+            <p className="text-sm text-slate-500 mt-1">
+              {t("print_card.description")}
+            </p>
+          </div>
 
-        <Link
-          to="/organization/printcard/newcard"
-          className="inline-flex items-center gap-2 bg-blue-600 text-white text-sm px-4 py-2 rounded-xl shadow hover:bg-blue-700"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          {t("print_card.print_new")}
-        </Link>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="relative w-full sm:w-72">
+              <span className="absolute left-3 top-2.5 text-slate-400">
+                <FontAwesomeIcon icon={faSearch} className="h-4 w-4" />
+              </span>
+              <input
+                type="text"
+                placeholder="Search print cards..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-xl
+                           focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500
+                           placeholder:text-slate-400 outline-none"
+              />
+            </div>
+
+            <Link
+              to="/organization/printcard/newcard"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm
+                         font-medium rounded-xl bg-blue-600 text-white shadow-sm
+                         hover:bg-blue-700 focus:outline-none focus:ring-2
+                         focus:ring-blue-500/50"
+            >
+              <FontAwesomeIcon icon={faPlus} className="h-4 w-4" />
+              <span>{t("print_card.print_new")}</span>
+            </Link>
+          </div>
+        </div>
       </div>
 
-      {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm text-left">
@@ -66,64 +115,120 @@ const PrintCard = () => {
                 <th className="px-4 py-3">Seller By</th>
                 <th className="px-4 py-3">Is Print Card</th>
                 <th className="px-4 py-3">Description</th>
+                <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-slate-100">
-              {printCards.length === 0 ? (
+              {loading ? (
                 <tr>
-                  <td colSpan="6" className="px-4 py-8 text-center text-sm text-slate-400">
+                  <td
+                    colSpan={7}
+                    className="px-4 py-8 text-center text-sm text-slate-400"
+                  >
+                    {t("roles.loading")}
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="px-4 py-8 text-center text-sm text-red-500"
+                  >
+                    {error}
+                    <button
+                      onClick={loadPrintCards}
+                      className="ml-2 text-blue-600 hover:text-blue-800 underline"
+                    >
+                      {t("users.retry", "Retry")}
+                    </button>
+                  </td>
+                </tr>
+              ) : filteredPrintCards.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="px-4 py-8 text-center text-sm text-slate-400"
+                  >
                     {t("roles.not_found")}
                   </td>
                 </tr>
               ) : (
-                printCards.map((printCard) => (
+                filteredPrintCards.map((printCard) => (
                   <tr
                     key={printCard.id}
-                    onClick={() =>
-                      navigate(`/organization/printcard/${printCard.id}`)
-                    }
+                    onClick={() => handleViewPrintCard(printCard.id)}
                     className="transition-colors duration-150 hover:bg-slate-50 cursor-pointer"
                   >
-                    <td className="px-4 py-3 text-slate-700 font-medium">{printCard.id}</td>
-                    <td className="px-4 py-3 text-slate-800 font-medium">
-                      {printCard.person_name}
+                    <td className="px-4 py-3 text-slate-700 font-medium">
+                      {printCard.id}
+                    </td>
+                    <td className="px-4 py-3 text-slate-800">
+                      {printCard.person_name || "-"}
                     </td>
                     <td className="px-4 py-3 text-slate-600">
                       {formatDate(printCard.print_date)}
                     </td>
                     <td className="px-4 py-3 text-slate-600">
-                      {printCard.seller_name}
+                      {printCard.seller_name || "-"}
                     </td>
 
-                    <td className="py-2 pr-4">
+                    <td className="px-4 py-3">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${
                           printCard.is_print_card
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-zinc-100 text-zinc-500"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                            : "bg-slate-100 text-slate-600 border-slate-200"
                         }`}
                       >
                         <span
-                          className={`w-1.5 h-1.5 rounded-full ${
+                          className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
                             printCard.is_print_card
                               ? "bg-emerald-500"
-                              : "bg-zinc-400"
+                              : "bg-slate-400"
                           }`}
                         />
-                        {printCard.is_print_card ? "True" : "False"}
+                        {printCard.is_print_card ? "Printed" : "Pending"}
                       </span>
                     </td>
 
-                    <td className="py-2 pr-4 text-slate-600">
-                      {printCard.description}
+                    <td className="px-4 py-3 text-slate-600 max-w-xs">
+                      <span className="line-clamp-2">
+                        {printCard.description || "-"}
+                      </span>
+                    </td>
+
+                    <td className="px-4 py-3 text-right">
+                      <div
+                        className="inline-flex items-center gap-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <button
+                          onClick={() => handleEditPrintCard(printCard.id)}
+                          className="inline-flex items-center justify-center w-8 h-8 rounded-lg
+                                     text-slate-500 hover:text-blue-600 hover:bg-blue-50
+                                     transition-colors"
+                          aria-label="Edit print card"
+                          title="Edit print card"
+                        >
+                          <FontAwesomeIcon icon={faEdit} className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="px-4 py-3 text-xs text-slate-500 bg-slate-50 flex justify-between items-center">
+          <span>
+            Showing {filteredPrintCards.length} of {printCards.length} print
+            cards
+          </span>
+          <span className="text-slate-400">Page 1 of 1</span>
+        </div>
       </div>
     </div>
   );

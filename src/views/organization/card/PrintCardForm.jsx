@@ -3,7 +3,11 @@ import React, { useCallback, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import Select from "react-select";
 import printCardService from "@/services/printCardService";
-import { faPlusCircle, faXmarkCircle, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+  faPlusCircle,
+  faXmarkCircle,
+  faCalendarAlt,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -29,8 +33,16 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
       setPositions(positions || []);
 
       const combined = [
-        ...(staffs || []).map((s) => ({ ...s, person_type: "staff", dropdown_id: `staff_${s.id}` })),
-        ...(students || []).map((s) => ({ ...s, person_type: "student", dropdown_id: `student_${s.id}` })),
+        ...(staffs || []).map((s) => ({
+          ...s,
+          person_type: "staff",
+          dropdown_id: `staff_${s.id}`,
+        })),
+        ...(students || []).map((s) => ({
+          ...s,
+          person_type: "student",
+          dropdown_id: `student_${s.id}`,
+        })),
       ];
 
       setAllNames(combined);
@@ -52,20 +64,22 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
 
       // If position_id is missing but staff_id exists, try to find the position from allNames
       if (!currentPositionId && formData.staff_id) {
-        const person = allNames.find(n => String(n.id) === String(formData.staff_id));
+        const person = allNames.find(
+          (n) => String(n.id) === String(formData.staff_id),
+        );
         if (person) {
           currentPositionId = person.position_id;
           // Silently update parent with the discovered position_id
           onChange({
             ...formData,
-            position_id: currentPositionId
+            position_id: currentPositionId,
           });
         }
       }
 
       if (currentPositionId) {
         const filtered = allNames.filter(
-          (item) => String(item.position_id) === String(currentPositionId)
+          (item) => String(item.position_id) === String(currentPositionId),
         );
         setNames(filtered);
       } else {
@@ -101,7 +115,7 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
       setNames([]);
     } else {
       const filtered = allNames.filter(
-        (item) => String(item.position_id) === String(positionId)
+        (item) => String(item.position_id) === String(positionId),
       );
       setNames(filtered);
     }
@@ -111,7 +125,7 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
   };
 
   const handleNameChange = (selected) => {
-    const person = allNames.find(n => n.dropdown_id === selected?.value);
+    const person = allNames.find((n) => n.dropdown_id === selected?.value);
 
     onChange({
       ...formData,
@@ -171,7 +185,7 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
   };
 
   const handleSellerChange = (selected) => {
-    const person = allNames.find(n => n.dropdown_id === selected?.value);
+    const person = allNames.find((n) => n.dropdown_id === selected?.value);
     onChange({
       ...formData,
       seller_id: person ? person.id : "",
@@ -192,12 +206,12 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
   }));
 
   const sellerOptions = allNames
-    .filter(n => {
+    .filter((n) => {
       if (n.person_type !== "staff") return false;
-      const pos = positions.find(p => String(p.id) === String(n.position_id));
+      const pos = positions.find((p) => String(p.id) === String(n.position_id));
       return pos && pos.title?.toLowerCase() === "seller";
     })
-    .map(n => ({
+    .map((n) => ({
       value: n.dropdown_id,
       label: n.display_name,
     }));
@@ -227,8 +241,9 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
             onChange={handlePositionChange}
             placeholder={t("staff.select_position")}
             value={
-              positionOptions.find((o) => String(o.value) === String(formData.position_id)) ||
-              null
+              positionOptions.find(
+                (o) => String(o.value) === String(formData.position_id),
+              ) || null
             }
             isClearable
           />
@@ -255,8 +270,12 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
                 )}
                 value={
                   nameOptions.find((o) => {
-                    const person = allNames.find(n => n.dropdown_id === o.value);
-                    return person && String(person.id) === String(formData.staff_id);
+                    const person = allNames.find(
+                      (n) => n.dropdown_id === o.value,
+                    );
+                    return (
+                      person && String(person.id) === String(formData.staff_id)
+                    );
                   }) || null
                 }
                 isClearable
@@ -294,7 +313,9 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
             </label>
             <div className="relative w-full sm:max-w-md">
               <DatePicker
-                selected={formData.print_date ? parseISO(formData.print_date) : null}
+                selected={
+                  formData.print_date ? parseISO(formData.print_date) : null
+                }
                 onChange={handleDateChange}
                 dateFormat="eeee dd MMMM yyyy"
                 placeholderText={t("print_card.select_date", "Select date...")}
@@ -303,8 +324,8 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
                 showPopperArrow={false}
                 required
               />
-              <FontAwesomeIcon 
-                icon={faCalendarAlt} 
+              <FontAwesomeIcon
+                icon={faCalendarAlt}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
               />
             </div>
@@ -327,8 +348,12 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
                 )}
                 value={
                   sellerOptions.find((o) => {
-                    const person = allNames.find(n => n.dropdown_id === o.value);
-                    return person && String(person.id) === String(formData.seller_id);
+                    const person = allNames.find(
+                      (n) => n.dropdown_id === o.value,
+                    );
+                    return (
+                      person && String(person.id) === String(formData.seller_id)
+                    );
                   }) || null
                 }
                 isClearable
@@ -343,7 +368,7 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
               <label className="text-sm text-slate-600 sm:w-32">
                 {t("print_card.cable", "Cable")}
               </label>
-              <div className="flex items-center gap-2 flex-1">
+              <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={cableChecked}
@@ -354,10 +379,11 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
                   type="button"
                   onClick={handleAddCable}
                   disabled={!cableChecked}
-                  className={`px-3 py-1 rounded-xl text-sm text-white ${cableChecked
+                  className={`px-3 py-1 rounded-xl text-sm text-white ${
+                    cableChecked
                       ? "bg-green-600 hover:bg-green-700"
                       : "bg-gray-300 cursor-not-allowed"
-                    }`}
+                  }`}
                 >
                   <FontAwesomeIcon icon={faPlusCircle} />
                 </button>
@@ -386,7 +412,9 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
                   <Select
                     options={colorOptions}
                     value={
-                      colorOptions.find((col) => String(col.value) === String(c.color)) || null
+                      colorOptions.find(
+                        (col) => String(col.value) === String(c.color),
+                      ) || null
                     }
                     onChange={(sel) =>
                       handleCableChange(idx, "color", sel?.value || "")

@@ -13,7 +13,7 @@ const Login = () => {
 
   const changeLanguage = (lang) => {
     i18n.changeLanguage(lang);
-    localStorage.setItem('app_language', lang); // Save language preference
+    localStorage.setItem("app_language", lang); // Save language preference
   };
 
   useEffect(() => {
@@ -26,7 +26,7 @@ const Login = () => {
     document.head.appendChild(link);
 
     // Initialize language from localStorage
-    const savedLang = localStorage.getItem('app_language') || 'en';
+    const savedLang = localStorage.getItem("app_language") || "en";
     if (i18n.language !== savedLang) {
       i18n.changeLanguage(savedLang);
     }
@@ -55,6 +55,8 @@ const Login = () => {
 
       if (data.user) {
         localStorage.setItem("app_auth_user", JSON.stringify(data.user));
+      } else {
+        localStorage.removeItem("app_auth_user");
       }
 
       window.location.href = "/dashboard";
@@ -67,13 +69,23 @@ const Login = () => {
 
   // Show loading if i18n not ready
   if (!ready) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading...</div>;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        Loading...
+      </div>
+    );
   }
 
   return (
     <div className="login-container">
       <div className="login-form">
-        {/* Left Side */}
         <div className="login-left">
           <div className="language-selector">
             <label htmlFor="language">{t("auth.change_language")}</label>
@@ -143,12 +155,6 @@ const Login = () => {
               </button>
             </center>
           </form>
-        </div>
-        {/* Right Side */}
-        <div className="login-right">
-          <h1>{t("auth.brand_text.title")}</h1>
-          <p>{t("auth.brand_text.subtitle1")}</p>
-          <p>{t("auth.brand_text.subtitle2")}</p>
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ import {
   faSearch,
   faEdit,
   faTrash,
+  faEye,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../../utils/permission";
@@ -228,6 +229,21 @@ const Users = () => {
                         className="inline-flex items-center gap-2"
                         onClick={(e) => e.stopPropagation()}
                       >
+                        {hasPermission("VIEW_USER") && (
+                          <button
+                            onClick={() => handleViewUser(u.id)}
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg
+                                     text-slate-500 hover:text-indigo-600 hover:bg-indigo-50
+                                     transition-colors"
+                            aria-label="View user"
+                            title="View user"
+                          >
+                            <FontAwesomeIcon
+                              icon={faEye}
+                              className="h-4 w-4"
+                            />
+                          </button>
+                        )}
                         {hasPermission("UPDATE_USER") && (
                           <button
                             onClick={() => handleEditUser(u.id)}

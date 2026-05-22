@@ -18,6 +18,7 @@ const UsersView = lazy(() => import("@/views/user/UserView"));
 const Students = lazy(() => import("@/views/student/Student"));
 const StudentCreate = lazy(() => import("@/views/student/StudentCreate"));
 const StudentEdit = lazy(() => import("@/views/student/StudentEdit"));
+const StudentView = lazy(() => import("@/views/student/StudentView"));
 
 const Settings = lazy(() => import("@/views/setting/Settings"));
 const RolePermission = lazy(() => import("@/views/setting/roles/RolePermission"));
@@ -79,6 +80,8 @@ export const protectedRoutes = [
 
   { path: "students", permission: "VIEW_STUDENTS", element: <Students /> },
   { path: "students/create", permission: "CREATE_STUDENTS", element: <StudentCreate /> },
+  { path: "students/:id/view", permission: "VIEW_STUDENTS", element: <StudentView /> },
+  { path: "students/views/:id", permission: "VIEW_STUDENTS", element: <StudentView /> },
   { path: "students/:id/edit", permission: "UPDATE_STUDENTS", element: <StudentEdit /> },
 
   { path: "setting", permission: "VIEW_SETTING", element: <Settings /> },

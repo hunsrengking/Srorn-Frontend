@@ -10,6 +10,12 @@ import systemService from "@/services/systemService";
 
 const SystemContext = createContext();
 
+const getAssetBaseUrl = () => {
+  const baseUrl = (import.meta.env.VITE_API_BASE_URL || "").trim().replace(/\/+$/, "");
+  if (!baseUrl || baseUrl === "/api") return "";
+  return baseUrl.endsWith("/api") ? baseUrl.slice(0, -4) : baseUrl;
+};
+
 export const SystemProvider = ({ children }) => {
   const [systemInfo, setSystemInfo] = useState({
     system_name: "Support System",
@@ -22,8 +28,7 @@ export const SystemProvider = ({ children }) => {
   const getFullImageUrl = useCallback((url) => {
     if (!url) return "/assets/images/logo/logo.PNG";
     if (url.startsWith("http") || url.startsWith("data:")) return url;
-    const base = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
-    return `${base}${url}`;
+    return `${getAssetBaseUrl()}${url}`;
   }, []);
 
   const loadSystemInfo = useCallback(async () => {

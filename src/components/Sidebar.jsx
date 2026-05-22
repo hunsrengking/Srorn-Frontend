@@ -22,91 +22,111 @@ const Sidebar = ({ sidebarOpen }) => {
   const [reportOpen, setReportOpen] = useState(false);
   const location = useLocation();
 
-  const isActive = (path) => location.pathname.startsWith(path);
+  const isActive = (paths) => {
+    const values = Array.isArray(paths) ? paths : [paths];
+    return values.some((path) => location.pathname.startsWith(path));
+  };
 
-  const menuClass = (path) =>
-    `flex items-center p-2.5 rounded-xl transition-all duration-200 group
-     ${isActive(path)
-      ? "bg-blue-600 text-white shadow-md"
-      : "text-blue-100 hover:bg-blue-700 hover:text-white"
+  const menuClass = (paths) =>
+    `flex min-h-11 items-center rounded-lg px-3 text-sm font-medium transition-colors duration-200 group
+     ${sidebarOpen ? "gap-3" : "justify-center"}
+     ${isActive(paths)
+      ? "bg-blue-600 text-white shadow-sm"
+      : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
     }`;
+
+  const menuItems = [
+    {
+      to: "/dashboard",
+      paths: "/dashboard",
+      permission: "VIEW_DASHBOARD",
+      icon: faChartBar,
+      label: t("sidebar.dashboard"),
+    },
+    {
+      to: "/ticket",
+      paths: "/ticket",
+      permission: "VIEW_TICKET",
+      icon: faTicket,
+      label: t("sidebar.tickets"),
+    },
+    {
+      to: "/checkermaker",
+      paths: "/checkermaker",
+      permission: "MAKER_CHECKER",
+      icon: faCheckToSlot,
+      label: t("sidebar.checkerbox"),
+    },
+    {
+      to: "/students",
+      paths: "/students",
+      permission: "VIEW_STUDENTS",
+      icon: faUserGraduate,
+      label: t("sidebar.students"),
+    },
+    {
+      to: "/inventory",
+      paths: "/inventory",
+      permission: "VIEW_INVENTORY",
+      icon: faBox,
+      label: t("sidebar.inventory"),
+    },
+    {
+      to: "/users",
+      paths: "/users",
+      permission: "VIEW_USER",
+      icon: faUsers,
+      label: t("sidebar.users"),
+    },
+    {
+      to: "/organization",
+      paths: "/organization",
+      permission: "VIEW_ORGANIZATION",
+      icon: faBuilding,
+      label: t("sidebar.organization"),
+    },
+    {
+      to: "/setting",
+      paths: ["/setting", "/settings"],
+      permission: "VIEW_SETTING",
+      icon: faSliders,
+      label: t("sidebar.settings"),
+    },
+  ];
+
+  const renderMenuItem = (item) =>
+    hasPermission(item.permission) ? (
+      <Link
+        key={item.to}
+        to={item.to}
+        className={menuClass(item.paths)}
+        title={sidebarOpen ? undefined : item.label}
+      >
+        <FontAwesomeIcon icon={item.icon} className="w-5 text-base" />
+        {sidebarOpen && <span className="truncate">{item.label}</span>}
+      </Link>
+    ) : null;
 
   return (
     <aside
-      className={`h-full flex-1 bg-gradient-to-b from-blue-900 via-blue-800 to-blue-900 
-      shadow-xl transition-all duration-300 overflow-y-auto overflow-x-hidden ${sidebarOpen ? "w-64" : "w-64 md:w-20"}`}
+      className={`h-full flex-1 border-r border-slate-200 bg-white shadow-sm transition-all duration-300 overflow-y-auto overflow-x-hidden ${sidebarOpen ? "w-64" : "w-64 md:w-20"}`}
     >
-      <nav className="p-4 space-y-2 text-sm font-medium">
-        {/* Dashboard */}
-        {hasPermission("VIEW_DASHBOARD") && (
-          <Link to="/dashboard" className={menuClass("/dashboard")}>
-            <FontAwesomeIcon icon={faChartBar} className="text-lg" />
-            {sidebarOpen && (
-              <span className="ml-3">{t("sidebar.dashboard")}</span>
-            )}
-          </Link>
-        )}
+      <nav className="p-3 space-y-1.5">
+        {menuItems.slice(0, 6).map(renderMenuItem)}
 
-        {/* Tickets */}
-        {hasPermission("VIEW_TICKET") && (
-          <Link to="/ticket" className={menuClass("/ticket")}>
-            <FontAwesomeIcon icon={faTicket} className="text-lg" />
-            {sidebarOpen && (
-              <span className="ml-3">{t("sidebar.tickets")}</span>
-            )}
-          </Link>
-        )}
-
-        {/* Checker */}
-        {hasPermission("MAKER_CHECKER") && (
-          <Link to="/checkermaker" className={menuClass("/checkermaker")}>
-            <FontAwesomeIcon icon={faCheckToSlot} className="text-lg" />
-            {sidebarOpen && (
-              <span className="ml-3">{t("sidebar.checkerbox")}</span>
-            )}
-          </Link>
-        )}
-
-        {/* Students */}
-        {hasPermission("VIEW_STUDENTS") && (
-          <Link to="/students" className={menuClass("/students")}>
-            <FontAwesomeIcon icon={faUserGraduate} className="text-lg" />
-            {sidebarOpen && (
-              <span className="ml-3">{t("sidebar.students")}</span>
-            )}
-          </Link>
-        )}
-        {/* Inventory */}
-        {hasPermission("VIEW_INVENTORY") && (
-          <Link to="/inventory" className={menuClass("/inventory")}>
-            <FontAwesomeIcon icon={faBox} className="text-lg" />
-            {sidebarOpen && (
-              <span className="ml-3">{t("sidebar.inventory")}</span>
-            )}
-          </Link>
-        )}
-
-        {/* Users */}
-        {hasPermission("VIEW_USER") && (
-          <Link to="/users" className={menuClass("/users")}>
-            <FontAwesomeIcon icon={faUsers} className="text-lg" />
-            {sidebarOpen && <span className="ml-3">{t("sidebar.users")}</span>}
-          </Link>
-        )}
-
-        {/* Reports */}
         {hasPermission("VIEW_REPORTS") && (
           <div>
             <button
               onClick={() => setReportOpen(!reportOpen)}
-              className="w-full flex items-center justify-between p-2.5 rounded-xl 
-              text-blue-100 hover:bg-blue-700 hover:text-white transition-all duration-200"
+              aria-expanded={reportOpen}
+              title={sidebarOpen ? undefined : t("sidebar.reports")}
+              className={`w-full min-h-11 rounded-lg px-3 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-950 transition-colors duration-200 ${
+                sidebarOpen ? "flex items-center justify-between" : "flex items-center justify-center"
+              }`}
             >
-              <div className="flex items-center">
-                <FontAwesomeIcon icon={faChartArea} className="text-lg" />
-                {sidebarOpen && (
-                  <span className="ml-3">{t("sidebar.reports")}</span>
-                )}
+              <div className={`flex items-center ${sidebarOpen ? "gap-3" : ""}`}>
+                <FontAwesomeIcon icon={faChartArea} className="w-5 text-base" />
+                {sidebarOpen && <span>{t("sidebar.reports")}</span>}
               </div>
 
               {sidebarOpen && (
@@ -117,7 +137,6 @@ const Sidebar = ({ sidebarOpen }) => {
               )}
             </button>
 
-            {/* Submenu */}
             <div
               className={`overflow-hidden transition-all duration-300 ${reportOpen && sidebarOpen ? "max-h-40 mt-2" : "max-h-0"
                 }`}
@@ -127,7 +146,7 @@ const Sidebar = ({ sidebarOpen }) => {
                 className={`block ml-10 py-2 px-3 rounded-lg text-sm transition
                 ${isActive("/reports")
                     ? "bg-blue-600 text-white"
-                    : "text-blue-200 hover:bg-blue-700 hover:text-white"
+                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
                   }`}
               >
                 {t("sidebar.ticket_report")}
@@ -135,25 +154,8 @@ const Sidebar = ({ sidebarOpen }) => {
             </div>
           </div>
         )}
-        {/* Organization */}
-        {hasPermission("VIEW_ORGANIZATION") && (
-          <Link to="/organization" className={menuClass("/organization")}>
-            <FontAwesomeIcon icon={faBuilding} className="text-lg" />
-            {sidebarOpen && (
-              <span className="ml-3">{t("sidebar.organization")}</span>
-            )}
-          </Link>
-        )}
-        {/* Settings */}
-        {hasPermission("VIEW_SETTING") && (
-          <Link to="/setting" className={menuClass("/setting")}>
-            <FontAwesomeIcon icon={faSliders} className="text-lg" />
-            {sidebarOpen && (
-              <span className="ml-3">{t("sidebar.settings")}</span>
-            )}
-          </Link>
-        )}
 
+        {menuItems.slice(6).map(renderMenuItem)}
       </nav>
     </aside>
   );

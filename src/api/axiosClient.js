@@ -6,15 +6,10 @@ import { loadingService } from "@/services/loadingService";
 const STORAGE_KEY = "app_auth_token";
 const USER_KEY = "app_auth_user";
 const REFRESH_KEY = "refresh_token";
-
-const normalizeApiBaseUrl = (baseUrl) => {
-  const cleanBaseUrl = (baseUrl || "").replace(/\/$/, "");
-  if (!cleanBaseUrl) return "/api";
-  return cleanBaseUrl.endsWith("/api") ? cleanBaseUrl : `${cleanBaseUrl}/api`;
-};
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 const axiosClient = axios.create({
-  baseURL: normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL),
+  baseURL: API_BASE_URL,
   timeout: 20000,
   headers: {
     "Content-Type": "application/json",

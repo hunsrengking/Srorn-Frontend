@@ -9,6 +9,7 @@ import {
   faEdit,
   faTrash,
   faPlus,
+  faEye,
   faUserGraduate,
 } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../../utils/permission";
@@ -63,6 +64,10 @@ const Student = () => {
 
   const handleEditStudent = (id) => {
     navigate(`/students/${id}/edit`);
+  };
+
+  const handleViewStudent = (id) => {
+    navigate(`/students/${id}/view`);
   };
 
   const handleDeleteStudent = async (id) => {
@@ -179,7 +184,16 @@ const Student = () => {
                 students.map((u) => (
                   <tr
                     key={u.id}
-                    className="transition-colors duration-150 hover:bg-slate-50"
+                    onClick={
+                      hasPermission("VIEW_STUDENTS")
+                        ? () => handleViewStudent(u.id)
+                        : undefined
+                    }
+                    className={`transition-colors duration-150
+                      ${hasPermission("VIEW_STUDENTS")
+                        ? "hover:bg-slate-50 cursor-pointer"
+                        : "cursor-not-allowed opacity-60"
+                      }`}
                   >
                     <td className="px-4 py-3 text-slate-700 font-medium">
                       {u.id}
@@ -223,6 +237,19 @@ const Student = () => {
                         className="inline-flex items-center gap-2"
                         onClick={(e) => e.stopPropagation()}
                       >
+                        {hasPermission("VIEW_STUDENTS") && (
+                          <button
+                            onClick={() => handleViewStudent(u.id)}
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg
+                                     text-slate-500 hover:text-indigo-600 hover:bg-indigo-50
+                                     transition-colors"
+                            aria-label="View student"
+                            title="View student"
+                          >
+                            <FontAwesomeIcon icon={faEye} className="h-4 w-4" />
+                          </button>
+                        )}
+
                         {hasPermission("UPDATE_STUDENTS") && (
                           <button
                             onClick={() => handleEditStudent(u.id)}
