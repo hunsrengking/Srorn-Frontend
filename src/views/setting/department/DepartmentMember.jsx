@@ -2,8 +2,9 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useError } from "../../../context/ErrorContext";
-import { useParams, useNavigate } from "react-router-dom";
-import axiosClient from "../../../services/axiosClient";
+import { useParams } from "react-router-dom";
+import departmentService from "@/services/departmentService";
+import userService from "@/services/userService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUsers,
@@ -17,7 +18,6 @@ const PAGE_SIZE = 10;
 const DepartmentMember = () => {
   const { t } = useTranslation();
   const { id } = useParams();
-  const navigate = useNavigate();
   const { showError, showSuccess } = useError();
   const [department, setDepartment] = useState(null);
   const [members, setMembers] = useState([]);
@@ -35,7 +35,7 @@ const DepartmentMember = () => {
   const loadMembers = async () => {
     setLoading(true);
     try {
-      const res = await axiosClient.get(`/api/department/${id}`);
+      const res = await departmentService.getDepartmentById(id);
       setDepartment(res.data || null);
       setMembers(res.data?.members || []);
     } catch (err) {
@@ -55,7 +55,7 @@ const DepartmentMember = () => {
   const loadAllUsers = async () => {
     setLoadingUsers(true);
     try {
-      const res = await axiosClient.get("/api/users/without/departmemt");
+      const res = await userService.getUsersWithoutDepartment();
       setAllUsers(res.data || []);
     } catch (err) {
       console.error(err);
@@ -96,9 +96,7 @@ const DepartmentMember = () => {
   const handleAddMember = async (e) => {
     e.preventDefault();
     try {
-      await axiosClient.post(`/api/department/${id}/members/add`, {
-        userId: selectedUserId,
-      });
+      await departmentService.addMember(id, selectedUserId);
       setIsAddOpen(false);
       loadMembers();
       showSuccess(t("departments.member_added"));
@@ -115,7 +113,7 @@ const DepartmentMember = () => {
   const handleRemove = async (userId, name) => {
     if (!window.confirm(t("departments.remove_confirm", { name }))) return;
     try {
-      await axiosClient.delete(`/api/department/${id}/members/${userId}remove`);
+      await departmentService.removeMember(id, userId);
       setMembers((prev) => prev.filter((m) => m.id !== userId));
       showSuccess(t("departments.member_removed"));
     } catch (err) {
@@ -129,6 +127,11 @@ const DepartmentMember = () => {
 
   if (loading)
     return <p className="text-sm text-slate-500">{t("departments.loading_members")}</p>;
+
+  if (error) {
+    return <p className="text-sm text-red-500">{error}</p>;
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useError } from "../../context/ErrorContext";
-import axiosClient from "../../services/axiosClient";
+import studentService from "@/services/studentService";
 import StudentForm from "./StudentForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserGraduate } from "@fortawesome/free-solid-svg-icons";
@@ -34,7 +34,7 @@ const StudentCreate = () => {
     };
 
     try {
-      await axiosClient.post("/api/students", payload);
+      await studentService.createStudent(payload);
 
       showSuccess(t("Student.create_success"));
 

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import axiosClient from "../../../services/axiosClient";
+import ticketService from "@/services/ticketService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTrash,
@@ -25,11 +25,11 @@ const TicketChecker = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
 
-  const loadTickets = async () => {
+  const loadTickets = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axiosClient.get("/api/ticket/status/waitingapprove");
+      const res = await ticketService.getWaitingApprovalTickets();
       setTickets(res.data || []);
     } catch (err) {
       console.error("Error loading tickets:", err);
@@ -38,11 +38,11 @@ const TicketChecker = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     loadTickets();
-  }, []);
+  }, [loadTickets]);
 
   const handleViewTicket = (id) => {
     navigate(`/checkermaker/view/${id}`);
@@ -116,7 +116,7 @@ const TicketChecker = () => {
       setActionLoading(true);
 
       const calls = selectedIds.map((id) =>
-        axiosClient.delete(`/api/ticket/${id}`)
+        ticketService.deleteTicket(id)
       );
 
       await Promise.allSettled(calls);
@@ -150,8 +150,8 @@ const TicketChecker = () => {
 
       const calls = selectedIds.map((id) =>
         isApprove
-          ? axiosClient.patch(`/api/ticket/${id}/approve`, null)
-          : axiosClient.patch(`/api/ticket/${id}/reject`, null)
+          ? ticketService.approveTicket(id)
+          : ticketService.rejectTicket(id)
       );
 
       await Promise.allSettled(calls);
@@ -275,7 +275,16 @@ const TicketChecker = () => {
             </thead>
 
             <tbody className="divide-y divide-slate-100">
-              {error ? (
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan={8}
+                    className="px-4 py-8 text-center text-sm text-slate-400"
+                  >
+                    {t("common.loading", "Loading...")}
+                  </td>
+                </tr>
+              ) : error ? (
                 <tr>
                   <td
                     colSpan={8}

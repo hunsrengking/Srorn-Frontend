@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
-import axiosClient from "../../../services/axiosClient";
+import printCardService from "@/services/printCardService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { faAddressCard } from "@fortawesome/free-regular-svg-icons";
@@ -15,7 +15,7 @@ const PrintCard = () => {
 
   const loadPrintCards = async () => {
     try {
-      const res = await axiosClient.get("/api/organization/printcards");
+      const res = await printCardService.getPrintCards();
       setPrintCards(res.data || []);
     } catch (err) {
       console.error("Error loading print cards:", err);
@@ -77,7 +77,7 @@ const PrintCard = () => {
                   </td>
                 </tr>
               ) : (
-                printCards.map((printCard, index) => (
+                printCards.map((printCard) => (
                   <tr
                     key={printCard.id}
                     onClick={() =>

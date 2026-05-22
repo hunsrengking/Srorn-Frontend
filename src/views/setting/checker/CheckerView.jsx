@@ -1,8 +1,8 @@
 // src/views/settings/users/CheckerView.jsx
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
-import axiosClient from "../../../services/axiosClient";
+import ticketService from "@/services/ticketService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
@@ -24,10 +24,10 @@ const TicketCheckerView = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const loadTicket = async () => {
+  const loadTicket = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axiosClient.get(`/api/ticket/${id}`);
+      const res = await ticketService.getTicketById(id);
       setTicket(res.data);
     } catch (err) {
       console.error("Failed to load ticket:", err);
@@ -35,11 +35,11 @@ const TicketCheckerView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, t]);
 
   useEffect(() => {
     loadTicket();
-  }, [id]);
+  }, [loadTicket]);
 
   const updateStatus = async (action) => {
     if (action === "approve") {
@@ -51,7 +51,7 @@ const TicketCheckerView = () => {
     try {
       setActionLoading(true);
 
-      await axiosClient.patch(`/api/ticket/${id}/${action}`);
+      await ticketService.updateTicketStatus(id, action);
 
       showSuccess(t("checker.status_updated"));
       navigate("/checkermaker");
@@ -70,7 +70,7 @@ const TicketCheckerView = () => {
 
     try {
       setActionLoading(true);
-      await axiosClient.delete(`/api/ticket/${id}`);
+      await ticketService.deleteTicket(id);
       showSuccess(t("checker.ticket_deleted"));
       navigate("/checkermaker");
     } catch (err) {
@@ -87,6 +87,10 @@ const TicketCheckerView = () => {
         {t("checker.loading_details")}
       </div>
     );
+  }
+
+  if (error) {
+    return <div className="p-10 text-center text-red-500">{error}</div>;
   }
 
   if (!ticket) {

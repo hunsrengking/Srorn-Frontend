@@ -1,8 +1,8 @@
 // src/views/settings/Student/Student.jsx
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
-import axiosClient from "../../services/axiosClient";
+import studentService from "@/services/studentService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSearch,
@@ -12,14 +12,14 @@ import {
   faUserGraduate,
 } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../../utils/permission";
-import { errorService } from "../../services/errorService";
+import { errorService } from "@/services/errorService";
 
 const Student = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [Student, setStudent] = useState([]);
+  const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,39 +27,35 @@ const Student = () => {
   const [pageSize] = useState(10); // Fixed page size, can make it configurable
   const [totalItems, setTotalItems] = useState(0);
 
-  const loadStudent = async (page = 1, limit = pageSize, search = "") => {
+  const loadStudents = useCallback(async (page = 1, limit = pageSize, search = "") => {
     try {
       setLoading(true);
       setError(null);
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-      });
-      if (search) params.append('search', search);
-      const res = await axiosClient.get(`/api/students?${params.toString()}`);
-      setStudent(res.data.data || res.data || []);
+
+      const res = await studentService.getStudents({ page, limit, search });
+      setStudents(res.data.data || res.data || []);
       setTotalItems(res.data.total || res.data.length || 0);
       setCurrentPage(page);
     } catch (err) {
       console.error("Error loading Student:", err);
       setError("Failed to load Student. Please try again.");
-      setStudent([]);
+      setStudents([]);
       setTotalItems(0);
     } finally {
       setLoading(false);
     }
-  };
+  }, [pageSize]);
 
   useEffect(() => {
     setCurrentPage(1); // Reset to first page when search changes
   }, [searchTerm]);
 
   useEffect(() => {
-    loadStudent(currentPage, pageSize, searchTerm);
+    loadStudents(currentPage, pageSize, searchTerm);
     if (location.state?.message) {
       errorService.success(location.state.message);
     }
-  }, [currentPage, searchTerm]);
+  }, [currentPage, loadStudents, location.state?.message, pageSize, searchTerm]);
 
   const handleAddStudent = () => {
     navigate("/students/create");
@@ -73,8 +69,8 @@ const Student = () => {
     if (!window.confirm("Are you sure you want to delete this Student?")) return;
 
     try {
-      await axiosClient.delete(`/api/students/${id}`);
-      setStudent((prev) => prev.filter((u) => u.id !== id));
+      await studentService.deleteStudent(id);
+      setStudents((prev) => prev.filter((u) => u.id !== id));
       errorService.success("Student deleted successfully");
     } catch (err) {
       console.error("Error deleting Student:", err);
@@ -172,27 +168,18 @@ const Student = () => {
                   >
                     {error}
                     <button
-                      onClick={() => loadStudent(currentPage, pageSize, searchTerm)}
+                      onClick={() => loadStudents(currentPage, pageSize, searchTerm)}
                       className="ml-2 text-blue-600 hover:text-blue-800 underline"
                     >
                       {t("Student.retry")}
                     </button>
                   </td>
                 </tr>
-              ) : Student.length > 0 ? (
-                Student.map((u) => (
+              ) : students.length > 0 ? (
+                students.map((u) => (
                   <tr
                     key={u.id}
-                    onClick={
-                      hasPermission("VIEW_STUDENTS")
-                        ? () => handleViewStudent(u.id)
-                        : undefined
-                    }
-                    className={`transition-colors duration-150
-                    ${hasPermission("VIEW_STUDENTS")
-                        ? "hover:bg-slate-50 cursor-pointer"
-                        : "cursor-not-allowed opacity-60"
-                      }`}
+                    className="transition-colors duration-150 hover:bg-slate-50"
                   >
                     <td className="px-4 py-3 text-slate-700 font-medium">
                       {u.id}
@@ -277,7 +264,7 @@ const Student = () => {
 
         <div className="px-4 py-3 text-xs text-slate-500 bg-slate-50 flex justify-between items-center">
           <span>
-            Showing {Student.length > 0 ? (currentPage - 1) * pageSize + 1 : 0} to {Math.min(currentPage * pageSize, totalItems)} of {totalItems} students
+            Showing {students.length > 0 ? (currentPage - 1) * pageSize + 1 : 0} to {Math.min(currentPage * pageSize, totalItems)} of {totalItems} students
           </span>
           <div className="flex items-center gap-2">
             <button

@@ -1,12 +1,11 @@
 // src/views/settings/users/Users.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation, useNavigate } from "react-router-dom";
-import axiosClient from "../../services/axiosClient";
+import { useNavigate } from "react-router-dom";
+import ticketService from "@/services/ticketService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faSearch, faTicket } from "@fortawesome/free-solid-svg-icons";
 import { formatDate } from "../../utils/formatdate";
-import { useError } from "../../context/ErrorContext";
 
 const PAGE_SIZE = 15;
 
@@ -19,14 +18,12 @@ const Ticket = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
-  const location = useLocation();
-  const { showSuccess } = useError();
 
   const loadTickets = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axiosClient.get("/api/ticket");
+      const res = await ticketService.getTickets();
       const data = res?.data ?? res;
       setTickets(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -36,11 +33,10 @@ const Ticket = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadTickets();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadTickets]);
 
   const handleAddTicket = () => navigate("/ticket/create");

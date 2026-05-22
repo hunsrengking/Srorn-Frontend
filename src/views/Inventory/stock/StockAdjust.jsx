@@ -3,8 +3,9 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faMinus, faArrowLeft, faSave } from "@fortawesome/free-solid-svg-icons";
-import axiosClient from "../../../services/axiosClient";
-import { errorService } from "../../../services/errorService";
+import { errorService } from "@/services/errorService";
+import productService from "@/services/productService";
+import stockService from "@/services/stockService";
 
 const StockAdjust = () => {
   const { t } = useTranslation();
@@ -22,7 +23,7 @@ const StockAdjust = () => {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const res = await axiosClient.get("/api/products");
+        const res = await productService.getProducts();
         setProducts(res.data || []);
       } catch (err) {
         console.error("Error loading products:", err);
@@ -39,14 +40,13 @@ const StockAdjust = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.product_id || !formData.quantity) {
-      errorService.warning(t("common.fill_required", "Please fill required fields"));
+      errorService.error(t("common.fill_required", "Please fill required fields"));
       return;
     }
 
     try {
       setLoading(true);
-      // Backend should have an endpoint like /api/stocks/adjust or similar
-      await axiosClient.post("/api/stocks/adjust", {
+      await stockService.adjustStock({
         ...formData,
         quantity: parseInt(formData.quantity) * (formData.adjustment_type === "out" ? -1 : 1)
       });

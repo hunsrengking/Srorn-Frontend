@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSave, faTimes } from "@fortawesome/free-solid-svg-icons";
-import axiosClient from "../../../services/axiosClient";
+import categoryService from "@/services/categoryService";
 
 const AssetForm = ({
   isEdit = false,
@@ -17,8 +15,8 @@ const AssetForm = ({
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const res = await axiosClient.get("/api/category");
-        const filtered = res.data.filter((item) => item.groups === "Asset");
+        const res = await categoryService.getCategories();
+        const filtered = (res.data || []).filter((item) => item.groups === "Asset");
         setCategories(filtered || []);
       } catch (err) {
         console.error("Error loading categories:", err);

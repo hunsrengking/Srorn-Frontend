@@ -10,12 +10,12 @@ import {
   faTrash,
   faEye,
   faServer,
-  faList,
   faDesktop,
 } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../../../utils/permission";
-import axiosClient from "../../../services/axiosClient";
-import { errorService } from "../../../services/errorService";
+import { errorService } from "@/services/errorService";
+import assetService from "@/services/assetService";
+import categoryService from "@/services/categoryService";
 
 const Asset = () => {
   const { t } = useTranslation();
@@ -29,46 +29,40 @@ const Asset = () => {
   const [categories, setCategories] = useState([]);
   const iconMap = Icons;
 
-  const loadCategories = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await axiosClient.get("/api/category");
-      const filtered = res.data.filter((item) => item.groups === "Asset");
-
-      const allOption = {
-        id: "ALL",
-        name: t("common.all", "All Assets"),
-        icons: "faList",
-      };
-
-      setCategories([allOption, ...(filtered || [])]);
-    } catch (err) {
-      console.error("Error loading categories:", err);
-      setError(t("inventory.category_load_failed", "Failed to load categories"));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadAssets = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await axiosClient.get("/api/assets");
-      setAssets(res.data || []);
-    } catch (err) {
-      console.error("Error loading assets:", err);
-      setError(t("inventory.asset_load_failed", "Failed to load assets"));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadAssets();
-    loadCategories();
-  }, []);
+    const loadInventoryData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const [assetRes, categoryRes] = await Promise.all([
+          assetService.getAssets(),
+          categoryService.getCategories(),
+        ]);
+
+        const filteredCategories = (categoryRes.data || []).filter(
+          (item) => item.groups === "Asset",
+        );
+
+        setAssets(assetRes.data || []);
+        setCategories([
+          {
+            id: "ALL",
+            name: t("common.all", "All Assets"),
+            icons: "faList",
+          },
+          ...filteredCategories,
+        ]);
+      } catch (err) {
+        console.error("Error loading inventory assets:", err);
+        setError(t("inventory.asset_load_failed", "Failed to load assets"));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadInventoryData();
+  }, [t]);
 
   const handleAddAsset = () => {
     navigate("/inventory/asset/create");
@@ -87,10 +81,10 @@ const Asset = () => {
   const handleDelete = async (id) => {
     if (!window.confirm(t("inventory.asset_delete_confirm"))) return;
     try {
-      await axiosClient.delete(`/api/assets/${id}`);
+      await assetService.deleteAsset(id);
       setAssets(prev => prev.filter(a => a.id !== id));
       errorService.success(t("inventory.asset_delete_success"));
-    } catch (err) {
+    } catch {
       errorService.error(t("inventory.asset_delete_failed"));
     }
   }
@@ -138,6 +132,12 @@ const Asset = () => {
           </div>
         </div>
       </div>
+
+      {error && (
+        <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {error}
+        </div>
+      )}
 
       {/* Categories Tabs */}
       <div className="bg-white p-1 rounded-2xl border border-slate-100 shadow-sm overflow-x-auto no-scrollbar scroll-smooth flex">

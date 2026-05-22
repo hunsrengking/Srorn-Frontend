@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import axiosClient from "../../../services/axiosClient";
+import officeService from "@/services/officeService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBuilding,
   faArrowLeft,
   faEdit,
-  faCalendarAlt,
 } from "@fortawesome/free-solid-svg-icons";
 
 const OfficeView = () => {
@@ -22,7 +21,7 @@ const OfficeView = () => {
   useEffect(() => {
     const loadOffice = async () => {
       try {
-        const res = await axiosClient.get(`/api/offices/${id}`);
+        const res = await officeService.getOfficeById(id);
         setOffice(res.data);
       } catch (err) {
         console.error(err);

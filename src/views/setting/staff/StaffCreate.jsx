@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import StaffForm from "./StaffForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserTie } from "@fortawesome/free-solid-svg-icons";
-import axiosClient from "../../../services/axiosClient";
+import staffService from "@/services/staffService";
 import { useError } from "../../../context/ErrorContext";
 
 const StaffCreate = () => {
@@ -27,7 +27,7 @@ const StaffCreate = () => {
     e.preventDefault();
 
     try {
-      await axiosClient.post("/api/staff", formData);
+      await staffService.createStaff(formData);
       showSuccess(t("staff.create_success", "Staff created successfully"));
       navigate("/settings/employees");
     } catch (err) {

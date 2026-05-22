@@ -7,13 +7,8 @@ import {
   faArrowLeft,
   faEdit,
   faDesktop,
-  faPrint,
   faServer,
-  faTv,
   faWifi,
-  faNetworkWired,
-  faVolumeUp,
-  faPlug,
   faAddressCard,
   faMicrochip,
   faMemory,
@@ -21,8 +16,9 @@ import {
   faWindowRestore,
   faMapMarkerAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import axiosClient from "../../../services/axiosClient";
-import { errorService } from "../../../services/errorService";
+import { errorService } from "@/services/errorService";
+import assetService from "@/services/assetService";
+import categoryService from "@/services/categoryService";
 
 const AssetView = () => {
   const { t } = useTranslation();
@@ -35,34 +31,37 @@ const AssetView = () => {
   useEffect(() => {
     const fetchAsset = async () => {
       try {
-        const res = await axiosClient.get(`/api/assets/${id}`);
+        const res = await assetService.getAssetById(id);
         setAsset(res.data);
-      } catch (err) {
+      } catch {
         errorService.error(t("inventory.asset_load_failed"));
         navigate("/inventory/asset");
       } finally {
         setLoading(false);
       }
     };
+
+    const loadCategoryIcons = async () => {
+      try {
+        const res = await categoryService.getCategories();
+        const filtered = (res.data || []).filter(
+          (item) => item.groups === "Asset",
+        );
+
+        const iconMap = {};
+        filtered.forEach((cat) => {
+          iconMap[cat.name] = Icons[cat.icons] || faDesktop;
+        });
+
+        setCategoryIcons(iconMap);
+      } catch (err) {
+        console.error("Error loading category icons:", err);
+      }
+    };
+
     fetchAsset();
     loadCategoryIcons();
-  }, [id]);
-
-  const loadCategoryIcons = async () => {
-    try {
-      const res = await axiosClient.get("/api/category");
-      const filtered = res.data.filter((item) => item.groups === "Asset");
-      
-      const iconMap = {};
-      filtered.forEach((cat) => {
-        iconMap[cat.name] = Icons[cat.icons] || faDesktop;
-      });
-      
-      setCategoryIcons(iconMap);
-    } catch (err) {
-      console.error("Error loading category icons:", err);
-    }
-  };
+  }, [id, navigate, t]);
 
   if (loading) return null;
 

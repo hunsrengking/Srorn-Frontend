@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import OfficeForm from "./OfficeForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBuilding } from "@fortawesome/free-solid-svg-icons";
-import axiosClient from "../../../services/axiosClient";
+import officeService from "@/services/officeService";
 import { useError } from "../../../context/ErrorContext";
 
 const OfficeCreate = () => {
@@ -23,7 +23,7 @@ const OfficeCreate = () => {
     e.preventDefault();
 
     try {
-      await axiosClient.post("/api/offices", formData);
+      await officeService.createOffice(formData);
       showSuccess(t("office.create_success", "Office created successfully"));
       navigate("/organization/office");
     } catch (err) {

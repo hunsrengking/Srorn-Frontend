@@ -1,30 +1,20 @@
-import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { ErrorProvider } from "./context/ErrorContext";
-import { LoadingProvider } from "./context/LoadingContext";
-import { SystemProvider } from "./context/SystemContext";
-import ErrorAlert from "./components/common/ErrorAlert";
-import AppRoute from "./routes/AppRoute";
-import SuccessAlert from "./components/common/SuccessAlert";
+import ErrorAlert from "@/components/common/ErrorAlert";
+import SuccessAlert from "@/components/common/SuccessAlert";
+import { useDocumentLanguage } from "@/hooks/useDocumentLanguage";
+import AppProviders from "@/providers/AppProviders";
+import AppRoute from "@/routes/AppRoute";
 
 function App() {
   const { i18n } = useTranslation();
-
-  useEffect(() => {
-    // Set lang attribute on html element for CSS language-specific styling
-    document.documentElement.lang = i18n.language;
-  }, [i18n.language]);
+  useDocumentLanguage(i18n.language);
 
   return (
-    <ErrorProvider>
-      <LoadingProvider>
-        <SystemProvider>
-          <ErrorAlert />
-          <SuccessAlert />
-          <AppRoute />
-        </SystemProvider>
-      </LoadingProvider>
-    </ErrorProvider>
+    <AppProviders>
+      <ErrorAlert />
+      <SuccessAlert />
+      <AppRoute />
+    </AppProviders>
   );
 }
 

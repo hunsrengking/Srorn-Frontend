@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useError } from "../../..//context/ErrorContext";
-import axiosClient from "../../../services/axiosClient";
+import roleService from "@/services/roleService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUserShield,
@@ -20,7 +20,7 @@ const RoleCreate = () => {
     e.preventDefault();
 
     try {
-      await axiosClient.post("/api/role", {
+      await roleService.createRole({
         name: roleName,
         description,
       });

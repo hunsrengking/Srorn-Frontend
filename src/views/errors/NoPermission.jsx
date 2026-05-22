@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import axiosClient from "../../services/axiosClient"; 
+import authService from "@/services/authService";
 
 const NoPermission = () => {
   const { t } = useTranslation();
@@ -19,15 +19,7 @@ const NoPermission = () => {
         null;
 
       if (token) {
-        await axiosClient.post(
-          "/logout",
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        await authService.logout(token);
       } else {
         console.warn(
           "No token found in localStorage — skipping backend logout call."
@@ -39,22 +31,7 @@ const NoPermission = () => {
         err
       );
     } finally {
-      // clear local state
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("token");
-      localStorage.removeItem("app_auth_user");
-      localStorage.removeItem("permissions");
-      localStorage.removeItem("refresh_token");
-
-      // remove default axios Authorization header if present
-      if (
-        axiosClient &&
-        axiosClient.defaults &&
-        axiosClient.defaults.headers &&
-        axiosClient.defaults.headers.common
-      ) {
-        delete axiosClient.defaults.headers.common["Authorization"];
-      }
+      authService.clearSession();
 
       setLoggingOut(false);
       navigate("/login", { replace: true });

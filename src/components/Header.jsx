@@ -1,25 +1,36 @@
-// src/components/Header.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import axiosClient, {
+import authService, {
   getAccessToken,
   isTokenExpired,
-  clearTokens,
   setLogoutCallback,
-} from "../services/axiosClient";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+} from "@/services/authService";
+import notificationService from "@/services/notificationService";
 import {
   faBars,
   faBell,
   faUser,
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { useSystem } from "../context/SystemContext";
 
+const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+
+const isExpiredNotification = (n) => {
+  const time = n.created_at
+    ? new Date(n.created_at).getTime()
+    : n.createdAt
+      ? new Date(n.createdAt).getTime()
+      : 0;
+
+  return time && Date.now() - time > THREE_DAYS_MS;
+};
+
 const Header = ({ toggleSidebar }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { systemInfo } = useSystem();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotif, setShowNotif] = useState(false);
@@ -32,13 +43,13 @@ const Header = ({ toggleSidebar }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
 
-  const storedUser = (() => {
+  const [storedUser] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("app_auth_user")) || null;
     } catch {
       return null;
     }
-  })();
+  });
 
   const user = {
     id: storedUser?.id || "id",
@@ -50,7 +61,7 @@ const Header = ({ toggleSidebar }) => {
   useEffect(() => {
     const load = async () => {
       try {
-        const listRes = await axiosClient.get("/api/notifications");
+        const listRes = await notificationService.getNotifications();
         const cleaned = (listRes.data || []).filter(
           (n) => !isExpiredNotification(n),
         );
@@ -67,8 +78,7 @@ const Header = ({ toggleSidebar }) => {
   // ===== LOGOUT CALLBACK =====
   useEffect(() => {
     setLogoutCallback(() => {
-      clearTokens();
-      delete axiosClient.defaults.headers.common["Authorization"];
+      authService.clearSession();
       navigate("/login", { replace: true });
     });
     return () => setLogoutCallback(() => {});
@@ -88,6 +98,11 @@ const Header = ({ toggleSidebar }) => {
     return () => document.removeEventListener("click", handler);
   }, []);
 
+  const handleForcedLogout = useCallback(() => {
+    authService.clearSession();
+    navigate("/login", { replace: true });
+  }, [navigate]);
+
   // ===== TOKEN CHECK =====
   useEffect(() => {
     const check = () => {
@@ -97,17 +112,11 @@ const Header = ({ toggleSidebar }) => {
     check();
     const iv = setInterval(check, 30000);
     return () => clearInterval(iv);
-  }, []);
-
-  const handleForcedLogout = () => {
-    clearTokens();
-    delete axiosClient.defaults.headers.common["Authorization"];
-    navigate("/login", { replace: true });
-  };
+  }, [handleForcedLogout]);
 
   const handleRead = async (n) => {
     try {
-      await axiosClient.put(`/api/notifications/${n.id}/read`);
+      await notificationService.markAsRead(n.id);
 
       const updated = notifications.map((item) =>
         item.id === n.id ? { ...item, is_read: true } : item,
@@ -129,30 +138,18 @@ const Header = ({ toggleSidebar }) => {
     try {
       const token = getAccessToken();
       if (token) {
-        await axiosClient.post("/api/logout", null, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await authService.logout(token);
       }
-    } catch {
+    } catch (err) {
+      console.error("Logout request failed:", err);
     } finally {
-      clearTokens();
-      delete axiosClient.defaults.headers.common["Authorization"];
+      authService.clearSession();
       setLoggingOut(false);
       navigate("/login", { replace: true });
     }
   };
 
-  const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
 
-  const isExpiredNotification = (n) => {
-    const time = n.created_at
-      ? new Date(n.created_at).getTime()
-      : n.createdAt
-        ? new Date(n.createdAt).getTime()
-        : 0;
-
-    return time && Date.now() - time > THREE_DAYS_MS;
-  };
 
   return (
     <header className="sticky top-0 z-30 w-full bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 shadow-lg border-b border-blue-700">

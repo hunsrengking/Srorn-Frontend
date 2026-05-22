@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import AssetForm from "./AssetForm";
-import axiosClient from "../../../services/axiosClient";
-import { errorService } from "../../../services/errorService";
+import { errorService } from "@/services/errorService";
+import assetService from "@/services/assetService";
 
 const AssetCreate = () => {
   const { t } = useTranslation();
@@ -30,10 +30,10 @@ const AssetCreate = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axiosClient.post("/api/assets", formData);
+      await assetService.createAsset(formData);
       errorService.success(t("inventory.asset_create_success"));
       navigate("/inventory/asset");
-    } catch (err) {
+    } catch {
       errorService.error(t("inventory.asset_create_failed", "Failed to create asset"));
     }
   };

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear, faImage, faSave, faClock } from "@fortawesome/free-solid-svg-icons";
-import axiosClient from "../../../services/axiosClient";
+import systemService from "@/services/systemService";
 import { useError } from "../../../context/ErrorContext";
 import { useSystem } from "../../../context/SystemContext";
 
@@ -63,9 +63,7 @@ const GeneralSettings = () => {
         data.append("logo", formData.logo);
       }
 
-      const res = await axiosClient.post("/api/system-settings", data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await systemService.updateSystemSettings(data);
 
       updateSystemInfo({
         system_name: res.data.system_name,

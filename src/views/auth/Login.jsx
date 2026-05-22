@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Login.css";
 import { useTranslation } from "react-i18next";
-import axiosClient from "../../services/axiosClient";
-import { useEffect } from "react";
+import authService from "@/services/authService";
 import { useSystem } from "../../context/SystemContext";
 
 const Login = () => {
@@ -11,11 +10,6 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  // Show loading if i18n not ready
-  if (!ready) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading...</div>;
-  }
 
   const changeLanguage = (lang) => {
     i18n.changeLanguage(lang);
@@ -47,7 +41,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await axiosClient.post("/api/login", {
+      const response = await authService.login({
         email,
         password,
       });
@@ -70,6 +64,11 @@ const Login = () => {
       setIsLoading(false);
     }
   };
+
+  // Show loading if i18n not ready
+  if (!ready) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading...</div>;
+  }
 
   return (
     <div className="login-container">

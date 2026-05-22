@@ -1,7 +1,7 @@
 // src/views/settings/positions/Position.jsx
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import axiosClient from "../../../services/axiosClient";
+import positionService from "@/services/positionService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBriefcase, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { useError } from "../../..//context/ErrorContext";
@@ -29,7 +29,7 @@ const Position = () => {
   const fetchPositions = async () => {
     try {
       setLoadingList(true);
-      const res = await axiosClient.get("api/positions");
+      const res = await positionService.getPositions();
       setPositions(res.data || []);
     } catch (err) {
       console.error(err);
@@ -55,10 +55,10 @@ const Position = () => {
       };
 
       if (positionId) {
-        await axiosClient.put(`/api/positions/${positionId}`, payload);
+        await positionService.updatePosition(positionId, payload);
         showSuccess(t("positions.update_success"));
       } else {
-        await axiosClient.post("/api/positions", payload);
+        await positionService.createPosition(payload);
         showSuccess(t("positions.create_success"));
       }
 
@@ -90,7 +90,7 @@ const Position = () => {
     if (!window.confirm(t("positions.delete_confirm"))) return;
 
     try {
-      await axiosClient.delete(`/api/positions/${id}`);
+      await positionService.deletePosition(id);
       showSuccess(t("positions.delete_success"));
       fetchPositions();
 

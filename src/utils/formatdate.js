@@ -31,10 +31,5 @@ export const formatDate = (value) => {
 
   const year = date.getFullYear();
 
-  // Time
-  const hours = date.getHours();
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-
-  // return `${day} ${monthName} ${year} ${hours}:${minutes}`;
   return `${weekday} ${day} ${monthName} ${year}`;
 };

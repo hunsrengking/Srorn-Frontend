@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import axiosClient from "../../services/axiosClient"; // your axios instance
+import reportService from "@/services/reportService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePdf, faFileExcel, faFileCsv, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { formatDate } from "../../utils/formatdate";
@@ -18,12 +18,10 @@ const Report = () => {
   const fetchReports = async () => {
     try {
       setLoading(true);
-      const res = await axiosClient.get("/api/reports", {
-        params: {
-          from_date: fromDate || undefined,
-          to_date: toDate || undefined,
-          status: status || undefined,
-        },
+      const res = await reportService.getReports({
+        from_date: fromDate || undefined,
+        to_date: toDate || undefined,
+        status: status || undefined,
       });
       setReports(res.data || []);
     } catch (err) {
@@ -42,15 +40,13 @@ const Report = () => {
   // Export reports
   const handleExport = async (type) => {
     try {
-      const params = new URLSearchParams({
+      const params = {
         from_date: fromDate || "",
         to_date: toDate || "",
         status: status || "",
         type,
-      });
-      const response = await axiosClient.get(`/api/reports/export?${params.toString()}`, {
-        responseType: "blob",
-      });
+      };
+      const response = await reportService.exportReports(params);
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");

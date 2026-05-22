@@ -6,14 +6,13 @@ import {
   faAddressCard,
   faArrowLeft,
   faEdit,
-  faPrint,
   faUser,
   faBriefcase,
   faCalendarDay,
   faUserTag,
   faLayerGroup
 } from "@fortawesome/free-solid-svg-icons";
-import axiosClient from "../../../services/axiosClient";
+import printCardService from "@/services/printCardService";
 import { formatDate } from "../../../utils/formatdate";
 
 const PrintCardView = () => {
@@ -36,7 +35,7 @@ const PrintCardView = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        const res = await axiosClient.get(`/api/organization/printcards/${id}`);
+        const res = await printCardService.getPrintCardById(id);
         setPrintCard(res.data);
       } catch (err) {
         console.error("Load print card error:", err);

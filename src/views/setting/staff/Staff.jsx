@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,8 +10,8 @@ import {
   faUserTie,
 } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../../../utils/permission";
-import axiosClient from "../../../services/axiosClient";
-import { errorService } from "../../../services/errorService";
+import staffService from "@/services/staffService";
+import { errorService } from "@/services/errorService";
 
 const Staff = () => {
   const { t } = useTranslation();
@@ -23,11 +23,11 @@ const Staff = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const loadStaffs = async () => {
+  const loadStaffs = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axiosClient.get("/api/staff");
+      const res = await staffService.getStaffs();
       setStaffs(res.data || []);
     } catch (err) {
       console.error("Error loading staff:", err);
@@ -36,14 +36,14 @@ const Staff = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     loadStaffs();
     if (location.state?.message) {
       errorService.success(location.state.message);
     }
-  }, []);
+  }, [loadStaffs, location.state?.message]);
 
   const handleAddStaff = () => {
     navigate("/settings/employees/create");
@@ -57,7 +57,7 @@ const Staff = () => {
     if (!window.confirm(t("staff.delete_confirm"))) return;
 
     try {
-      await axiosClient.delete(`/api/staff/${id}`);
+      await staffService.deleteStaff(id);
       setStaffs((prev) => prev.filter((s) => s.id !== id));
       errorService.success(t("staff.delete_success"));
     } catch (err) {

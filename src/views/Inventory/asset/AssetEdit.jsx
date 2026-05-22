@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import AssetForm from "./AssetForm";
-import axiosClient from "../../../services/axiosClient";
-import { errorService } from "../../../services/errorService";
+import { errorService } from "@/services/errorService";
+import assetService from "@/services/assetService";
 
 const AssetEdit = () => {
   const { t } = useTranslation();
@@ -16,9 +16,9 @@ const AssetEdit = () => {
   useEffect(() => {
     const fetchAsset = async () => {
       try {
-        const res = await axiosClient.get(`/api/assets/${id}`);
+        const res = await assetService.getAssetById(id);
         setFormData(res.data);
-      } catch (err) {
+      } catch {
         errorService.error(t("inventory.asset_load_failed"));
         navigate("/inventory/asset");
       } finally {
@@ -26,15 +26,15 @@ const AssetEdit = () => {
       }
     };
     fetchAsset();
-  }, [id]);
+  }, [id, navigate, t]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axiosClient.put(`/api/assets/${id}`, formData);
+      await assetService.updateAsset(id, formData);
       errorService.success(t("inventory.asset_update_success"));
       navigate("/inventory/asset");
-    } catch (err) {
+    } catch {
       errorService.error(t("inventory.asset_update_failed", "Failed to update asset"));
     }
   };

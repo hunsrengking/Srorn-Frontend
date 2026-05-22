@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
-import axiosClient from "../../../services/axiosClient";
+import departmentService from "@/services/departmentService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBuilding,
@@ -10,7 +10,7 @@ import {
   faUsers,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import { errorService } from "../../../services/errorService";
+import { errorService } from "@/services/errorService";
 
 const DepartmentList = () => {
   const { t } = useTranslation();
@@ -20,7 +20,7 @@ const DepartmentList = () => {
 
   const loadDepartments = async () => {
     try {
-      const res = await axiosClient.get("/api/department");
+      const res = await departmentService.getDepartments();
       setDepartments(res.data || []);
     } catch (err) {
       console.error("Error loading departments:", err);
@@ -37,7 +37,7 @@ const DepartmentList = () => {
     if (!window.confirm(t("departments.disable_confirm"))) return;
 
     try {
-      await axiosClient.delete(`/api/department/${id}`);
+      await departmentService.deleteDepartment(id);
       setDepartments((prev) => prev.filter((d) => d.id !== id));
       errorService.success(t("departments.disable_success", "Department disabled successfully"));
     } catch (err) {

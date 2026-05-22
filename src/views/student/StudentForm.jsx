@@ -1,6 +1,5 @@
 // src/views/settings/Student/StudentForm.jsx
 import React from "react";
-import { useTranslation } from "react-i18next";
 
 const StudentForm = ({
   isEdit = false,
@@ -9,8 +8,6 @@ const StudentForm = ({
   onSubmit,
   onCancel,
 }) => {
-  const { t } = useTranslation();
-
   const handleChange = (e) => {
     const { name, type, checked, value } = e.target;
 

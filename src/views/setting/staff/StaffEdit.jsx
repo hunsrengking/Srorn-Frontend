@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import StaffForm from "./StaffForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserTie } from "@fortawesome/free-solid-svg-icons";
-import axiosClient from "../../../services/axiosClient";
+import staffService from "@/services/staffService";
 import { useError } from "../../../context/ErrorContext";
 
 const StaffEdit = () => {
@@ -27,7 +27,7 @@ const StaffEdit = () => {
 
   useEffect(() => {
     const loadStaff = async () => {
-      const res = await axiosClient.get(`/api/staff/${id}`);
+      const res = await staffService.getStaffById(id);
       setFormData({
         external_id: res.data.external_id ?? "",
         firstname: res.data.firstname ?? "",
@@ -47,7 +47,7 @@ const StaffEdit = () => {
     e.preventDefault();
 
     try {
-      await axiosClient.put(`/api/staff/${id}`, formData);
+      await staffService.updateStaff(id, formData);
       showSuccess(t("staff.update_success", "Staff updated successfully"));
       navigate("/settings/employees");
     } catch (err) {

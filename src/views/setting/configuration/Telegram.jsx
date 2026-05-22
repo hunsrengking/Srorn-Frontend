@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import axiosClient from "../../../services/axiosClient";
+import telegramService from "@/services/telegramService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { useError } from "../../../context/ErrorContext";
 
 const Telegram = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { showSuccess, showError } = useError();
 
   const [botToken, setBotToken] = useState("");
@@ -28,7 +26,7 @@ const Telegram = () => {
   const fetchConfigList = async () => {
     try {
       setLoadingList(true);
-      const res = await axiosClient.get("/api/telegram");
+      const res = await telegramService.getTelegramConfigs();
       setConfigs(res.data || []);
     } catch (err) {
       console.error(err);
@@ -44,13 +42,13 @@ const Telegram = () => {
 
     try {
       if (configId) {
-        await axiosClient.put(`/api/telegram/${configId}`, {
+        await telegramService.updateTelegramConfig(configId, {
           bot_token: botToken,
           chat_id: chatId,
           is_active: isActive,
         });
       } else {
-        await axiosClient.post("/api/telegram", {
+        await telegramService.createTelegramConfig({
           bot_token: botToken,
           chat_id: chatId,
           is_active: isActive,
@@ -81,7 +79,7 @@ const Telegram = () => {
     if (!window.confirm(t("telegram.delete_confirm"))) return;
 
     try {
-      await axiosClient.delete(`/api/telegram/${id}`);
+      await telegramService.deleteTelegramConfig(id);
       fetchConfigList();
 
       if (configId === id) resetForm();

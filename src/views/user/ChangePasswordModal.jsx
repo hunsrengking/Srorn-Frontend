@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axiosClient from "../../services/axiosClient";
+import userService from "@/services/userService";
 
 const ChangePasswordModal = ({ open, onClose, userId, onSuccess }) => {
   const [password, setPassword] = useState("");
@@ -56,7 +56,7 @@ const ChangePasswordModal = ({ open, onClose, userId, onSuccess }) => {
 
     try {
       setLoading(true);
-      await axiosClient.patch(`/api/users/${userId}/change-password`, {
+      await userService.changePassword(userId, {
         password,
       });
 

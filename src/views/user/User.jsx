@@ -1,8 +1,8 @@
 // src/views/settings/users/Users.jsx
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
-import axiosClient from "../../services/axiosClient";
+import userService from "@/services/userService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -12,7 +12,7 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../../utils/permission";
-import { errorService } from "../../services/errorService";
+import { errorService } from "@/services/errorService";
 
 const Users = () => {
   const { t } = useTranslation();
@@ -24,11 +24,11 @@ const Users = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axiosClient.get("/api/users");
+      const res = await userService.getUsers();
       setUsers(res.data || []);
     } catch (err) {
       console.error("Error loading users:", err);
@@ -37,14 +37,14 @@ const Users = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadUsers();
     if (location.state?.message) {
       errorService.success(location.state.message);
     }
-  }, []);
+  }, [loadUsers, location.state?.message]);
 
   const handleAddUser = () => {
     navigate("/users/create"); // ➜ page with password input
@@ -58,7 +58,7 @@ const Users = () => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      await axiosClient.delete(`/api/users/${id}`);
+      await userService.deleteUser(id);
       setUsers((prev) => prev.filter((u) => u.id !== id));
       errorService.success("User deleted successfully");
     } catch (err) {

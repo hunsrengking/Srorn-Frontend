@@ -1,12 +1,44 @@
-# React + Vite
+# Srorn Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite frontend for the Srorn support and management system.
 
-Currently, two official plugins are available:
+## Scripts
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+npm install
+npm run dev
+npm run build
+npm run lint
+```
 
-## Expanding the ESLint configuration
+## Project Structure
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```text
+src/
+  api/              Shared HTTP client and token helpers
+  components/       Reusable UI components
+  context/          React context state providers
+  hooks/            Reusable React hooks
+  layouts/          App layout shells
+  lang/             i18n setup
+  providers/        Global provider composition
+  routes/           Router, guards, and route configuration
+  services/         Feature service wrappers around API calls
+  utils/            Shared pure helpers
+  views/            Page-level screens grouped by feature
+```
+
+## Implementation Rules
+
+- Use `@/` imports for app code, for example `@/services/studentService`.
+- Put reusable UI in `src/components`; keep page-only UI beside the page in `src/views`.
+- Put new protected routes in `src/routes/routeConfig.jsx` with the required permission.
+- Use `src/api/axiosClient.js` as the only Axios instance, and keep it inside service files.
+- Put endpoint-specific wrappers in `src/services`; views should call services, not Axios directly.
+
+## Add A New Page
+
+1. Create the page in `src/views/<feature>/<PageName>.jsx`.
+2. Add a lazy import and route entry in `src/routes/routeConfig.jsx`.
+3. Set the route permission with the backend permission key.
+4. Add or reuse a service in `src/services`, then call that service from the page.

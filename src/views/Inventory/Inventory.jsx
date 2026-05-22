@@ -4,12 +4,6 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faUsersCog,
-  faBuilding,
-  faPaperPlane,
-  faUsers,
-  faIdBadge,
-  faGlobe,
   faBoxesStacked,
   faBox,
   faListCheck,

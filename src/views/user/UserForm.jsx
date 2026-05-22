@@ -1,7 +1,8 @@
 // src/views/settings/users/UserForm.jsx
 import React, { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import axiosClient from "../../services/axiosClient";
+import departmentService from "@/services/departmentService";
+import roleService from "@/services/roleService";
+import staffService from "@/services/staffService";
 
 const UserForm = ({
   isEdit = false,
@@ -10,7 +11,6 @@ const UserForm = ({
   onSubmit,
   onCancel,
 }) => {
-  const { t } = useTranslation();
   const [roles, setRoles] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [staffs, setStaffs] = useState([]);
@@ -28,7 +28,7 @@ const UserForm = ({
 
   const loadRoles = async () => {
     try {
-      const res = await axiosClient.get("/api/role");
+      const res = await roleService.getRoles();
       setRoles(res.data || []);
     } catch (err) {
       console.error("Error loading roles:", err);
@@ -39,7 +39,7 @@ const UserForm = ({
 
   const loadDepartments = async () => {
     try {
-      const res = await axiosClient.get("/api/department");
+      const res = await departmentService.getDepartments();
       setDepartments(res.data || []);
     } catch (err) {
       console.error("Error loading departments:", err);
@@ -50,7 +50,7 @@ const UserForm = ({
 
   const loadStaffs = async () => {
     try {
-      const res = await axiosClient.get("/api/staff");
+      const res = await staffService.getStaffs();
       setStaffs(res.data || []);
     } catch (err) {
       console.error("Error loading staff:", err);

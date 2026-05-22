@@ -1,7 +1,7 @@
 // src/views/settings/staff/StaffForm.jsx
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import axiosClient from "../../../services/axiosClient";
+import positionService from "@/services/positionService";
 
 const StaffForm = ({
   isEdit = false,
@@ -37,7 +37,7 @@ const StaffForm = ({
 
   const loadPositions = async () => {
     try {
-      const res = await axiosClient.get("/api/positions");
+      const res = await positionService.getPositions();
       setPositions(res.data || []);
     } catch (err) {
       console.error("Error loading positions:", err);

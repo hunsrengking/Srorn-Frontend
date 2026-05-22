@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,8 +10,8 @@ import {
   faBox,
 } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../../../utils/permission";
-import axiosClient from "../../../services/axiosClient";
-import { errorService } from "../../../services/errorService";
+import { errorService } from "@/services/errorService";
+import productService from "@/services/productService";
 
 const Product = () => {
   const { t } = useTranslation();
@@ -22,11 +22,11 @@ const Product = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axiosClient.get("/api/products");
+      const res = await productService.getProducts();
       setProducts(res.data || []);
     } catch (err) {
       console.error("Error loading products:", err);
@@ -35,11 +35,11 @@ const Product = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     loadProducts();
-  }, []);
+  }, [loadProducts]);
 
   const handleAddProduct = () => {
     navigate("/inventory/product/create");
@@ -53,7 +53,7 @@ const Product = () => {
     if (!window.confirm(t("inventory.product_delete_confirm", "Are you sure you want to delete this product?"))) return;
 
     try {
-      await axiosClient.delete(`/api/products/${id}`);
+      await productService.deleteProduct(id);
       setProducts((prev) => prev.filter((p) => p.id !== id));
       errorService.success(t("inventory.product_delete_success", "Product deleted successfully"));
     } catch (err) {

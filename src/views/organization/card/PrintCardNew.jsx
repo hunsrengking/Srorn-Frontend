@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAddressCard } from "@fortawesome/free-solid-svg-icons";
-import axiosClient from "../../../services/axiosClient";
+import printCardService from "@/services/printCardService";
 import PrintCardForm from "./PrintCardForm";
 import { useError } from "../../../context/ErrorContext";
 
@@ -38,7 +38,7 @@ const PrintCardNew = () => {
         })),
       };
 
-      await axiosClient.post("/api/organization/printcards", payload);
+      await printCardService.createPrintCard(payload);
 
       showSuccess(
         t("print_card.create_success", "Print card created successfully")

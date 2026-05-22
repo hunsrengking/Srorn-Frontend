@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import ProductForm from "./ProductForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import axiosClient from "../../../services/axiosClient";
-import { errorService } from "../../../services/errorService";
+import { errorService } from "@/services/errorService";
+import productService from "@/services/productService";
 
 const ProductCreate = () => {
   const { t } = useTranslation();
@@ -23,7 +23,7 @@ const ProductCreate = () => {
     e.preventDefault();
 
     try {
-      await axiosClient.post("/api/products", formData);
+      await productService.createProduct(formData);
       errorService.success(t("inventory.product_create_success", "Product created successfully"));
       navigate("/inventory/product");
     } catch (err) {

@@ -1,8 +1,8 @@
 // src/views/organization/card/PrintCardForm.jsx
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import Select from "react-select";
-import axiosClient from "../../../services/axiosClient";
+import printCardService from "@/services/printCardService";
 import { faPlusCircle, faXmarkCircle, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import DatePicker from "react-datepicker";
@@ -20,10 +20,10 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
   const [cables, setCables] = useState([]);
 
   // Load template data (positions, staffs, students)
-  const loadTemplate = async () => {
+  const loadTemplate = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axiosClient.get("/api/organization/templates/printcards");
+      const res = await printCardService.getPrintCardTemplates();
       const { staffs, students, positions } = res.data;
 
       setPositions(positions || []);
@@ -34,24 +34,16 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
       ];
 
       setAllNames(combined);
-
-      // If editing, load names for the current position
-      if (formData.position_id) {
-        const filtered = combined.filter(
-          (item) => String(item.position_id) === String(formData.position_id)
-        );
-        setNames(filtered);
-      }
     } catch (err) {
       console.error("Error loading template:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadTemplate();
-  }, []);
+  }, [loadTemplate]);
 
   // Sync names and auto-discover position_id if missing
   useEffect(() => {
@@ -80,7 +72,7 @@ const PrintCardForm = ({ formData, onChange, onSubmit, onCancel }) => {
         setNames([]);
       }
     }
-  }, [formData.position_id, formData.staff_id, allNames]);
+  }, [allNames, formData, onChange]);
 
   useEffect(() => {
     if (formData.cables && formData.cables.length > 0) {

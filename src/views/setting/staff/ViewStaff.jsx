@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import axiosClient from "../../../services/axiosClient";
+import staffService from "@/services/staffService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUserTie,
@@ -21,7 +21,7 @@ const ViewStaff = () => {
   useEffect(() => {
     const loadStaff = async () => {
       try {
-        const res = await axiosClient.get(`/api/staff/${id}`);
+        const res = await staffService.getStaffById(id);
         setStaff(res.data);
       } catch (err) {
         console.error(err);
@@ -32,7 +32,7 @@ const ViewStaff = () => {
     };
 
     loadStaff();
-  }, [id]);
+  }, [id, t]);
 
   if (loading) {
     return (

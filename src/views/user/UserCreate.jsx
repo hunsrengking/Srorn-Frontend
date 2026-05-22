@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useError } from "../..//context/ErrorContext";
-import axiosClient from "../../services/axiosClient";
+import userService from "@/services/userService";
 import UserForm from "./UserForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
@@ -34,7 +34,7 @@ const UserCreate = () => {
     };
 
     try {
-      await axiosClient.post("/api/users", payload);
+      await userService.createUser(payload);
       showSuccess(t("users.create_success"));
       navigate("/users");
     } catch (err) {

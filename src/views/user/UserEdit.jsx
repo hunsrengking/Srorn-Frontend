@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import axiosClient from "../../services/axiosClient";
+import userService from "@/services/userService";
 import UserForm from "./UserForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserEdit } from "@fortawesome/free-solid-svg-icons";
@@ -23,7 +23,7 @@ const UserEdit = () => {
 
   useEffect(() => {
     const loadUser = async () => {
-      const res = await axiosClient.get(`/api/users/${id}`);
+      const res = await userService.getUser(id);
       setFormData({
         username: res.data.username,
         email: res.data.email,
@@ -46,7 +46,7 @@ const UserEdit = () => {
       staff_id: formData.staff_id ? Number(formData.staff_id) : null,
     };
     try {
-      await axiosClient.put(`/api/users/${id}`, payload);
+      await userService.updateUser(id, payload);
       showSuccess(t("users.update_success", "User updated successfully"));
       navigate("/users");
     } catch (err) {

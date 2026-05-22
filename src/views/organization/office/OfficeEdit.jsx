@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import OfficeForm from "./OfficeForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBuilding } from "@fortawesome/free-solid-svg-icons";
-import axiosClient from "../../../services/axiosClient";
+import officeService from "@/services/officeService";
 import { useError } from "../../../context/ErrorContext";
 
 const OfficeEdit = () => {
@@ -24,7 +24,7 @@ const OfficeEdit = () => {
   useEffect(() => {
     const loadOffice = async () => {
       try {
-        const res = await axiosClient.get(`/api/offices/${id}`);
+        const res = await officeService.getOfficeById(id);
         setFormData({
           name: res.data.name ?? "",
           external_id: res.data.external_id ?? "",
@@ -44,7 +44,7 @@ const OfficeEdit = () => {
     e.preventDefault();
 
     try {
-      await axiosClient.put(`/api/offices/${id}`, formData);
+      await officeService.updateOffice(id, formData);
       showSuccess(t("office.update_success", "Office updated successfully"));
       navigate("/organization/office");
     } catch (err) {

@@ -4,8 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import ProductForm from "./ProductForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import axiosClient from "../../../services/axiosClient";
-import { errorService } from "../../../services/errorService";
+import { errorService } from "@/services/errorService";
+import productService from "@/services/productService";
 
 const ProductEdit = () => {
   const { t } = useTranslation();
@@ -25,7 +25,7 @@ const ProductEdit = () => {
     const loadProduct = async () => {
       try {
         setLoading(true);
-        const res = await axiosClient.get(`/api/products/${id}`);
+        const res = await productService.getProductById(id);
         const product = res.data;
         setFormData({
           name: product.name ?? "",
@@ -44,13 +44,13 @@ const ProductEdit = () => {
     };
 
     loadProduct();
-  }, [id, navigate]);
+  }, [id, navigate, t]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      await axiosClient.put(`/api/products/${id}`, formData);
+      await productService.updateProduct(id, formData);
       errorService.success(t("inventory.product_update_success", "Product updated successfully"));
       navigate("/inventory/product");
     } catch (err) {

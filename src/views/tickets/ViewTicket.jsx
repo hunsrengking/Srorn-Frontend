@@ -3,7 +3,12 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import axiosClient from "../../services/axiosClient";
+import categoryService from "@/services/categoryService";
+import departmentService from "@/services/departmentService";
+import priorityService from "@/services/priorityService";
+import statusService from "@/services/statusService";
+import ticketService from "@/services/ticketService";
+import userService from "@/services/userService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
@@ -65,7 +70,7 @@ const ViewTicket = () => {
   const loadDepartments = async () => {
     setLoadingDepartments(true);
     try {
-      const res = await axiosClient.get("/api/department");
+      const res = await departmentService.getDepartments();
       setDepartments(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error loading departments:", err);
@@ -77,7 +82,7 @@ const ViewTicket = () => {
   const loadCategory = async () => {
     setLoadingCategory(true);
     try {
-      const res = await axiosClient.get("/api/category");
+      const res = await categoryService.getCategories();
       setCategories(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error loading categories:", err);
@@ -89,7 +94,7 @@ const ViewTicket = () => {
   const loadPriority = async () => {
     setLoadingPriority(true);
     try {
-      const res = await axiosClient.get("/api/priority");
+      const res = await priorityService.getPriorities();
       setPriorities(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error loading priorities:", err);
@@ -102,7 +107,7 @@ const ViewTicket = () => {
     if (!canAssign) return;
     setLoadingAssigned(true);
     try {
-      const res = await axiosClient.get("/api/users");
+      const res = await userService.getUsers();
       setAssignedUsers(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error loading users:", err);
@@ -115,7 +120,7 @@ const ViewTicket = () => {
   const loadStatus = async () => {
     setLoadingStatus(true);
     try {
-      const res = await axiosClient.get("/api/status");
+      const res = await statusService.getStatuses();
       setStatuses(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error loading statuses:", err);
@@ -128,7 +133,7 @@ const ViewTicket = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axiosClient.get(`/api/ticket/${id}`);
+      const res = await ticketService.getTicketById(id);
       const data = res?.data ?? res;
       if (!data) {
         setTicket(null);
@@ -256,7 +261,7 @@ const ViewTicket = () => {
 
     try {
       setSaving(true);
-      await axiosClient.patch(`/api/ticket/${id}`, payload);
+      await ticketService.updateTicket(id, payload);
       await loadTicket();
       setEditing(false);
       showSuccess(t("tickets.update_success", "Ticket updated successfully"));

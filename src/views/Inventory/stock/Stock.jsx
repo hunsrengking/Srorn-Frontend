@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,8 +9,7 @@ import {
   faMinus,
 } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../../../utils/permission";
-import axiosClient from "../../../services/axiosClient";
-import { errorService } from "../../../services/errorService";
+import stockService from "@/services/stockService";
 
 const Stock = () => {
   const { t } = useTranslation();
@@ -21,11 +20,11 @@ const Stock = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const loadStocks = async () => {
+  const loadStocks = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axiosClient.get("/api/stocks");
+      const res = await stockService.getStocks();
       setStocks(res.data || []);
     } catch (err) {
       console.error("Error loading stocks:", err);
@@ -34,11 +33,11 @@ const Stock = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     loadStocks();
-  }, []);
+  }, [loadStocks]);
 
   const handleAdjustStock = () => {
     navigate("/inventory/stock/adjust");

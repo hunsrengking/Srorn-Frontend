@@ -1,8 +1,9 @@
 // src/views/settings/roles/RolePermission.jsx
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
-import axiosClient from "../../../services/axiosClient";
+import permissionService from "@/services/permissionService";
+import roleService from "@/services/roleService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faKey,
@@ -23,40 +24,40 @@ const RolePermission = () => {
   const [selected, setSelected] = useState([]);
   const [activeGroup, setActiveGroup] = useState(null);
 
-  useEffect(() => {
-    loadRole();
-    loadPermissions();
-  }, []);
-
-  const loadRole = async () => {
-    const res = await axiosClient.get(`/api/role/${id}`);
+  const loadRole = useCallback(async () => {
+    const res = await roleService.getRoleById(id);
     setRole(res.data);
 
     const selectedIds = (res.data.permissions || []).map((p) => Number(p.id));
     setSelected(selectedIds);
-  };
+  }, [id]);
 
-  const loadPermissions = async () => {
-    const res = await axiosClient.get("/api/permissions");
+  const loadPermissions = useCallback(async () => {
+    const res = await permissionService.getPermissions();
     const data = res.data || [];
     setPermissions(data);
 
     if (data.length > 0) {
       setActiveGroup(data[0].group);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadRole();
+    loadPermissions();
+  }, [loadRole, loadPermissions]);
 
   /* ======================
      Group permissions
   ====================== */
-  const groupedPermissions = permissions.reduce((acc, p) => {
+  const groupedPermissions = useMemo(() => permissions.reduce((acc, p) => {
     const groupName = p.group || "General";
     if (!acc[groupName]) acc[groupName] = [];
     acc[groupName].push(p);
     return acc;
-  }, {});
+  }, {}), [permissions]);
 
-  const groups = Object.keys(groupedPermissions);
+  const groups = useMemo(() => Object.keys(groupedPermissions), [groupedPermissions]);
 
   /* ======================
      Toggle permission
@@ -87,7 +88,7 @@ const RolePermission = () => {
   ====================== */
   const saveAssign = async () => {
     try {
-      await axiosClient.put(`/api/role/${id}/permissions`, {
+      await roleService.updateRolePermissions(id, {
         permissions: selected,
       });
       showSuccess(t("roles.assign_success", "Permissions assigned successfully"));

@@ -1,5 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import axiosClient from "../services/axiosClient";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import systemService from "@/services/systemService";
 
 const SystemContext = createContext();
 
@@ -12,17 +19,17 @@ export const SystemProvider = ({ children }) => {
   });
   const [loading, setLoading] = useState(true);
 
-  const getFullImageUrl = (url) => {
+  const getFullImageUrl = useCallback((url) => {
     if (!url) return "/assets/images/logo/logo.PNG";
     if (url.startsWith("http") || url.startsWith("data:")) return url;
     const base = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
     return `${base}${url}`;
-  };
+  }, []);
 
-  const loadSystemInfo = async () => {
+  const loadSystemInfo = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axiosClient.get("/api/system-settings");
+      const res = await systemService.getSystemSettings();
       if (res.data) {
         setSystemInfo({
           system_name: res.data.system_name || "Support System",
@@ -36,26 +43,32 @@ export const SystemProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [getFullImageUrl]);
 
   useEffect(() => {
     loadSystemInfo();
-  }, []);
+  }, [loadSystemInfo]);
 
-  const updateSystemInfo = (newData) => {
+  const updateSystemInfo = useCallback((newData) => {
     if (newData.logo_url) {
       newData.logo_url = getFullImageUrl(newData.logo_url);
     }
     setSystemInfo((prev) => ({ ...prev, ...newData }));
-  };
+  }, [getFullImageUrl]);
+
+  const value = useMemo(
+    () => ({ systemInfo, updateSystemInfo, loadSystemInfo, loading }),
+    [systemInfo, updateSystemInfo, loadSystemInfo, loading],
+  );
 
   return (
-    <SystemContext.Provider value={{ systemInfo, updateSystemInfo, loadSystemInfo, loading }}>
+    <SystemContext.Provider value={value}>
       {children}
     </SystemContext.Provider>
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSystem = () => {
   const context = useContext(SystemContext);
   if (!context) {

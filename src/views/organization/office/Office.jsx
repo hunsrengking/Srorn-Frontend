@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,8 +10,8 @@ import {
   faBuilding,
 } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../../../utils/permission";
-import axiosClient from "../../../services/axiosClient";
-import { errorService } from "../../../services/errorService";
+import officeService from "@/services/officeService";
+import { errorService } from "@/services/errorService";
 
 const Office = () => {
   const { t } = useTranslation();
@@ -23,11 +23,11 @@ const Office = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const loadOffices = async () => {
+  const loadOffices = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axiosClient.get("/api/offices");
+      const res = await officeService.getOffices();
       setOffices(res.data || []);
     } catch (err) {
       console.error("Error loading office:", err);
@@ -36,14 +36,14 @@ const Office = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     loadOffices();
     if (location.state?.message) {
       errorService.success(location.state.message);
     }
-  }, [location.state?.message]);
+  }, [loadOffices, location.state?.message]);
 
   const handleAddOffice = () => {
     navigate("/organization/office/create");
@@ -57,7 +57,7 @@ const Office = () => {
     if (!window.confirm(t("office.delete_confirm"))) return;
 
     try {
-      await axiosClient.delete(`/api/offices/${id}`);
+      await officeService.deleteOffice(id);
       setOffices((prev) => prev.filter((s) => s.id !== id));
       errorService.success(t("office.delete_success"));
     } catch (err) {

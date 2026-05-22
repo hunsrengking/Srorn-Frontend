@@ -1,14 +1,20 @@
-// src/services/axiosClient.js
+// src/api/axiosClient.js
 import axios from "axios";
-import { loadingService } from "./loadingService";
-import { errorService } from "./errorService";
+import { errorService } from "@/services/errorService";
+import { loadingService } from "@/services/loadingService";
 
 const STORAGE_KEY = "app_auth_token";
 const USER_KEY = "app_auth_user";
 const REFRESH_KEY = "refresh_token";
 
+const normalizeApiBaseUrl = (baseUrl) => {
+  const cleanBaseUrl = (baseUrl || "").replace(/\/$/, "");
+  if (!cleanBaseUrl) return "/api";
+  return cleanBaseUrl.endsWith("/api") ? cleanBaseUrl : `${cleanBaseUrl}/api`;
+};
+
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "",
+  baseURL: normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL),
   timeout: 20000,
   headers: {
     "Content-Type": "application/json",
@@ -71,7 +77,7 @@ const onRefreshed = (token) => {
 
 const addSubscriber = (cb) => subscribers.push(cb);
 
-let logoutCallback = () => { };
+let logoutCallback = () => {};
 export const setLogoutCallback = (fn) => {
   if (typeof fn === "function") logoutCallback = fn;
 };
@@ -82,7 +88,7 @@ const refreshTokenRequest = async () => {
 
   // IMPORTANT: use axios (no interceptors, no loading)
   const base = axiosClient.defaults.baseURL?.replace(/\/$/, "") || "";
-  const refreshUrl = `${base}/refresh`.replace(/\/{2,}/g, "/");
+  const refreshUrl = `${base}/refresh`;
 
   return axios.post(refreshUrl, { refresh_token: refreshToken });
 };
@@ -126,7 +132,7 @@ axiosClient.interceptors.response.use(
           errorService.success(msg);
         }
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
 
@@ -180,7 +186,7 @@ axiosClient.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const res = await refreshTokenRequest(); // ❗ no loading
+      const res = await refreshTokenRequest();
       const newAccess = res.data.access_token || res.data.token;
       const newRefresh = res.data.refresh_token || getRefreshToken();
 

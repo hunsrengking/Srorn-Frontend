@@ -13,7 +13,6 @@ import {
   faPlus,
   faMinus,
   faBuilding,
-  faChalkboardTeacher,
   faBox,
 } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../utils/permission";

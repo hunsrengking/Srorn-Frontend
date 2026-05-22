@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
-import axiosClient from "../../../services/axiosClient";
+import roleService from "@/services/roleService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUserShield,
@@ -11,7 +11,7 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../../../utils/permission";
-import { errorService } from "../../../services/errorService";
+import { errorService } from "@/services/errorService";
 
 const RoleList = () => {
   const { t } = useTranslation();
@@ -21,7 +21,7 @@ const RoleList = () => {
 
   const loadRoles = async () => {
     try {
-      const res = await axiosClient.get("/api/role");
+      const res = await roleService.getRoles();
       setRoles(res.data || []);
     } catch (err) {
       console.error("Error loading roles:", err);
@@ -38,7 +38,7 @@ const RoleList = () => {
     if (!window.confirm(t("roles.disable_confirm"))) return;
 
     try {
-      await axiosClient.delete(`/api/role/${id}`);
+      await roleService.deleteRole(id);
       setRoles((prev) => prev.filter((r) => r.id !== id));
       errorService.success(t("roles.disable_success", "Role disabled successfully"));
     } catch (err) {

@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import axiosClient from "../../services/axiosClient";
+import userService from "@/services/userService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEye,
   faLock,
-  faArrowLeft,
   faEdit,
 } from "@fortawesome/free-solid-svg-icons";
 import ChangePasswordModal from "./ChangePasswordModal";
@@ -21,24 +20,23 @@ const UsersView = () => {
   const [error, setError] = useState(null);
   const [openModal, setOpenModal] = useState(false);
 
-  const loadUser = async () => {
+  const loadUser = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axiosClient.get(`/api/users/${id}`);
+      const res = await userService.getUser(id);
       setUser(res.data || null);
-      console.log("USER DATA:", user);
     } catch (err) {
       console.error(err);
       setError("Failed to load user.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     loadUser();
-  }, [id]);
+  }, [loadUser]);
 
   if (loading) {
     return <div className="text-sm text-slate-500">Loading user...</div>;

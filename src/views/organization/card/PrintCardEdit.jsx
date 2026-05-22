@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserTie } from "@fortawesome/free-solid-svg-icons";
-import axiosClient from "../../../services/axiosClient";
+import printCardService from "@/services/printCardService";
 import PrintCardForm from "./PrintCardForm";
 import { useError } from "../../../context/ErrorContext";
 
@@ -29,7 +29,7 @@ const PrintCardEdit = () => {
       try {
         setLoading(true);
         // Try detail API first
-        const res = await axiosClient.get(`/api/organization/printcards/${id}`);
+        const res = await printCardService.getPrintCardById(id);
         const data = res.data;
 
         if (data) {
@@ -52,7 +52,7 @@ const PrintCardEdit = () => {
         console.error("Load print card detail error, trying list fallback:", err);
         try {
           // Fallback to list API if detail fails
-          const res = await axiosClient.get("/api/organization/printcards");
+          const res = await printCardService.getPrintCards();
           const item = (res.data || []).find((x) => String(x.id) === String(id));
           if (item) {
             setFormData({
@@ -104,7 +104,7 @@ const PrintCardEdit = () => {
         })),
       };
 
-      await axiosClient.put(`/api/organization/printcards/${id}`, payload);
+      await printCardService.updatePrintCard(id, payload);
 
       showSuccess(
         t("print_card.update_success", "Print card updated successfully")

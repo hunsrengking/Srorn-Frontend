@@ -3,7 +3,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import axiosClient from "../../services/axiosClient";
+import categoryService from "@/services/categoryService";
+import departmentService from "@/services/departmentService";
+import priorityService from "@/services/priorityService";
+import ticketService from "@/services/ticketService";
+import userService from "@/services/userService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSave, faTimes, faFile } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../../utils/permission";
@@ -47,7 +51,7 @@ const CreateTicket = () => {
   const loadDepartments = async () => {
     setLoadingDepartments(true);
     try {
-      const res = await axiosClient.get("/api/department");
+      const res = await departmentService.getDepartments();
       setDepartments(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error loading departments:", err);
@@ -60,7 +64,7 @@ const CreateTicket = () => {
   const loadCategory = async () => {
     setLoadingCategory(true);
     try {
-      const res = await axiosClient.get("/api/category");
+      const res = await categoryService.getCategories();
       const filtered = res.data.filter(item => item.groups === "Ticket");
       setCategories(Array.isArray(filtered) ? filtered : []);
     } catch (err) {
@@ -74,7 +78,7 @@ const CreateTicket = () => {
   const loadPriority = async () => {
     setLoadingPriority(true);
     try {
-      const res = await axiosClient.get("/api/priority");
+      const res = await priorityService.getPriorities();
       setPriorities(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error loading priorities:", err);
@@ -88,7 +92,7 @@ const CreateTicket = () => {
     if (!canAssign) return;
     setLoadingAssigned(true);
     try {
-      const res = await axiosClient.get("/api/users");
+      const res = await userService.getUsers();
       setAssignedUsers(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error loading users:", err);
@@ -227,9 +231,7 @@ const CreateTicket = () => {
     const formData = new FormData();
     formData.append("image", file);
 
-    const res = await axiosClient.post("/api/ticket/upload", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const res = await ticketService.uploadTicketFile(formData);
 
     return res.data.image_path;
   };
@@ -256,9 +258,7 @@ const CreateTicket = () => {
         const formData = new FormData();
         formData.append("file", form.attachments[0]);
 
-        const res = await axiosClient.post("/api/ticket/upload", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        const res = await ticketService.uploadTicketFile(formData);
 
         items.push({
           file_path: res.data.file_path,
@@ -278,7 +278,7 @@ const CreateTicket = () => {
         items: items.length > 0 ? items : null,
       };
 
-      await axiosClient.post("/api/ticket", payload);
+      await ticketService.createTicket(payload);
       showSuccess(t("tickets.create_success", "Ticket created successfully"));
       navigate("/ticket");
     } catch (err) {

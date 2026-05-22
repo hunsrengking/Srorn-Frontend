@@ -1,7 +1,5 @@
 // src/views/settings/staff/StaffForm.jsx
-import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import axiosClient from "../../../services/axiosClient";
 
 const OfficeForm = ({
   isEdit = false,
@@ -15,7 +13,7 @@ const OfficeForm = ({
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    let updated = {
+    const updated = {
       ...formData,
       [name]: type === "checkbox" ? checked : value,
     };

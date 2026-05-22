@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import axiosClient from "../../services/axiosClient";
+import studentService from "@/services/studentService";
 import StudentForm from "./StudentForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserGraduate } from "@fortawesome/free-solid-svg-icons";
@@ -24,7 +24,7 @@ const StudentEdit = () => {
   useEffect(() => {
     const loadStudent = async () => {
       try {
-        const res = await axiosClient.get(`/api/students/${id}`);
+        const res = await studentService.getStudent(id);
 
         setFormData({
           firstname: res.data.firstname || "",
@@ -53,7 +53,7 @@ const StudentEdit = () => {
     };
 
     try {
-      await axiosClient.put(`/api/students/${id}`, payload);
+      await studentService.updateStudent(id, payload);
       showSuccess(t("Student.update_success", "Student updated successfully"));
       navigate("/students");
     } catch (err) {

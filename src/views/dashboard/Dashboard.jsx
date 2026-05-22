@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import axiosClient from "../../services/axiosClient";
+import dashboardService from "@/services/dashboardService";
 
 import {
   ResponsiveContainer,
@@ -52,19 +52,19 @@ const Dashboard = () => {
 
   /* ===== Load summary ===== */
   useEffect(() => {
-    axiosClient.get("/api/dashboard/summary").then((res) => {
+    dashboardService.getSummary().then((res) => {
       setStats(res.data || {});
     });
   }, []);
 
   /* ===== Load chart ===== */
   useEffect(() => {
-    const url =
+    const request =
       mode === "date"
-        ? "/api/dashboard/ticketsbydate"
-        : "/api/dashboard/ticketsbymonth";
+        ? dashboardService.getTicketsByDate
+        : dashboardService.getTicketsByMonth;
 
-    axiosClient.get(url).then((res) => {
+    request().then((res) => {
       setRawChartData(res.data || []);
     });
   }, [mode]);
