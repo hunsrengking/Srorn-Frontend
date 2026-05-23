@@ -10,31 +10,37 @@ const AssetCreate = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    category: "PC/LAPTOP",
-    user_name: "",
+    device_type_id: "",
+    device_model_id: "",
     device_name: "",
-    model: "",
     serial_number: "",
-    ip_address: "",
+    switch_port: "",
+    manufacturer: "",
+    size: "",
     mac_address: "",
-    cpu: "",
-    ram: "",
-    hdd: "",
-    os: "",
+    ip_address: "",
+    cpu_id: "",
+    ram_id: "",
+    hhd_id: "",
+    os_id: "",
     part_upgrade: "",
-    office_dept: "",
-    location: "",
+    location_id: "",
+    office_id: "",
+    department_id: "",
     building_brand: "",
+    description: "",
+    image_url: "",
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (updatedData) => {
     try {
-      await assetService.createAsset(formData);
+      await assetService.createAsset(updatedData || formData);
       errorService.success(t("inventory.asset_create_success"));
       navigate("/inventory/asset");
     } catch {
-      errorService.error(t("inventory.asset_create_failed", "Failed to create asset"));
+      errorService.error(
+        t("inventory.asset_create_failed", "Failed to create asset"),
+      );
     }
   };
 

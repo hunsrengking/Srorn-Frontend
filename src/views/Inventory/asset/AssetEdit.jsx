@@ -10,7 +10,28 @@ const AssetEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState(null);
+  const [formData, setFormData] = useState({
+    device_type_id: "",
+    device_model_id: "",
+    device_name: "",
+    serial_number: "",
+    switch_port: "",
+    manufacturer: "",
+    size: "",
+    mac_address: "",
+    ip_address: "",
+    cpu_id: "",
+    ram_id: "",
+    hhd_id: "",
+    os_id: "",
+    part_upgrade: "",
+    location_id: "",
+    office_id: "",
+    department_id: "",
+    building_brand: "",
+    description: "",
+    image_url: "",
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,14 +49,15 @@ const AssetEdit = () => {
     fetchAsset();
   }, [id, navigate, t]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (updatedData) => {
     try {
-      await assetService.updateAsset(id, formData);
+      await assetService.updateAsset(id, updatedData || formData);
       errorService.success(t("inventory.asset_update_success"));
       navigate("/inventory/asset");
     } catch {
-      errorService.error(t("inventory.asset_update_failed", "Failed to update asset"));
+      errorService.error(
+        t("inventory.asset_update_failed", "Failed to update asset"),
+      );
     }
   };
 

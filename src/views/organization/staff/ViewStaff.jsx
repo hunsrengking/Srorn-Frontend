@@ -1,50 +1,38 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
+import staffService from "@/services/staffService";
+import printCardService from "@/services/printCardService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faUserTie,
+  faArrowLeft,
   faEdit,
-  faEye,
-  faUserGraduate,
   faAddressCard,
   faCalendarDay,
   faUser,
   faPen,
 } from "@fortawesome/free-solid-svg-icons";
-import studentService from "@/services/studentService";
-import printCardService from "@/services/printCardService";
 import { formatDate } from "@/utils/formatdate";
-import { hasPermission } from "../../utils/permission";
 
-const StudentView = () => {
+const ViewStaff = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [student,    setStudent]    = useState(null);
+  const [staff, setStaff] = useState(null);
   const [printCards, setPrintCards] = useState([]);
-  const [loading,    setLoading]    = useState(true);
-  const [pcLoading,  setPcLoading]  = useState(true);
-  const [error,      setError]      = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [pcLoading, setPcLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Load student
-  const loadStudent = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await studentService.getStudent(id);
-      setStudent(res.data || null);
-    } catch (err) {
-      console.error("Error loading student:", err);
-      setError("Failed to load student.");
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
-
-  // Load print card transactions for this student
   const loadPrintCards = useCallback(async () => {
     try {
       setPcLoading(true);
-      const res = await printCardService.getPrintCardByIdEntity(id);
+      const res = await printCardService.getPrintCards({
+        entry_id: id,
+        entity_type: "staff",
+      });
       setPrintCards(res.data || []);
     } catch (err) {
       console.error("Error loading print cards:", err);
@@ -55,39 +43,50 @@ const StudentView = () => {
   }, [id]);
 
   useEffect(() => {
-    loadStudent();
+    const loadStaff = async () => {
+      try {
+        setLoading(true);
+        const res = await staffService.getStaffById(id);
+        setStaff(res.data);
+      } catch (err) {
+        console.error(err);
+        setError(t("staff.load_failed"));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStaff();
     loadPrintCards();
-  }, [loadStudent, loadPrintCards]);
+  }, [id, t, loadPrintCards]);
 
   if (loading) {
-    return <div className="text-sm text-slate-500">Loading student...</div>;
+    return <div className="text-sm text-slate-500">{t("staff.loading")}</div>;
   }
 
-  if (error || !student) {
+  if (error || !staff) {
     return (
       <div className="text-sm text-red-500">
-        {error || "Student not found"}
+        {error || t("staff.not_found")}
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* ── Header ── */}
+      {/* Header */}
       <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
-            <FontAwesomeIcon icon={faEye} />
-            Student Details
+            <FontAwesomeIcon icon={faUserTie} />
+            {t("staff.view_title")}
           </h1>
-          <p className="text-sm text-slate-500">
-            View student profile, status, and position information.
-          </p>
+          <p className="text-sm text-slate-500">{t("staff.view_desc")}</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
-            onClick={() => navigate(`/printcard/${id}/student`)}
+            onClick={() => navigate(`/printcard/${id}/staff`)}
             className="inline-flex items-center gap-2 px-4 py-2 text-sm
                        border border-slate-200 rounded-xl text-slate-600
                        hover:bg-slate-50 transition-colors"
@@ -96,55 +95,62 @@ const StudentView = () => {
             PrintCard
           </button>
 
-          {hasPermission("UPDATE_STUDENTS") && (
-            <button
-              onClick={() => navigate(`/students/${id}/edit`)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm
-                         bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
-            >
-              <FontAwesomeIcon icon={faEdit} />
-              Edit
-            </button>
-          )}
+          <button
+            onClick={() => navigate(`/settings/employees/${id}/edit`)}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm
+                       bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+          >
+            <FontAwesomeIcon icon={faEdit} />
+            {t("common.edit")}
+          </button>
         </div>
       </div>
 
-      {/* ── Student Info ── */}
+      {/* ── Staff Info Grid ── */}
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5">
         <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
           <div className="flex flex-col items-center text-center">
             <div className="w-20 h-20 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-3xl">
-              <FontAwesomeIcon icon={faUserGraduate} />
+              <FontAwesomeIcon icon={faUserTie} />
             </div>
             <h2 className="mt-4 text-lg font-semibold text-slate-900">
-              {student.display_name ||
-                `${student.firstname || ""} ${student.lastname || ""}`.trim() ||
+              {staff.display_name ||
+                `${staff.firstname || ""} ${staff.lastname || ""}`.trim() ||
                 "-"}
             </h2>
-            <p className="text-sm text-slate-500">{student.position_name || "Student"}</p>
+            <p className="text-sm text-slate-500">
+              {staff.position_title || "Staff"}
+            </p>
             <span
               className={`mt-4 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
-                ${student.is_active
-                  ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                  : "bg-red-50 text-red-700 border border-red-100"
+                ${
+                  staff.is_active
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                    : "bg-red-50 text-red-700 border border-red-100"
                 }`}
             >
-              <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${student.is_active ? "bg-emerald-500" : "bg-red-500"}`} />
-              {student.is_active ? "Active" : "Inactive"}
+              <span
+                className={`w-1.5 h-1.5 rounded-full mr-1.5 ${staff.is_active ? "bg-emerald-500" : "bg-red-500"}`}
+              />
+              {staff.is_active ? t("staff.active") : t("staff.inactive")}
             </span>
           </div>
         </div>
 
         <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
-            <Info label="Student ID"       value={student.id} />
-            <Info label="Position"         value={student.position_name} />
-            <Info label="First Name"       value={student.firstname} />
-            <Info label="Last Name"        value={student.lastname} />
-            <Info label="Khmer First Name" value={student.khmer_firstname} />
-            <Info label="Khmer Last Name"  value={student.khmer_lastname} />
-            <Info label="Created At"       value={formatDate(student.created_at)} />
-            <Info label="Updated At"       value={formatDate(student.updated_at)} />
+            <Info label={t("staff.external_id")} value={staff.external_id} />
+            <Info label={t("staff.position")} value={staff.position_title} />
+            <Info label={t("staff.first_name")} value={staff.firstname} />
+            <Info label={t("staff.last_name")} value={staff.lastname} />
+            <Info label={t("staff.display_name")} value={staff.display_name} />
+            <Info label={t("staff.mobile_no")} value={staff.mobile_no} />
+            <Info
+              label={t("staff.join_date")}
+              value={
+                staff.join_on_date ? staff.join_on_date.substring(0, 10) : "-"
+              }
+            />
           </div>
         </div>
       </div>
@@ -158,8 +164,12 @@ const StudentView = () => {
               <FontAwesomeIcon icon={faAddressCard} />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-slate-800">Print Card Transactions</h2>
-              <p className="text-xs text-slate-400">All issued cards for this student</p>
+              <h2 className="text-sm font-semibold text-slate-800">
+                Print Card Transactions
+              </h2>
+              <p className="text-xs text-slate-400">
+                All issued cards for this staff member
+              </p>
             </div>
           </div>
           <span className="text-xs font-semibold bg-blue-50 text-blue-600 px-2.5 py-1 rounded-lg">
@@ -182,7 +192,10 @@ const StudentView = () => {
             <tbody className="divide-y divide-slate-100">
               {pcLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-5 py-8 text-center text-sm text-slate-400">
+                  <td
+                    colSpan={6}
+                    className="px-5 py-8 text-center text-sm text-slate-400"
+                  >
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                       Loading transactions...
@@ -193,7 +206,10 @@ const StudentView = () => {
                 <tr>
                   <td colSpan={6} className="px-5 py-10 text-center">
                     <div className="flex flex-col items-center gap-2 text-slate-400">
-                      <FontAwesomeIcon icon={faAddressCard} className="text-3xl opacity-30" />
+                      <FontAwesomeIcon
+                        icon={faAddressCard}
+                        className="text-3xl opacity-30"
+                      />
                       <p className="text-sm">No print card records found</p>
                     </div>
                   </td>
@@ -202,7 +218,9 @@ const StudentView = () => {
                 printCards.map((card, idx) => (
                   <tr
                     key={card.id}
-                    onClick={() => navigate(`/organization/printcard/${card.id}`)}
+                    onClick={() =>
+                      navigate(`/organization/printcard/${card.id}`)
+                    }
                     className="hover:bg-slate-50 cursor-pointer transition-colors"
                   >
                     <td className="px-5 py-3 text-slate-500 font-mono text-xs">
@@ -210,13 +228,19 @@ const StudentView = () => {
                     </td>
                     <td className="px-5 py-3 text-slate-700">
                       <div className="flex items-center gap-1.5">
-                        <FontAwesomeIcon icon={faCalendarDay} className="text-slate-400 text-xs" />
+                        <FontAwesomeIcon
+                          icon={faCalendarDay}
+                          className="text-slate-400 text-xs"
+                        />
                         {formatDate(card.print_date)}
                       </div>
                     </td>
                     <td className="px-5 py-3 text-slate-700">
                       <div className="flex items-center gap-1.5">
-                        <FontAwesomeIcon icon={faUser} className="text-slate-400 text-xs" />
+                        <FontAwesomeIcon
+                          icon={faUser}
+                          className="text-slate-400 text-xs"
+                        />
                         {card.seller_name || "-"}
                       </div>
                     </td>
@@ -228,12 +252,16 @@ const StudentView = () => {
                             : "bg-slate-100 text-slate-600 border-slate-200"
                         }`}
                       >
-                        <span className={`w-1.5 h-1.5 rounded-full ${card.is_print_card ? "bg-emerald-500" : "bg-slate-400"}`} />
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${card.is_print_card ? "bg-emerald-500" : "bg-slate-400"}`}
+                        />
                         {card.is_print_card ? "Printed" : "Pending"}
                       </span>
                     </td>
                     <td className="px-5 py-3 text-slate-500 max-w-xs">
-                      <span className="line-clamp-1">{card.description || "-"}</span>
+                      <span className="line-clamp-1">
+                        {card.description || "-"}
+                      </span>
                     </td>
                     <td className="px-5 py-3 text-right">
                       <button
@@ -257,7 +285,8 @@ const StudentView = () => {
 
         {printCards.length > 0 && (
           <div className="px-5 py-3 text-xs text-slate-400 bg-slate-50 border-t border-slate-100">
-            Showing {printCards.length} transaction{printCards.length !== 1 ? "s" : ""}
+            Showing {printCards.length} transaction
+            {printCards.length !== 1 ? "s" : ""}
           </div>
         )}
       </div>
@@ -272,4 +301,4 @@ const Info = ({ label, value }) => (
   </div>
 );
 
-export default StudentView;
+export default ViewStaff;

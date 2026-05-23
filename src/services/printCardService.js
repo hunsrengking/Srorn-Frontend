@@ -1,7 +1,9 @@
 import axiosClient from "@/api/axiosClient";
 
 export const printCardService = {
-  getPrintCards: () => axiosClient.get("/organization/printcards"),
+  getPrintCards: (params) => axiosClient.get("/organization/printcards", { params }),
+
+  getPrintCardByIdEntity: (id) => axiosClient.get(`/organization/printcards/entity/${id}`),
 
   getPrintCardById: (id) => axiosClient.get(`/organization/printcards/${id}`),
 
@@ -11,8 +13,8 @@ export const printCardService = {
   updatePrintCard: (id, printCardData) =>
     axiosClient.put(`/organization/printcards/${id}`, printCardData),
 
-  getPrintCardTemplates: () =>
-    axiosClient.get("/organization/templates/printcards"),
+  getPrintCardTemplatesByEntity: (type, id) =>
+    axiosClient.get(`/organization/templates/${type}/${id}/printcards`),
 };
 
 export default printCardService;

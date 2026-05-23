@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import * as Icons from "@fortawesome/free-solid-svg-icons";
 import {
   faPlus,
   faSearch,
@@ -10,12 +9,11 @@ import {
   faTrash,
   faEye,
   faServer,
-  faDesktop,
 } from "@fortawesome/free-solid-svg-icons";
 import { hasPermission } from "../../../utils/permission";
 import { errorService } from "@/services/errorService";
 import assetService from "@/services/assetService";
-import categoryService from "@/services/categoryService";
+import codeService from "@/services/codeService";
 
 const Asset = () => {
   const { t } = useTranslation();
@@ -27,7 +25,6 @@ const Asset = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("ALL");
   const [categories, setCategories] = useState([]);
-  const iconMap = Icons;
 
   useEffect(() => {
     const loadInventoryData = async () => {
@@ -35,24 +32,24 @@ const Asset = () => {
         setLoading(true);
         setError(null);
 
-        const [assetRes, categoryRes] = await Promise.all([
-          assetService.getAssets(),
-          categoryService.getCategories(),
-        ]);
+        const getCategories = async () => {
+          const response = await codeService.getCodeValuesByCode("AssetType");
 
-        const filteredCategories = (categoryRes.data || []).filter(
-          (item) => item.groups === "Asset",
-        );
+          return response.data || [];
+        };
 
-        setAssets(assetRes.data || []);
+        const categoryData = await getCategories();
+
         setCategories([
           {
             id: "ALL",
-            name: t("common.all", "All Assets"),
-            icons: "faList",
+            code_value: "ALL",
           },
-          ...filteredCategories,
+          ...categoryData,
         ]);
+
+        const assetsResponse = await assetService.getAssets();
+        setAssets(assetsResponse.data || []);
       } catch (err) {
         console.error("Error loading inventory assets:", err);
         setError(t("inventory.asset_load_failed", "Failed to load assets"));
@@ -68,26 +65,45 @@ const Asset = () => {
     navigate("/inventory/asset/create");
   };
 
+  const getDisplayValue = (val) => {
+    if (val === null || val === undefined) return "";
+    if (typeof val === "object") {
+      return val.code_value || val.name || val.code_description || "";
+    }
+    return val;
+  };
+
   const filteredAssets = assets.filter((asset) => {
     const matchesSearch =
-      asset.user_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      asset.device_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      asset.serial_number?.toLowerCase().includes(searchTerm.toLowerCase());
+      getDisplayValue(asset.user_name)
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      getDisplayValue(asset.device_name)
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      getDisplayValue(asset.serial_number)
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase());
 
-    const matchesTab = activeTab === "ALL" || asset.category === activeTab;
+    const matchesTab =
+      activeTab === "ALL" ||
+      getDisplayValue(asset.category || asset.device_type)?.toLowerCase() ===
+        activeTab?.toLowerCase();
+
     return matchesSearch && matchesTab;
   });
 
   const handleDelete = async (id) => {
     if (!window.confirm(t("inventory.asset_delete_confirm"))) return;
+
     try {
       await assetService.deleteAsset(id);
-      setAssets(prev => prev.filter(a => a.id !== id));
+      setAssets((prev) => prev.filter((a) => a.id !== id));
       errorService.success(t("inventory.asset_delete_success"));
     } catch {
       errorService.error(t("inventory.asset_delete_failed"));
     }
-  }
+  };
 
   return (
     <div className="space-y-5 animate-in fade-in duration-500">
@@ -99,8 +115,10 @@ const Asset = () => {
               <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
                 <FontAwesomeIcon icon={faServer} className="w-5 h-5" />
               </div>
+
               {t("inventory.asset_title")}
             </h1>
+
             <p className="text-sm text-slate-500 mt-1">
               {t("inventory.asset_description")}
             </p>
@@ -111,6 +129,7 @@ const Asset = () => {
               <span className="absolute left-3 top-2.5 text-slate-400">
                 <FontAwesomeIcon icon={faSearch} className="w-4 h-4" />
               </span>
+
               <input
                 type="text"
                 placeholder={t("inventory.asset_search")}
@@ -126,6 +145,7 @@ const Asset = () => {
                 className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-semibold shadow-sm shadow-blue-500/20 transition-all flex items-center gap-2"
               >
                 <FontAwesomeIcon icon={faPlus} />
+
                 {t("inventory.asset_add")}
               </button>
             )}
@@ -144,15 +164,15 @@ const Asset = () => {
         {categories.map((cat) => (
           <button
             key={cat.id}
-            onClick={() => setActiveTab(cat.id === "ALL" ? "ALL" : cat.name)}
+            onClick={() => setActiveTab(cat.code_value)}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap
-              ${activeTab === (cat.id === "ALL" ? "ALL" : cat.name)
-                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 translate-y-[-1px]"
-                : "text-slate-500 hover:bg-slate-50"
+              ${
+                activeTab === cat.code_value
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 translate-y-[-1px]"
+                  : "text-slate-500 hover:bg-slate-50"
               }`}
           >
-            <FontAwesomeIcon icon={iconMap[cat.icons] || faDesktop} className={(activeTab === (cat.id === "ALL" ? "ALL" : cat.name)) ? "text-white" : "text-slate-400"} />
-            {cat.name}
+            {cat.code_value}
           </button>
         ))}
       </div>
@@ -164,91 +184,131 @@ const Asset = () => {
             <thead className="bg-slate-50 border-b border-slate-100">
               <tr className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                 <th className="px-6 py-4">{t("inventory.product_id", "ID")}</th>
+
                 <th className="px-6 py-4">{t("inventory.asset_user")}</th>
+
                 <th className="px-6 py-4">{t("inventory.asset_model")}</th>
+
                 <th className="px-6 py-4">{t("inventory.asset_serial")}</th>
 
-                {/* Dynamic Columns based on Tab */}
-                {activeTab === "PC/LAPTOP" && (
+                {activeTab === "Computer" && (
                   <>
                     <th className="px-6 py-4">{t("inventory.asset_cpu")}</th>
+
                     <th className="px-6 py-4">{t("inventory.asset_ram")}</th>
+
                     <th className="px-6 py-4">{t("inventory.asset_hdd")}</th>
+
                     <th className="px-6 py-4">{t("inventory.asset_os")}</th>
                   </>
                 )}
 
-                {activeTab === "Printer" && (
-                  <>
-                    <th className="px-6 py-4">{t("inventory.asset_location")}</th>
-                    <th className="px-6 py-4">{t("inventory.asset_office")}</th>
-                  </>
-                )}
-
                 <th className="px-6 py-4">{t("inventory.asset_ip")}</th>
+
                 <th className="px-6 py-4 text-right">{t("common.actions")}</th>
               </tr>
             </thead>
+
             <tbody className="divide-y divide-slate-50">
               {loading ? (
                 <tr>
                   <td colSpan="12" className="py-20 text-center">
                     <div className="inline-block animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mb-2"></div>
-                    <p className="text-xs text-slate-400 font-medium">{t("common.loading")}</p>
+
+                    <p className="text-xs text-slate-400 font-medium">
+                      {t("common.loading")}
+                    </p>
                   </td>
                 </tr>
               ) : filteredAssets.length > 0 ? (
                 filteredAssets.map((asset) => (
-                  <tr key={asset.id} className="hover:bg-blue-50/30 transition-colors group">
-                    <td className="px-6 py-4 text-xs font-bold text-slate-400">{asset.id}</td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm font-semibold text-slate-900">{asset.user_name || "-"}</div>
-                      <div className="text-[10px] text-slate-400 font-medium">{asset.category}</div>
+                  <tr
+                    key={asset.id}
+                    className="hover:bg-blue-50/30 transition-colors group"
+                  >
+                    <td className="px-6 py-4 text-xs font-bold text-slate-400">
+                      {asset.id}
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-600 font-medium">{asset.model || "-"}</td>
+
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-semibold text-slate-900">
+                        {getDisplayValue(asset.user_name) || "-"}
+                      </div>
+
+                      <div className="text-[10px] text-slate-400 font-medium">
+                        {getDisplayValue(asset.category || asset.device_type)}
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-4 text-sm text-slate-600 font-medium">
+                      {getDisplayValue(asset.model || asset.device_model) ||
+                        "-"}
+                    </td>
+
                     <td className="px-6 py-4">
                       <span className="px-2 py-1 bg-slate-100 rounded-md text-[10px] font-bold text-slate-600 uppercase tracking-tighter">
-                        {asset.serial_number || "-"}
+                        {getDisplayValue(asset.serial_number) || "-"}
                       </span>
                     </td>
 
-                    {activeTab === "PC/LAPTOP" && (
+                    {activeTab === "Computer" && (
                       <>
-                        <td className="px-6 py-4 text-xs text-slate-500">{asset.cpu || "-"}</td>
-                        <td className="px-6 py-4 text-xs text-slate-500">{asset.ram || "-"}</td>
-                        <td className="px-6 py-4 text-xs text-slate-500">{asset.hdd || "-"}</td>
-                        <td className="px-6 py-4 text-xs text-slate-500 font-bold text-blue-600">{asset.os || "-"}</td>
+                        <td className="px-6 py-4 text-xs text-slate-500">
+                          {getDisplayValue(asset.cpu) || "-"}
+                        </td>
+
+                        <td className="px-6 py-4 text-xs text-slate-500">
+                          {getDisplayValue(asset.ram) || "-"}
+                        </td>
+
+                        <td className="px-6 py-4 text-xs text-slate-500">
+                          {getDisplayValue(asset.hdd || asset.hhd) || "-"}
+                        </td>
+
+                        <td className="px-6 py-4 text-xs text-slate-500 font-bold text-blue-600">
+                          {getDisplayValue(asset.os) || "-"}
+                        </td>
                       </>
                     )}
 
-                    {activeTab === "Printer" && (
-                      <>
-                        <td className="px-6 py-4 text-xs text-slate-500">{asset.location || "-"}</td>
-                        <td className="px-6 py-4 text-xs text-slate-500">{asset.office_dept || "-"}</td>
-                      </>
-                    )}
-
-                    <td className="px-6 py-4 text-xs font-mono text-slate-600">{asset.ip_address || "-"}</td>
+                    <td className="px-6 py-4 text-xs font-mono text-slate-600">
+                      {getDisplayValue(asset.ip_address) || "-"}
+                    </td>
 
                     <td className="px-6 py-4 text-right opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="flex justify-end gap-1">
                         <button
-                          onClick={() => navigate(`/inventory/asset/${asset.id}/view`)}
+                          onClick={() =>
+                            navigate(`/inventory/asset/${asset.id}/view`)
+                          }
                           className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-blue-600 hover:text-white transition-all"
                         >
-                          <FontAwesomeIcon icon={faEye} className="w-3.5 h-3.5" />
+                          <FontAwesomeIcon
+                            icon={faEye}
+                            className="w-3.5 h-3.5"
+                          />
                         </button>
+
                         <button
-                          onClick={() => navigate(`/inventory/asset/${asset.id}/edit`)}
+                          onClick={() =>
+                            navigate(`/inventory/asset/${asset.id}/edit`)
+                          }
                           className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-emerald-600 hover:text-white transition-all"
                         >
-                          <FontAwesomeIcon icon={faEdit} className="w-3.5 h-3.5" />
+                          <FontAwesomeIcon
+                            icon={faEdit}
+                            className="w-3.5 h-3.5"
+                          />
                         </button>
+
                         <button
                           onClick={() => handleDelete(asset.id)}
                           className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-red-600 hover:text-white transition-all"
                         >
-                          <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
+                          <FontAwesomeIcon
+                            icon={faTrash}
+                            className="w-3.5 h-3.5"
+                          />
                         </button>
                       </div>
                     </td>
@@ -257,8 +317,15 @@ const Asset = () => {
               ) : (
                 <tr>
                   <td colSpan="12" className="py-20 text-center">
-                    <img src="/assets/empty.svg" alt="" className="w-24 mx-auto mb-4 opacity-50" />
-                    <p className="text-sm text-slate-400 font-medium">{t("common.no_data")}</p>
+                    <img
+                      src="/assets/empty.svg"
+                      alt=""
+                      className="w-24 mx-auto mb-4 opacity-50"
+                    />
+
+                    <p className="text-sm text-slate-400 font-medium">
+                      {t("common.no_data")}
+                    </p>
                   </td>
                 </tr>
               )}

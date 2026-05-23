@@ -677,8 +677,19 @@ const ViewTicket = () => {
                       ? it.file_path.replace("app/", "")
                       : null;
 
+                    const isExternalImage = imagePath && (imagePath.startsWith("http://") || imagePath.startsWith("https://"));
+                    const isExternalFile = filePath && (filePath.startsWith("http://") || filePath.startsWith("https://"));
+
                     const imageUrl = imagePath
-                      ? `${API_BASE_URL}/${imagePath}`
+                      ? (isExternalImage ? imagePath : `${API_BASE_URL}/${imagePath}`)
+                      : null;
+
+                    const downloadImageUrl = it.image_path
+                      ? (isExternalImage ? it.image_path : `${API_BASE_URL}/api/ticket/file/download?path=${it.image_path}`)
+                      : null;
+
+                    const downloadFileUrl = it.file_path
+                      ? (isExternalFile ? it.file_path : `${API_BASE_URL}/api/ticket/file/download?path=${it.file_path}`)
                       : null;
 
                     const fileName = filePath
@@ -715,7 +726,7 @@ const ViewTicket = () => {
                           {/* DOWNLOAD IMAGE */}
                           {imagePath && (
                             <a
-                              href={`${API_BASE_URL}/api/ticket/file/download?path=${it.image_path}`}
+                              href={downloadImageUrl}
                               className="px-3 py-1.5 text-xs font-medium text-emerald-700
                              bg-emerald-50 border border-emerald-200 rounded-lg
                              hover:bg-emerald-100 transition whitespace-nowrap"
@@ -746,7 +757,7 @@ const ViewTicket = () => {
                           {/* DOWNLOAD FILE */}
                           {filePath && (
                             <a
-                              href={`${API_BASE_URL}/api/ticket/file/download?path=${it.file_path}`}
+                              href={downloadFileUrl}
                               className="px-3 py-1.5 text-xs font-medium text-blue-700
                              bg-blue-50 border border-blue-200 rounded-lg
                              hover:bg-blue-100 transition whitespace-nowrap"

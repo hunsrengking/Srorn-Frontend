@@ -25,9 +25,18 @@ i18n
     }
   });
 
-// Save language preference whenever it changes
+// Sync the <html lang=""> attribute with the current language
+const syncLang = (lng) => {
+  document.documentElement.lang = lng;
+};
+
+// Apply on init
+syncLang(savedLanguage);
+
+// Save language preference and sync <html lang> whenever it changes
 i18n.on('languageChanged', (lng) => {
   localStorage.setItem('app_language', lng);
+  syncLang(lng);
 });
 
 export default i18n;

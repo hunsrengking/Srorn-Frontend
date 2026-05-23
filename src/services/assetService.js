@@ -10,6 +10,8 @@ export const assetService = {
   updateAsset: (id, assetData) => axiosClient.put(`/assets/${id}`, assetData),
 
   deleteAsset: (id) => axiosClient.delete(`/assets/${id}`),
+
+  getAssetsTemplate: () => axiosClient.get("/assets/template"),
 };
 
 export default assetService;

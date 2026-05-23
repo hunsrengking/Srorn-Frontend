@@ -65,6 +65,16 @@ const AssetView = () => {
 
   if (loading) return null;
 
+  const getDisplayValue = (val) => {
+    if (val === null || val === undefined) return "";
+    if (typeof val === "object") {
+      return val.code_value || val.name || val.code_description || "";
+    }
+    return val;
+  };
+
+  const currentCategory = getDisplayValue(asset.category || asset.device_type);
+
   return (
     <div className="max-w-5xl mx-auto space-y-6 py-4 animate-in fade-in duration-700">
       <div className="flex items-center justify-between">
@@ -94,24 +104,24 @@ const AssetView = () => {
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50/50 rounded-full -translate-y-16 translate-x-16 transition-transform group-hover:scale-110"></div>
             
             <div className="w-24 h-24 mx-auto rounded-3xl bg-blue-600 text-white flex items-center justify-center relative z-10 shadow-xl shadow-blue-600/30 mb-6">
-              <FontAwesomeIcon icon={categoryIcons[asset.category] || faServer} className="text-4xl" />
+              <FontAwesomeIcon icon={categoryIcons[currentCategory] || faServer} className="text-4xl" />
             </div>
 
-            <h2 className="text-2xl font-black text-slate-900 mb-1">{asset.device_name || "N/A"}</h2>
-            <p className="text-sm font-bold text-blue-600 uppercase tracking-widest bg-blue-50 inline-block px-3 py-1 rounded-full">{asset.category}</p>
+            <h2 className="text-2xl font-black text-slate-900 mb-1">{getDisplayValue(asset.device_name) || "N/A"}</h2>
+            <p className="text-sm font-bold text-blue-600 uppercase tracking-widest bg-blue-50 inline-block px-3 py-1 rounded-full">{currentCategory}</p>
             
             <div className="mt-8 pt-8 border-t border-slate-50 flex flex-col gap-4 text-left">
                <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-400 uppercase">{t("inventory.asset_user")}</span>
-                  <span className="text-sm font-bold text-slate-800">{asset.user_name || "-"}</span>
+                  <span className="text-sm font-bold text-slate-800">{getDisplayValue(asset.user_name) || "-"}</span>
                </div>
                <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-400 uppercase">{t("inventory.asset_serial")}</span>
-                  <span className="text-xs font-mono font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-700 tracking-tight">{asset.serial_number || "-"}</span>
+                  <span className="text-xs font-mono font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-700 tracking-tight">{getDisplayValue(asset.serial_number) || "-"}</span>
                </div>
                <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-400 uppercase">{t("inventory.asset_model")}</span>
-                  <span className="text-sm font-bold text-slate-800">{asset.model || "-"}</span>
+                  <span className="text-sm font-bold text-slate-800">{getDisplayValue(asset.model || asset.device_model) || "-"}</span>
                </div>
             </div>
           </div>
@@ -126,11 +136,11 @@ const AssetView = () => {
              <div className="space-y-4">
                  <div className="bg-white/5 p-4 rounded-2xl flex items-center justify-between">
                      <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter italic">IP ADDRESS</span>
-                     <span className="text-sm font-mono font-black text-blue-400 tracking-wider transition-all hover:scale-110 cursor-default">{asset.ip_address || "0.0.0.0"}</span>
+                     <span className="text-sm font-mono font-black text-blue-400 tracking-wider transition-all hover:scale-110 cursor-default">{getDisplayValue(asset.ip_address) || "0.0.0.0"}</span>
                  </div>
                  <div className="bg-white/5 p-4 rounded-2xl flex items-center justify-between">
                      <span className="text-[10px] font-bold text-white/40 uppercase tracking-tighter italic">MAC ADDRESS</span>
-                     <span className="text-[11px] font-mono font-bold text-white/90 tracking-widest">{asset.mac_address || "00-00-00-00-00-00"}</span>
+                     <span className="text-[11px] font-mono font-bold text-white/90 tracking-widest">{getDisplayValue(asset.mac_address) || "00-00-00-00-00-00"}</span>
                  </div>
              </div>
           </div>
@@ -139,7 +149,7 @@ const AssetView = () => {
         {/* Right Column - Details Cards */}
         <div className="lg:col-span-2 space-y-6">
            {/* Section 1: Dynamic Specs based on Category */}
-           {asset.category === "PC/LAPTOP" && (
+           {(currentCategory === "Computer" || currentCategory === "PC/LAPTOP") && (
              <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm relative group overflow-hidden">
                 <div className="absolute top-0 left-0 w-2 h-full bg-blue-600"></div>
                 <div className="flex items-center gap-4 mb-8">
@@ -157,28 +167,28 @@ const AssetView = () => {
                         <FontAwesomeIcon icon={faMicrochip} className="text-2xl text-slate-300 group-hover/cell:text-blue-500 transition-colors" />
                         <div>
                             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t("inventory.asset_cpu")}</div>
-                            <div className="text-sm font-black text-slate-700">{asset.cpu || "Not Specified"}</div>
+                            <div className="text-sm font-black text-slate-700">{getDisplayValue(asset.cpu) || "Not Specified"}</div>
                         </div>
                     </div>
                     <div className="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl border border-transparent hover:border-blue-200 hover:bg-white transition-all group/cell">
                         <FontAwesomeIcon icon={faMemory} className="text-2xl text-slate-300 group-hover/cell:text-blue-500 transition-colors" />
                         <div>
                             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t("inventory.asset_ram")}</div>
-                            <div className="text-sm font-black text-slate-700">{asset.ram || "Not Specified"}</div>
+                            <div className="text-sm font-black text-slate-700">{getDisplayValue(asset.ram) || "Not Specified"}</div>
                         </div>
                     </div>
                     <div className="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl border border-transparent hover:border-blue-200 hover:bg-white transition-all group/cell">
                         <FontAwesomeIcon icon={faHdd} className="text-2xl text-slate-300 group-hover/cell:text-blue-500 transition-colors" />
                         <div>
                             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t("inventory.asset_hdd")}</div>
-                            <div className="text-sm font-black text-slate-700">{asset.hdd || "Not Specified"}</div>
+                            <div className="text-sm font-black text-slate-700">{getDisplayValue(asset.hdd || asset.hhd) || "Not Specified"}</div>
                         </div>
                     </div>
                     <div className="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl border border-transparent hover:border-blue-200 hover:bg-white transition-all group/cell">
                         <FontAwesomeIcon icon={faWindowRestore} className="text-2xl text-slate-300 group-hover/cell:text-blue-500 transition-colors" />
                         <div>
                             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t("inventory.asset_os")}</div>
-                            <div className="text-sm font-black text-blue-600">{asset.os || "Not Specified"}</div>
+                            <div className="text-sm font-black text-blue-600">{getDisplayValue(asset.os) || "Not Specified"}</div>
                         </div>
                     </div>
                 </div>
@@ -186,13 +196,13 @@ const AssetView = () => {
                 {asset.part_upgrade && (
                     <div className="mt-8 p-6 bg-amber-50 rounded-3xl border border-amber-100 italic font-medium text-amber-900 relative">
                         <div className="text-[10px] font-black text-amber-600 uppercase mb-2">Upgrade Logs</div>
-                        "{asset.part_upgrade}"
+                        "{getDisplayValue(asset.part_upgrade)}"
                     </div>
                 )}
              </div>
            )}
 
-           {asset.category === "Printer" && (
+           {currentCategory === "Printer" && (
              <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm relative group overflow-hidden">
                 <div className="absolute top-0 left-0 w-2 h-full bg-emerald-600"></div>
                 <div className="flex items-center gap-4 mb-8">
@@ -208,15 +218,15 @@ const AssetView = () => {
                 <div className="grid grid-cols-1 gap-4">
                     <div className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl">
                         <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{t("inventory.asset_office")}</span>
-                        <span className="text-lg font-black text-slate-800">{asset.office_dept || "-"}</span>
+                        <span className="text-lg font-black text-slate-800">{getDisplayValue(asset.office_dept || asset.office) || "-"}</span>
                     </div>
                     <div className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl">
                         <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{t("inventory.asset_location")}</span>
-                        <span className="text-lg font-black text-slate-800">{asset.location || "-"}</span>
+                        <span className="text-lg font-black text-slate-800">{getDisplayValue(asset.location) || "-"}</span>
                     </div>
                     <div className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl">
                         <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{t("inventory.asset_building")}</span>
-                        <span className="text-lg font-black text-slate-800">{asset.building_brand || "-"}</span>
+                        <span className="text-lg font-black text-slate-800">{getDisplayValue(asset.building_brand) || "-"}</span>
                     </div>
                 </div>
              </div>

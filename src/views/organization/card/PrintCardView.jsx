@@ -82,13 +82,6 @@ const PrintCardView = () => {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => navigate(`/organization/printcard/${id}/edit`)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-semibold text-sm shadow-md"
-          >
-            <FontAwesomeIcon icon={faEdit} />
-            {t("common.edit", "Edit Card")}
-          </button>
-          <button
             onClick={() => navigate("/organization/printcard")}
             className="flex items-center gap-2 px-5 py-2.5 border border-slate-300 text-slate-600 rounded-xl hover:bg-slate-50 transition-all font-semibold text-sm"
           >
