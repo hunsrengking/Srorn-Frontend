@@ -52,6 +52,7 @@ const StaffEdit = lazy(() => import("@/views/organization/staff/StaffEdit"));
 const StaffView = lazy(() => import("@/views/organization/staff/ViewStaff"));
 
 const Report = lazy(() => import("@/views/report/Report"));
+const PrintCardReport = lazy(() => import("@/views/report/PrintCardReport"));
 
 const Organization = lazy(() => import("@/views/organization/Organization"));
 const Office = lazy(() => import("@/views/organization/office/Office"));
@@ -224,6 +225,11 @@ export const protectedRoutes = [
   },
 
   { path: "reports/summary", permission: "VIEW_REPORTS", element: <Report /> },
+  {
+    path: "reports/printcards",
+    permission: "VIEW_REPORTS",
+    element: <PrintCardReport />,
+  },
 
   {
     path: "organization",

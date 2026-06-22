@@ -3,6 +3,8 @@ import axiosClient from "@/api/axiosClient";
 export const printCardService = {
   getPrintCards: (params) => axiosClient.get("/organization/printcards", { params }),
 
+  getPrintCardStats: () => axiosClient.get("/organization/printcards/stats"),
+
   getPrintCardByIdEntity: (id) => axiosClient.get(`/organization/printcards/entity/${id}`),
 
   getPrintCardById: (id) => axiosClient.get(`/organization/printcards/${id}`),

@@ -138,18 +138,28 @@ const Sidebar = ({ sidebarOpen }) => {
             </button>
 
             <div
-              className={`overflow-hidden transition-all duration-300 ${reportOpen && sidebarOpen ? "max-h-40 mt-2" : "max-h-0"
+              className={`overflow-hidden transition-all duration-300 ${reportOpen && sidebarOpen ? "max-h-40 mt-2 space-y-1" : "max-h-0"
                 }`}
             >
               <Link
                 to="/reports/summary"
                 className={`block ml-10 py-2 px-3 rounded-lg text-sm transition
-                ${isActive("/reports")
-                    ? "bg-blue-600 text-white"
+                ${isActive("/reports/summary")
+                    ? "bg-blue-600 text-white shadow-sm"
                     : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
                   }`}
               >
                 {t("sidebar.ticket_report")}
+              </Link>
+              <Link
+                to="/reports/printcards"
+                className={`block ml-10 py-2 px-3 rounded-lg text-sm transition
+                ${isActive("/reports/printcards")
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
+                  }`}
+              >
+                Print Card Report
               </Link>
             </div>
           </div>
